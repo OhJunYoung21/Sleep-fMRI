@@ -23,3 +23,7 @@ nifti.to_filename(nifti_path)
 ~~~
 
 위 코드를 사용하여 PAR/REC 형식의 파일을 nifti로 바꿔줄수 있다. 그러나 현재 내가 가진 PAR/REC은 90명이기 때문에 일일이 수행하는 것은 무리라고 생각된다.
+
+###BIDScoin
+
+bidsify와 마찬가지로 PAR/REC 파일을 BIDS format으로 변형한다.
