@@ -23,4 +23,23 @@ print(data[100,100,10,0:10])
 
 다음은 BOLD signal을 시각화 처리해보자.
 
+~~~python
+
+#아래 voxel의 BOLD signal을 보여줄 것이다.
+data_show = data[100,100,10,:]
+
+plt.plot(
+    data_show,
+    color='blue',
+    marker='',
+    linestyle='solid'
+)
+plt.xlim(0,100)
+plt.ylim(200,800)
+plt.title("BOLD signal")
+plt.xlabel("Time")
+plt.ylabel("Intensity")
+plt.show()
+~~~
+
 
