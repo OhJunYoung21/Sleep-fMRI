@@ -9,4 +9,18 @@ data = data_obj.get_fdata()
 print(data[100,100,10])
 ~~~
 
-위 코드의 의미는 (100,100,10)좌표에 있는 voxel값의 BOLD signal을 표현한 것이다. 여기서 의문점이 생기는데, 왜 BOLD signal에 시간차원이 없냐는 것이다. 데이터가 3차원 구조인것으로 짐작하건대 해당 데이터는 시계열 데이터가 아닌 3차원 데이터인듯 싶다.
+단, 위 코드에서는 시간대별로 BOLD signal을 표현하지는 못한다. 시계열 데이터를 얻기 위해서는 Nifti파일로 변환해줘야 한다.
+
+NIfti 파일로 변환해준 다음 해당 voxel의 전체 BOLD signal을 얻으려면 아래와 같이 코드를 작성하면 된다. 단순히 nb.load()안의 코드만 수정해주면 된다
+
+~~~python3
+data_obj = nb.load('/Users/ojun-yong/Desktop/bids_output/sub-01/ses-1/func/sub-01_ses-1_task_bold.nii')
+
+data = data_obj.get_fdata()
+
+print(data[100,100,10,0:10])
+~~~
+
+다음은 BOLD signal을 시각화 처리해보자.
+
+
