@@ -18,4 +18,4 @@ $$X(t) = a(t)*S(t)$$
 
 ### fMRI signal ICA
 
-$$X_jk$$
+$$X_jk=\displaystyle\sum_{i=0}^{\infin}{(y_i-t_i)^2}$$
