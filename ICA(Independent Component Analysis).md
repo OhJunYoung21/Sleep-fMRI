@@ -16,6 +16,8 @@ $$X(t) = a(t)*S(t)$$
 
 여기서 X(t)는 변환된 소리이고, s(t)는 원래의 소리이다. a(t)는 가중치이며, 실제로는 s(t)를 x(t)로 만드는 요인이다.
 
+---
+
 ### fMRI signal ICA
 
 $$X_jt=\displaystyle\sum_{k=1}^{K}{A_jk * S_kt} + E_jt$$
