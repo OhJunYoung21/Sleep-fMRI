@@ -42,4 +42,12 @@ plt.ylabel("Intensity")
 plt.show()
 ~~~
 
+### Confound
 
+BOLD signal을 이야기할때, Confound를 떼놓고 이야기 할수 없다. 실제 fMRI결과 나오는 BOLD signal이 실제로 task-based or resting-state인 것은 아니다.
+여러가지 요인들이 개입해서 raw BOLD signal이 만들어질 수 있으며 이를 Confound라고 한다.(또는 Nuisance regressor)
+
+대표적인 Confound에는 6 head motion parameter, global signal이 있다.
+
+* 6 head motion parameter : 뇌가 얼마만큼 회전했는지, 얼마만큼 이동했는지를 표시하는 지표이다.
+* global signal : task 또는 resting-state와 무관하게 뇌에서 발생하는 신호이다.(WM,CSF 등이 있다.)
