@@ -6,5 +6,6 @@
 
 |전처리 목적| 명렁 코드 |코드 설명|   
 |---|---|---|
-|초반 이미지 제거  | --dummy-scan N | 초반 이미지는 여러가지 요인으로 오염된 이미지일 수 있기 때문에 제거해준다.|
-
+| 초반 이미지 제거  | --dummy-scan N | 초반 이미지는 여러가지 요인으로 오염된 이미지일 수 있기 때문에 제거해준다.|
+| 머리 움직임 교정 | --fd-spike-threshold | framewise-displacement가 특정 수치이상인 volume을 제거한다. |  
+| Slice Timing Correction |       | .json파일에 slice timing correcion 관련정보가 있으면 수행한다. |
