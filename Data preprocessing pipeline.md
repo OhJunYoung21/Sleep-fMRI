@@ -41,3 +41,14 @@ fmriprep-docker $bids_root_dir $bids_root_dir/fmriprep \
     --mem_mb 16000 \
     -w $HOME
 ~~~
+
+| 코드  | 사용한 이유 |
+|---|---|
+| --skip-bids-validation  |  https://bids-standard.github.io/bids-validator/ 통해서 해당 데이터셋이 BIDS fortmat임을 확인한다.  |
+| --dummy-scans 5 | 초반 5개의 이미지를 전처리 대상에 포함시키지 않는다.미리 이미지 개수를 정해놓지 않으면 각 subject별로 다른 개수의 이미지를 폐기한다. |
+| --bold2t1w-dof 9 | coregistration과정에서 사용할 매개변수의 개수이다. defaul값은 6개이며, 개수가 늘어날수록 계산량이 늘어난다는 단점이 있다. |
+| --fd-spike-threshold 0.3 | defaulat값은 0.5이지만 조금 더 기준을 낮게 설정하면 조금의 두뇌움직임만 감지되도 해당 volume은 전처리대상에 제외한다.|
+| --output-spaces MNI152NLin2009cAsym:res-2  | 공간정규화에 어떤 틀을 쓸지를 정하는 코드이다.  |
+| --mem_mb 16000  | 전처리 분석에 사용할 메모리 용량이다. |
+
+
