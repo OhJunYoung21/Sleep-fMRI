@@ -17,19 +17,21 @@ confound = pd.read_table("/Users/ojun-yong/Desktop/bids_ex/fmriprep/sub-01/ses-1
 confound.head()
 ~~~
 
-### Confound 정의하기
+### Masker를 설정하고, fit_transform함수를 사용해서 뇌의 각 영역별 noise regressed된 signal추출하기
 
 ~~~python3
-from nilearn.interfaces.fmriprep import load_confounds
+from nilearn.maskers import NiftiLabelsMasker
 
-confounds_simple, sample_mask = load_confounds(
-    file_name,
-    strategy=["high_pass", "motion", "wm_csf"],
-    motion="basic",
-    wm_csf="basic",
+masker = NiftiLabelsMasker(
+    labels_img=atlas_filename,
+    standardize="zscore_sample",
+    standardize_confounds="zscore_sample",
+    memory="nilearn_cache",
+    verbose=5,
 )
 
-print("The shape of the confounds matrix is:", confounds_simple.shape)
-print(confounds_simple.columns)
-print(confounds_simple.head())
+# Here we go from nifti files to the signal time series in a numpy
+# array. Note how we give confounds to be regressed out during signal
+# extraction
+time_series = masker.fit_transform(file_name, confounds=confounds)
 ~~~
