@@ -1,17 +1,12 @@
 # functionalMRI
 
-In this repository, I'll mainly deal with python3 codes procesing fMRI nifti data.
+In this repository, I'll mainly deal with python3 codes processing fMRI nifti data.
 
-## Basic Concepts
+## Data Preprocessing(데이터 분석)
 
-* Resting-state fMRI
-* functional connectivity
-* functional network
-* connectome
+In this Directory, we'll mainly deal with fMRIprep's pipeline.
 
+## Noise regression
 
-### RestingState fMRI
-
-많은 논문에서 휴지상태의 뇌를 연구한 결과, 특정한 task를 수행하지 않아도 상당한 에너지를 사용하는 것이 밝혀졌다. 
-
-### Functional Connectivity
+In this Directory, I'll add some .ipnyb files performing noise regression. fMRIprep produce confounds_timeseries.tsv as its output. It is upto us how to deal with it.
+Of course, It'll be greate if we could consider all of the confounds at once. However, if we do so, it'ss take tremendous amount of time to calculate. So, nilearn provides comfortable API choosing confounds for us. we only need to adjust few parameters!!😁
