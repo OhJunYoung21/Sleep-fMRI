@@ -1,6 +1,6 @@
 #User inputs:
 bids_root_dir=$HOME/Desktop/bids_ex
-subj=01
+subj=02
 nthreads=16
 container=docker #docker or singularity
 
