@@ -23,8 +23,12 @@ zsh: abort      python main.py
 
 위 메세지를 필자는 cocoa plugin을 찾아오지 못하는 것으로 해석하였고, cpu가 찾아올 수 있도록 길을 알려준 것이다.( 위 과정에 소요된 시간 자그마치 3일...😫)
 
+경로설정
 
-
+~~~unix
+export PATH="/Users/oj/Library/Python/3.9/bin":$PATH    
+~~~
+zsh:command not found : bidscoin 이라는 오류메세지가 뜨면 지정된 경로에서 명령어를 못찾았다는 의미이니, 경로에 명령어를 설정해주면 된다.
 
 
 
