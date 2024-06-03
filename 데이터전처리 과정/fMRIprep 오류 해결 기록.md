@@ -6,6 +6,8 @@
 
 상대경로는 가급적 지양하는 것이 좋을듯 하며, ~/ 대신 $HOME을 사용해서 경로를 지정해주었더니 해결되었다.
 
+---
+
 ### .TaskName should be a string
 
 func파일의 .json파일을 보면 "TaskName": null이라는 부분이있었는데, 해당 부분의 null을 string으로 바꿔줘야 한다. 필자의 경우에는 "rest"로 바꿔주었더니 오류가 해결되었다.
