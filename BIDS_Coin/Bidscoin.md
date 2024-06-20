@@ -19,3 +19,6 @@ bidsmapper -> bidseditor -> bidscoiner
 * bidseditor의 역할 : 여기서는 BIDS data가 어떤 식으로 저장될지 등을 검사하고 편집하는 단계이다. 필자는 위 단계가 핵심이라고 보는데, 여기서 각종 오류등을 사전에 방지할 수 있기 때문이다. bidsditor의 결과로 bidsmap.yaml이 생성되고, 이는 bidscoiner가 사용한다. bidscoiner는 bidsmap.yaml이 제공하는 정보를 토대로 BIDS format을 완성한다.
 
 *  bidscoiner의 역할 : bidsmapper가 생성한 틀(지도)를 사용해서 source_data를 BIDS data format으로 바꿔주는 역할이다.😀
+
+
+
