@@ -26,5 +26,19 @@ sub-01 : [a_BOLD.nii,a_BOLD.json,a_t1w.nii,a_t1w.json] , 이런식으로 이해�
 * fMRI,T1w폴더에서 가장 첫번째 파일부터 2개씩 pre_BIDS안의 폴더에 순서대로 넣는다.(ex. 맨 앞의 2개는 sub-01,그 다음 2개는 sub-02...)
 * 
 
+### BIDScoin 실행하기
+
+[bidscoin 실행 파일](https://github.com/OhJunYoung21/Sleep-fMRI/tree/main/BIDS_Coin)
+
+위 링크안에 bidsmapper.sh와 bidscoiner.sh를 실행하면 BIDS_format을 만들 수 있다.이때, 제대로 bids_format이 만들어졌는지를 확인하기 위해서는 bids validator를 사용하면 된다.
+
+⬇️ 링크는 아래 참조.⬇️
+
+[Bids validator](https://bids-standard.github.io/bids-validator/)
+
+### fmriprep 실행하기
+
+자동화 툴 제작 폴더 안에 들어있는 fmriprep.sh를 실행하면 된다.
+
 
 
