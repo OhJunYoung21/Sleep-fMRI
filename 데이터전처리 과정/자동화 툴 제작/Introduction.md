@@ -2,7 +2,7 @@
 
 ### 1. BIDScoin에 맞는 데이터구조 만들어주기
 
-[참조링크](https://bidscoin.readthedocs.io/en/stable/preparation.html)
+[for BIDScoin structure](https://bidscoin.readthedocs.io/en/stable/preparation.html)
 
 위의 링크를 보면 BIDScoin에 맞는 데이터구조가 나온다. 데이터구조에 대해서 간단하게 설명하자면, BIDScoin안에 데이터를 넣을떄, 파일을 마구잡이로 집어넣는 것이 아닌, 정리를 해서 넣어야 한다는 의미이다.
 
