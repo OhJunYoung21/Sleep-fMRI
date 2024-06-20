@@ -1,6 +1,6 @@
-## 오류 해결 기록
+## ⚙️ 오류 해결 기록 ⚙️
 
-### dataset_description.json is missing
+### ✅ dataset_description.json is missing ✅
 
 해당 오류는 dataset_decription.json파일이 어디있는지를 찾지 못해서 발생한 오류이며, 나의 경우에는 input_bids의 경로에 상대경로를 지정해서 생긴문제였다.
 
@@ -8,7 +8,7 @@
 
 ---
 
-### .TaskName should be a string
+### ✅ .TaskName should be a string ✅
 
 func파일의 .json파일을 보면 "TaskName": null이라는 부분이있었는데, 해당 부분의 null을 string으로 바꿔줘야 한다. 필자의 경우에는 "rest"로 바꿔주었더니 오류가 해결되었다.
 
@@ -16,9 +16,11 @@ func파일의 .json파일을 보면 "TaskName": null이라는 부분이있었는
 
 ---
 
-### zsh:command not found: fmriprep-docker
+### ✅ zsh:command not found: fmriprep-docker ✅
 
 해당 오류는 fmriprep-docker의 실행파일을 찾지 못해서 발생하는 오류이다. 일시적인 해결방안으로는 경로를 매번 터미널을 킬 떄마다 추가해주면 된다.
+
+위 코드를 볼때, fmriprep-docker는 python/3.9/bin아래에 설치되는 것을 알수 있다.
 
 ~~~linux
 export PATH="/Users/oj/library/python/3.9/bin:$PATH"
