@@ -19,13 +19,22 @@ echo $file_counts_B
 # pre_BIDS안에 sub-0*폴더 만들기
 
 N=$((file_counts_A / 2))
-echo $N
 
- 
-# pre_BIDS안에 파일 옮기기
+for ((i = 1; i <= N; i++)); do
+    folder_name=$(printf "sub-%02d" $i)
+    mkdir -p "/$target_folder/$folder_name"
+done
 
-files_fMRI=($(find "${folder_A}" -type f | sort))
+#fMRI안의 파일을 이름순으로 정렬하기
+
+IFD=$'\n' files=($(ls "$folder_A" | sort))
+unset IFS
+
+#만들어진 폴더안에 파일 옮기기(PAR/REC)
+
+for file in "$(ls -l "$folder_A" | sort)";do
+	mv "$folder_A/$file" "target_folder/sub-01"
+	done	
 
 
-echo ${#files_fMRI[@]}
   
