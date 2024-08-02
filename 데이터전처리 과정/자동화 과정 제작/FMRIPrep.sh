@@ -16,5 +16,7 @@ fmriprep-docker $input_folder $output_folder \
     --dummy-scans 3 \
     --output-spaces MNI152NLin2009cAsym \
     --nthreads 8 \
+    --cifti-outputs \
+    
   
 
