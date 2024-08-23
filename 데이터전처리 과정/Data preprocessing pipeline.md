@@ -24,22 +24,18 @@ nthreads=2
 container=docker #docker or singularity
 
 
-fmriprep-docker $bids_root_dir $bids_root_dir/fmriprep \
+fmriprep-docker $input_folder $output_folder \
   participant \
-    --participant-label $subj \
     --skip-bids-validation \
-    --md-only-boilerplate \
     --fs-license-file $HOME/Downloads/license.txt \
-    --dummy-scans 5 \
-    --bold2t1w-dof 9 \
-    --fd-spike-threshold 0.3 \
-    --dvars-spike-threshold \
+    --mem-mb 8000 \
     --fs-no-reconall \
-    --output-spaces MNI152NLin2009cAsym:res-2 \
-    --nthreads $nthreads \
     --stop-on-first-crash \
-    --mem_mb 16000 \
-    -w $HOME
+    --md-only-boilerplate \
+    --use-syn-sdc warn \
+    --dummy-scans 3 \
+    --output-spaces MNI152NLin2009cAsym \
+    --nthreads 8 \
 ~~~
 
 | 코드  | 사용한 이유 |
