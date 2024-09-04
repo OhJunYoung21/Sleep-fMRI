@@ -5,3 +5,11 @@
 * RBD : Rapid eye movement sleep behavior disorder(렘 수면 행동 장애)
 
 위 연구는 fMRI data를 기반으로 여러 수면질환을 예측하는 것이 목적이며, 여러 수면질환들중 선택된 것이 지금은 RBD입니다. 초기 데이터는 par/rec 파일 형식으로 주어집니다.
+
+### Research Workflow
+
+* Bidsify raw data(PAR/REC into NifTi format)
+* Preprocessing post-bidsified files with fMRIprep
+* Confound Regression using Nilearn
+* Feature Extraction
+* Model training
