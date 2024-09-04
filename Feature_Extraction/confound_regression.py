@@ -18,18 +18,25 @@ fMRI_img = glob.glob(os.path.join(root_dir, 'sub-*', 'func',
 raw_confounds = glob.glob(os.path.join(root_dir, 'sub-[0-9][0-9]', 'func',
                                        'sub-[0-9][0-9]_task-BRAINMRINONCONTRASTDIFFUSION_acq-AxialfMRIrest_desc-confounds_timeseries.tsv'))
 
+fMRI_img = sorted(fMRI_img)
+
+print(fMRI_img)
+
+'''
 for index in range(len(fMRI_img)):
     # 혼란변수 파일 가져오기(pandas 사용)
     confounds = pd.read_csv(raw_confounds[index], sep='\t')
     # fMRI_img 가져오기
     fmri_img = fMRI_img[index]
 
+    print(fMRI_img[index])
+
     confounds_of_interest = confounds[
         ['trans_x', 'trans_y', 'trans_z', 'rot_x', 'rot_y', 'rot_z',
          'global_signal', 'white_matter', 'csf']
     ]
 
-    cleaned_img = clean_img(fmri_img, confound=confounds_of_interest)
+    ### cleaned_img = clean_img(fmri_img, confound=confounds_of_interest)
 
-
-    cleaned_img.to_filename(f"{root_dir}/sub-{index}_confounds_regressed.nii.gz")
+    ### cleaned_img.to_filename(f"{root_dir}/sub-{index + 1}_confounds_regressed.nii.gz")
+'''
