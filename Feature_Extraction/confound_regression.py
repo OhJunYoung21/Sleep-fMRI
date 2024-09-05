@@ -20,7 +20,9 @@ raw_confounds = glob.glob(os.path.join(root_dir, 'sub-[0-9][0-9]', 'func',
 
 fMRI_img = sorted(fMRI_img)
 
-print(fMRI_img)
+raw_confounds = sorted(raw_confounds)
+
+print(raw_confounds)
 
 '''
 for index in range(len(fMRI_img)):
