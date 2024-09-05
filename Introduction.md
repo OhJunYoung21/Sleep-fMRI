@@ -1,4 +1,4 @@
-## Comparing fMRI from RBD and contrast(Normal)
+## Comparing fMRI from RBD and HC(Healthy Control)
 
 위 연구의 시작은 RBD 환자군의 fMRI data와 정상인의 fMRI data를 비교분석하는 것에서 부터 시작합니다. 
 
