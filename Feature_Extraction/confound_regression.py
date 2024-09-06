@@ -9,15 +9,15 @@ from nilearn.interfaces.fmriprep import load_confounds
 from nilearn import plotting
 import re
 
-root_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/post_prep_RBD'
+root_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/post_prep_HC'
 
 # 전처리가 끝난 fMRI 파일과 fMRIprep이 제공한 confound파일을 읽어온다.
 
 fMRI_img = glob.glob(os.path.join(root_dir, 'sub-*', 'func',
-                                  'sub-*_task-BRAINMRINONCONTRASTDIFFUSION_acq-AxialfMRIrest_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz'))
+                                  'sub-*_task-RESEARCHMRI_acq-AxialfMRIrest_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz'))
 
 raw_confounds = glob.glob(os.path.join(root_dir, 'sub-[0-9][0-9]', 'func',
-                                       'sub-[0-9][0-9]_task-BRAINMRINONCONTRASTDIFFUSION_acq-AxialfMRIrest_desc-confounds_timeseries.tsv'))
+                                       'sub-[0-9][0-9]_task-RESEARCHMRI_acq-AxialfMRIrest_desc-confounds_timeseries.tsv'))
 
 fMRI_img = sorted(fMRI_img)
 
@@ -41,4 +41,5 @@ for index in range(len(fMRI_img)):
 
     cleaned_image = clean_img(fmri_img, confounds=confounds_of_interest)
 
-    cleaned_image.to_filename(f"{root_dir}/sub-{subject_number}_confounds_regressed.nii.gz")
+    cleaned_image.to_filename(
+        f"/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_HC/sub-{subject_number}_confounds_regressed.nii.gz")
