@@ -28,20 +28,20 @@ def FC_extraction(file_path, atlas_path):
     return correlation_matrix
 
 
-def Reho_extraction(file_path):
-    func_img = image.load_img(file_path)
+def Reho_extraction(file):
+    func_img = image.load_img(file)
 
     extractor = RegionExtractor(func_img,
-                                min_region_size=307,  # 최소 영역 크기 설정
+                                min_region_size=1,  # 최소 영역 크기 설정
                                 extractor='local_regions',  # ReHo 계산을 위한 지역 추출 방법
                                 standardize=True,  # ReHo 계산 전에 시계열 표준화
                                 verbose=True)
 
     extractor.fit()
+    timeseries_img = extractor.transform(func_img)
 
-    reho_map = extractor.regions_img_
-
-    return reho_map
-
+    return timeseries_img
 
 
+plotting.plot_img(Reho_extraction(file_path))
+plotting.show()
