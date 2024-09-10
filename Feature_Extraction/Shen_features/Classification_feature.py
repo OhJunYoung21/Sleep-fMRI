@@ -1,5 +1,4 @@
-import urllib.request
-import nibabel as nib
+import numpy as np
 from nilearn import datasets
 from nilearn.maskers import NiftiMapsMasker
 from nilearn.connectome import ConnectivityMeasure
@@ -8,11 +7,12 @@ from nilearn import datasets
 import os
 from nilearn import image
 from nilearn import input_data
+from nilearn.regions import RegionExtractor
 
 # Download the Shen atlas
 atlas_path = '/Users/oj/Downloads/shen_2mm_268_parcellation.nii'
 
-file_name = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz'
+file_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz'
 
 
 def FC_extraction(file_path, atlas_path):
@@ -28,7 +28,20 @@ def FC_extraction(file_path, atlas_path):
     return correlation_matrix
 
 
-FC = FC_extraction(file_name, atlas_path)
+def Reho_extraction(file_path):
+    func_img = image.load_img(file_path)
 
-plotting.plot_matrix(FC)
-plotting.show()
+    extractor = RegionExtractor(func_img,
+                                min_region_size=307,  # 최소 영역 크기 설정
+                                extractor='local_regions',  # ReHo 계산을 위한 지역 추출 방법
+                                standardize=True,  # ReHo 계산 전에 시계열 표준화
+                                verbose=True)
+
+    extractor.fit()
+
+    reho_map = extractor.regions_img_
+
+    return reho_map
+
+
+
