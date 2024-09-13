@@ -28,13 +28,7 @@ def FC_extraction(file_path, atlas_path):
     return correlation_matrix
 
 
-def Reho_extraction(file_path):
-    func = image.load_img(file_path)
-
-    return
-
-
-def calculate_reho(data, cluster_size=27):
+def calculate_reho(file_path, cluster_size=27):
     """
     Calculate the ReHo for each voxel in the fMRI data.
 
@@ -45,16 +39,39 @@ def calculate_reho(data, cluster_size=27):
     Returns:
     - reho_map: 3D numpy array of ReHo values
     """
-    x, y, z, t = data.shape
-    reho_map = np.zeros((x, y, z))
+    img = image.load_img(file_path)
 
-    example_data = data[1, 1, 1, :]
+    coords = [(1, 1, 1)]
 
-    # Iterate over each voxel in the 3D space
-    return example_data
+    masker = input_data.NiftiSpheresMasker(seeds=coords, radius=3, detrend=True, standardize=True)
+    timeseries = masker.fit_transform(img)
+
+    return timeseries
 
 
-data = image.load_img(file_path)
+'''
+for i in range(1, x - 1):
+    for j in range(1, y - 1):
+        for k in range(1, z - 1):
+            # Extract the time series for the current voxel and its neighbors
+            cluster = data[i - 1:i + 2, j - 1:j + 2, k - 1:k + 2, :]
+            cluster = cluster.reshape(-1, t)
 
-reho_map = calculate_reho(data, cluster_size=27)
-print(reho_map)
+            # Calculate Kendall's W (coefficient of concordance)
+            concordance = 0
+            for m in range(cluster.shape[0]):
+                for n in range(m + 1, cluster.shape[0]):
+                    concordance += kendalltau(cluster[m], cluster[n])[0]
+
+            # Normalize by the number of pairs
+            num_pairs = cluster_size * (cluster_size - 1) / 2
+            reho_map[i, j, k] = concordance / num_pairs
+
+return reho_map
+'''
+
+# Iterate over each voxel in the 3D space
+
+
+type = calculate_reho(file_path, cluster_size=27)
+print(type)
