@@ -33,11 +33,16 @@ def calculate_reho(file_path):
     reho = afni.ReHo()
 
     reho.inputs.in_file = file_path
-    reho.inputs.out_file = 'reho.nii.gz'
+    reho.inputs.out_file = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/reho_1.nii.gz'
 
     result = reho.run()
 
-    return print(result.cmdline)
+    result_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/reho_1.nii.gz'
+
+    img = image.load_img(result_path)
+
+    return img
 
 
-calculate_reho(file_path)
+sample = calculate_reho(file_path)
+print(sample.shape)
