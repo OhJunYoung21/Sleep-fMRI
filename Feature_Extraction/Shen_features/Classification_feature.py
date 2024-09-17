@@ -29,6 +29,7 @@ def FC_extraction(file_path, atlas_path):
     return correlation_matrix
 
 
+## calculate_3dReHo는 AFNI의 3dReHo를 사용해서 input으로는 4D image를 받고 output으로 3d image를 반환한다.
 def calculate_3dReHo(file_path):
     reho = afni.ReHo()
 
@@ -44,7 +45,7 @@ def calculate_3dReHo(file_path):
     return img
 
 
-def region_reho(reho_file, atlas_path):
+def region_reho_average(reho_file, atlas_path):
     shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True)
 
     reho_img = image.load_img(reho_file)
@@ -52,10 +53,3 @@ def region_reho(reho_file, atlas_path):
     masked_data = shen_atlas.fit_transform([reho_img])
 
     return masked_data
-
-
-reho_file = calculate_3dReHo(file_path)
-
-result = region_reho(reho_file, atlas_path)
-
-print(result.shape)
