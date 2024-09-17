@@ -29,7 +29,7 @@ def FC_extraction(file_path, atlas_path):
     return correlation_matrix
 
 
-def calculate_reho(file_path):
+def calculate_3dReHo(file_path):
     reho = afni.ReHo()
 
     reho.inputs.in_file = file_path
@@ -44,5 +44,18 @@ def calculate_reho(file_path):
     return img
 
 
-sample = calculate_reho(file_path)
-print(sample.shape)
+def region_reho(reho_file, atlas_path):
+    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True)
+
+    reho_img = image.load_img(reho_file)
+
+    masked_data = shen_atlas.fit_transform([reho_img])
+
+    return masked_data
+
+
+reho_file = calculate_3dReHo(file_path)
+
+result = region_reho(reho_file, atlas_path)
+
+print(result.shape)
