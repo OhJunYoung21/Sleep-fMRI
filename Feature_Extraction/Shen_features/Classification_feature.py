@@ -55,3 +55,21 @@ def region_reho_average(reho_file, atlas_path):
 
     return masked_data
 
+
+def calculate_alff(file_path, output_name: str):
+    alff = afni.Bandpass()
+    alff.inputs.in_file = file_path
+    alff.inputs.highpass = 0.01
+    alff.inputs.lowpass = 0.1
+    alff.inputs.out_file = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_{output_name}.nii.gz'
+
+    alff.run()
+
+    result_path = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_{output_name}.nii.gz'
+
+    img = image.load_img(result_path)
+
+    return img
+
+
+
