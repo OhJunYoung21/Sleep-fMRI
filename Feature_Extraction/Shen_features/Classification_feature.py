@@ -47,10 +47,11 @@ def calculate_3dReHo(file_path, output_name: str):
 
 ## region_reho_average는 mask가 나눈 region안의 voxel 값들의 평균을 계산한다.
 def region_reho_average(reho_file, atlas_path):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True, strategy='sum')
+    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True, strategy='mean')
 
     reho_img = image.load_img(reho_file)
 
     masked_data = shen_atlas.fit_transform([reho_img])
 
     return masked_data
+

@@ -63,14 +63,21 @@ def input_fc_shen():
     for file in files_rbd:
         correlation_matrix = FC_extraction(file, atlas_path)
 
+        correlation_matrix = correlation_matrix.tolist()
+
+        for j in range(len(correlation_matrix)):
+            correlation_matrix[j][:] = correlation_matrix[j][:-(len(correlation_matrix) - j)]
+
         FC.append(correlation_matrix)
 
     return
 
 
-print(delete())
+input_fc_shen()
+
+print(len(FC[0]))
 
 '''
 for k in range(len(ReHo)):
-    shen_data.loc[k] = ['', '', ReHo[k], 1]
+    shen_data.loc[k] = [FC[k], '', ReHo[k], 1]
 '''
