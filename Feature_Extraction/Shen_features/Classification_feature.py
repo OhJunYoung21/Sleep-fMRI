@@ -5,6 +5,7 @@ from nilearn.connectome import ConnectivityMeasure
 from nilearn import plotting
 from nilearn import datasets
 import os
+from nilearn import masking
 from nilearn import image
 from nilearn import input_data
 from scipy.stats import kendalltau
@@ -69,7 +70,12 @@ def calculate_alff(file_path, output_name: str):
 
     img = image.load_img(result_path)
 
-    return img
+    data = img.get_fdata()
+    '''
+    average_time_series = np.mean(data, axis=3)
+    '''
+    return data
 
 
-
+sample = calculate_alff(file_path, 'start')
+print(sample.shape)
