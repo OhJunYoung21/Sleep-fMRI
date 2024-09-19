@@ -58,4 +58,40 @@ def region_reho_average(reho_file, atlas_path):
     return masked_data
 
 
+def Bandpass_transform(file_path, output_name: str):
+    bandpass = afni.Bandpass()
+    bandpass.inputs.in_file = file_path
+    bandpass.inputs.highpass = 0.01
+    bandpass.inputs.lowpass = 0.1
+    bandpass.inputs.out_file = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_{output_name}.nii.gz'
 
+    bandpass.run()
+
+    result_path = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_{output_name}.nii.gz'
+    img = image.load_img(result_path)
+
+    data_4d = img.get_fdata()
+
+    x, y, z, t = img.shape
+
+    bandpass_result = np.empty((x, y, z, t))
+
+    for x in range(x):
+        for y in range(y):
+            for z in range(z):
+                time_series = data_4d[x, y, z, :]
+                bandpass_result[x, y, z, :] = np.fft.fft(time_series)
+
+    affine = np.eye(4)
+
+    nifti_img = nib.Nifti1Image(bandpass_result, affine)
+
+    nib.save(nifti_img,
+             f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_series_{output_name}.nii.gz')
+
+    print(bandpass_result.shape)
+
+    return
+
+
+Bandpass_transform(file_path, "start_3")
