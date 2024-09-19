@@ -5,6 +5,7 @@ from nilearn.connectome import ConnectivityMeasure
 from nilearn import plotting
 from nilearn import datasets
 import os
+import nibabel as nib
 from nilearn import masking
 from nilearn import image
 from nilearn import input_data
@@ -57,25 +58,4 @@ def region_reho_average(reho_file, atlas_path):
     return masked_data
 
 
-def calculate_alff(file_path, output_name: str):
-    alff = afni.Bandpass()
-    alff.inputs.in_file = file_path
-    alff.inputs.highpass = 0.01
-    alff.inputs.lowpass = 0.1
-    alff.inputs.out_file = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_{output_name}.nii.gz'
 
-    alff.run()
-
-    result_path = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_{output_name}.nii.gz'
-
-    img = image.load_img(result_path)
-
-    data = img.get_fdata()
-    '''
-    average_time_series = np.mean(data, axis=3)
-    '''
-    return data
-
-
-sample = calculate_alff(file_path, 'start')
-print(sample.shape)
