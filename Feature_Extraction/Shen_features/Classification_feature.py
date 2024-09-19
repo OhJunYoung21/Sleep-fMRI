@@ -74,24 +74,38 @@ def Bandpass_transform(file_path, output_name: str):
 
     x, y, z, t = img.shape
 
-    bandpass_result = np.empty((x, y, z, t))
+    bandpass_result = np.empty((x, y, z))
 
     for x in range(x):
         for y in range(y):
             for z in range(z):
                 time_series = data_4d[x, y, z, :]
-                bandpass_result[x, y, z, :] = np.fft.fft(time_series)
+                if np.mean(time_series) != 0:
+                    bandpass_result[x, y, z] = np.sum(time_series) / np.mean(time_series)
+                else:
+                    bandpass_result[x, y, z] = 0
 
-    affine = np.eye(4)
+    ### 각 voxel은 filtering된 시계열 데이터를 가지고 있고, 해당 4d 데이터를 .nii.gz 형태로 바꿔서 저장한다.
 
-    nifti_img = nib.Nifti1Image(bandpass_result, affine)
+    # affine 변환을 수행하지 않는다.
+    nifti_img = nib.Nifti1Image(bandpass_result, None)
 
     nib.save(nifti_img,
              f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_series_{output_name}.nii.gz')
 
-    print(bandpass_result.shape)
+    print(bandpass_result)
 
     return
 
 
-Bandpass_transform(file_path, "start_3")
+def region_reho_average(reho_file, atlas_path):
+    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True, strategy='mean')
+
+    reho_img = image.load_img(reho_file)
+
+    masked_data = shen_atlas.fit_transform([reho_img])
+
+    return masked_data
+
+
+Bandpass_transform(file_path, "start_4")
