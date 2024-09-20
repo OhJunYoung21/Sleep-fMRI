@@ -59,19 +59,5 @@ def region_reho_average(reho_file, atlas_path):
     return masked_data
 
 
-def calculate_ALFF_workflow(file_path, output_name: str):
-
-    return
-
-
-
-def region_alff_average(alff_file, atlas_path):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True, strategy='mean')
-
-    alff_img = image.load_img(alff_file)
-
-    masked_data = shen_atlas.fit_transform([alff_img])
-
-    return masked_data.shape
 
 
