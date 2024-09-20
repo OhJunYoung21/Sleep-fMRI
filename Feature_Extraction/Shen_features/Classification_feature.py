@@ -11,6 +11,7 @@ from nilearn import image
 from nilearn import input_data
 from scipy.stats import kendalltau
 from nipype.interfaces import afni
+from nipype import Workflow, Node
 
 # Download the Shen atlas
 atlas_path = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
@@ -58,49 +59,10 @@ def region_reho_average(reho_file, atlas_path):
     return masked_data
 
 
-def calculate_Bandpass(file_path, output_name: str):
-    bandpass = afni.Bandpass()
-    bandpass.inputs.in_file = file_path
-    bandpass.inputs.highpass = 0.01
-    bandpass.inputs.lowpass = 0.1
-    bandpass.inputs.out_file = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_{output_name}.nii.gz'
+def calculate_ALFF_workflow(file_path, output_name: str):
 
-    bandpass.run()
+    return
 
-    result_path = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_{output_name}.nii.gz'
-    img = image.load_img(result_path)
-
-    data_4d = img.get_fdata()
-
-    x, y, z, t = img.shape
-
-    bandpass_result = np.empty((x, y, z))
-
-    for x in range(x):
-        for y in range(y):
-            for z in range(z):
-                time_series = data_4d[x, y, z, :]
-                bandpass_result[x, y, z] = np.sum(time_series ** 2)
-    ### 각 voxel은 filtering된 시계열 데이터를 가지고 있고, 해당 4d 데이터를 .nii.gz 형태로 바꿔서 저장한다.
-
-    nifti_img = nib.Nifti1Image(bandpass_result, np.eye(4))
-
-    nib.save(nifti_img,
-             f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_series_{output_name}.nii.gz')
-
-    result_path = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_series_{output_name}.nii.gz'
-
-    return result_path
-
-
-def region_reho_average(reho_file, atlas_path):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True, strategy='mean')
-
-    reho_img = image.load_img(reho_file)
-
-    masked_data = shen_atlas.fit_transform([reho_img])
-
-    return masked_data
 
 
 def region_alff_average(alff_file, atlas_path):
@@ -113,6 +75,3 @@ def region_alff_average(alff_file, atlas_path):
     return masked_data.shape
 
 
-path = calculate_Bandpass(file_path, "test_3")
-result = region_alff_average(path, atlas_path)
-print(result)
