@@ -9,10 +9,7 @@ import nibabel as nib
 from nilearn import masking
 from nilearn import image
 from nilearn import input_data
-from scipy.stats import kendalltau
 from nipype.interfaces import afni
-from nipype import Workflow, Node
-from scipy import stats
 
 # Download the Shen atlas
 atlas_path = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
@@ -95,7 +92,8 @@ def calculate_3dTproject(file_path, output_name: str):
 
 
 def region_alff_average(alff_path, atlas_path):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True, strategy='mean')
+    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True, strategy='mean',
+                                              resampling_target="labels")
 
     alff_img = image.load_img(alff_path)
 
@@ -104,7 +102,6 @@ def region_alff_average(alff_path, atlas_path):
     return masked_data
 
 
-'''
-오류 정리 : 각 voxel 마다 alff값을 계산하는데에는 성공했지만, atlas를 씌워 각 roi마다 평균값을 내는 과정에서 데이터 손실이 발생,
-여러가지 방법을 시도해보았지만 결국 해결하지 못함
-'''
+path = calculate_3dTproject(file_path, "resample")
+result = region_alff_average(path, atlas_path)
+print(result)
