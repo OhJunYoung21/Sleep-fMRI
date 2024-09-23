@@ -69,14 +69,42 @@ def calculate_3dTproject(file_path, output_name: str):
 
     alff_path = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_{output_name}.nii.gz'
 
-    alff_data = image.load_img(alff_path)
+    alff_data = image.load_img(alff_path).get_fdata()
 
-    x, y, z, t = alff_data.get_fdata().shape
+    x, y, z, t = alff_data.shape
 
-    alff_img = np.zeros(x, y, z)
+    alff_img = np.empty((x, y, z))
+
+    for x in range(x):
+        for y in range(y):
+            for z in range(z):
+                time_series = alff_data[x, y, z, :]
+                if np.mean(time_series) != 0:
+                    alff_img[x, y, z] = np.sum(time_series ** 2) / np.mean(time_series)
+                else:
+                    alff_img[x, y, z] = 0.0
+
+    alff_nifti = nib.Nifti1Image(alff_img, None)
+
+    nib.save(alff_nifti,
+             f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_series_{output_name}.nii.gz')
+
+    result_path = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_series_{output_name}.nii.gz'
+
+    return result_path
 
 
+def region_alff_average(alff_path, atlas_path):
+    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True, strategy='mean')
+
+    alff_img = image.load_img(alff_path)
+
+    masked_data = shen_atlas.fit_transform([alff_img])
+
+    return masked_data
 
 
-def region_alff_average(alff_file, atlas_path):
-    alff = calculate_3dTproject(file_path, output_name='test_1')
+'''
+오류 정리 : 각 voxel 마다 alff값을 계산하는데에는 성공했지만, atlas를 씌워 각 roi마다 평균값을 내는 과정에서 데이터 손실이 발생,
+여러가지 방법을 시도해보았지만 결국 해결하지 못함
+'''
