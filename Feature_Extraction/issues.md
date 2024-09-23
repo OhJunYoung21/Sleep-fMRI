@@ -17,3 +17,5 @@ For example, if resampling_target is "data", the atlas is resampled to the shape
 If it is "labels" then mask_img and images provided to fit() are resampled to the shape and affine of maps_img.
 
 "None" means no resampling: if shapes and affines do not match, a ValueError is raised.
+
+참조 링크 :(https://nilearn.github.io/stable/modules/generated/nilearn.maskers.NiftiLabelsMasker.html)
