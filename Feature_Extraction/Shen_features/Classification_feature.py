@@ -12,6 +12,7 @@ from nilearn import input_data
 from scipy.stats import kendalltau
 from nipype.interfaces import afni
 from nipype import Workflow, Node
+from scipy import stats
 
 # Download the Shen atlas
 atlas_path = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
@@ -43,9 +44,7 @@ def calculate_3dReHo(file_path, output_name: str):
 
     result_path = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/reho/reho_{output_name}.nii.gz'
 
-    img = image.load_img(result_path)
-
-    return img
+    return result_path
 
 
 ## region_reho_average는 mask가 나눈 region안의 voxel 값들의 평균을 계산한다.
@@ -59,5 +58,25 @@ def region_reho_average(reho_file, atlas_path):
     return masked_data
 
 
+def calculate_3dTproject(file_path, output_name: str):
+    Tproject = afni.TProject()
+    Tproject.inputs.in_file = file_path
+    Tproject.inputs.TR = 3.0
+    Tproject.inputs.bandpass = (0.01, 0.1)
+    Tproject.inputs.out_file = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_{output_name}.nii.gz'
+
+    Tproject.run()
+
+    alff_path = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_{output_name}.nii.gz'
+
+    alff_data = image.load_img(alff_path)
+
+    x, y, z, t = alff_data.get_fdata().shape
+
+    alff_img = np.zeros(x, y, z)
 
 
+
+
+def region_alff_average(alff_file, atlas_path):
+    alff = calculate_3dTproject(file_path, output_name='test_1')
