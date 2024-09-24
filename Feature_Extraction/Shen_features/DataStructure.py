@@ -6,6 +6,7 @@ import numpy as np
 import glob
 from Feature_Extraction import Shen_features
 import Classification_feature
+from Classification_feature import calculate_Bandpass
 from Classification_feature import calculate_3dReHo
 from Classification_feature import region_reho_average
 from Classification_feature import atlas_path, FC_extraction
@@ -23,6 +24,8 @@ FC = []
 root_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD'
 
 reho_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/reho'
+
+alff_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff'
 
 files_rbd = glob.glob(os.path.join(root_dir, 'sub-*_confounds_regressed.nii.gz'))
 
@@ -45,6 +48,20 @@ def input_reho():
             extracted_part = match.group(1)
 
         calculate_3dReHo(file, extracted_part)
+
+    return
+
+
+### input_alff()는 alff파일을 만들어서 로컬에 저장하는 함수입니다.
+
+def input_alff():
+    for file in files_rbd:
+        match = re.search(r'sub-(.*)_confounds_regressed.nii.gz', file)
+
+        if match:
+            extracted_part = match.group(1)
+
+        calculate_Bandpass(file, extracted_part)
 
     return
 
@@ -73,11 +90,9 @@ def input_fc_shen():
     return
 
 
-input_fc_shen()
+def input_alff_shen():
+    reho_path = glob.glob(os.path.join(reho_dir, 'reho_*.nii.gz'))
+    return
 
-print(len(FC[0]))
 
-'''
-for k in range(len(ReHo)):
-    shen_data.loc[k] = [FC[k], '', ReHo[k], 1]
-'''
+input_alff()

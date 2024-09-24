@@ -10,6 +10,7 @@ from nilearn import masking
 from nilearn import image
 from nilearn import input_data
 from nipype.interfaces import afni
+from scipy import stats
 
 # Download the Shen atlas
 atlas_path = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
@@ -55,14 +56,17 @@ def region_reho_average(reho_file, atlas_path):
     return masked_data
 
 
-def calculate_3dTproject(file_path, output_name: str):
-    Tproject = afni.TProject()
-    Tproject.inputs.in_file = file_path
-    Tproject.inputs.TR = 3.0
-    Tproject.inputs.bandpass = (0.01, 0.1)
-    Tproject.inputs.out_file = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_{output_name}.nii.gz'
+def calculate_Bandpass(file_path, output_name: str):
+    Bandpass = afni.Bandpass()
+    Bandpass.inputs.in_file = file_path
+    Bandpass.inputs.highpass = 0.01
+    Bandpass.inputs.lowpass = 0.1
 
-    Tproject.run()
+    # 파일을 저장하는 경로는 out_file로 지정하며, out_file코드를 실행한다는 것은 파일을 저장하겠다는 의미이다.
+
+    Bandpass.inputs.out_file = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_{output_name}.nii.gz'
+
+    Bandpass.run()
 
     alff_path = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_{output_name}.nii.gz'
 
@@ -80,13 +84,16 @@ def calculate_3dTproject(file_path, output_name: str):
                     alff_img[x, y, z] = np.sum(time_series ** 2) / np.mean(time_series)
                 else:
                     alff_img[x, y, z] = 0.0
+    '''
+    alff_img = stats.zscore(alff_img, axis=0)
+    '''
 
     alff_nifti = nib.Nifti1Image(alff_img, None)
 
     nib.save(alff_nifti,
-             f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_series_{output_name}.nii.gz')
+             f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_transformed_{output_name}.nii.gz')
 
-    result_path = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_series_{output_name}.nii.gz'
+    result_path = f'/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff/alff_transformed_{output_name}.nii.gz'
 
     return result_path
 
@@ -101,7 +108,3 @@ def region_alff_average(alff_path, atlas_path):
 
     return masked_data
 
-
-path = calculate_3dTproject(file_path, "resample")
-result = region_alff_average(path, atlas_path)
-print(result)
