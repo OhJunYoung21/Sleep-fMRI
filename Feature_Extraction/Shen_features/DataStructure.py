@@ -6,8 +6,8 @@ import numpy as np
 import glob
 from Feature_Extraction import Shen_features
 import Feature_Extraction.Shen_features.Classification_feature
-from Feature_Extraction.Shen_features.Classification_feature import calculate_Bandpass_HC, calculate_Bandpass_RBD
-from Classification_feature import calculate_3dReHo_HC, calculate_3dReHo_RBD
+from Classification_feature import calculate_Bandpass
+from Classification_feature import calculate_3dReHo
 from Classification_feature import region_reho_average
 from Classification_feature import atlas_path, FC_extraction
 from Classification_feature import region_alff_average
@@ -43,11 +43,10 @@ alff_hc_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_HC/alff'
 files_rbd = glob.glob(os.path.join(root_rbd_dir, 'sub-*_confounds_regressed.nii.gz'))
 
 files_hc = glob.glob(os.path.join(root_hc_dir, 'sub-*_confounds_regressed.nii.gz'))
-'''
+
 files_rbd = sorted(files_rbd)
 
 files_hc = sorted(files_hc)
-'''
 
 
 ## 데이터프레임안의 요소들을 전부 지우는 함수이다. 혹시나 데이터프레임안의 데이터가 꼬이는 경우에 빠른 초기화를 위해 제작하였다.
@@ -58,52 +57,36 @@ def delete():
 
 ### reho를 계산해서 reho 디렉토리 안에 넣어주는 코드
 
-def input_reho_RBD(files_path: str):
-    for file in files_rbd:
+def input_reho(files_path: str):
+    files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
+
+    files = sorted(files)
+
+    for file in files:
         match = re.search(r'sub-(.*)_confounds_regressed.nii.gz', file)
 
         if match:
             extracted_part = match.group(1)
 
-        calculate_3dReHo_RBD(file, extracted_part)
-
-    return
-
-
-def input_reho_HC(files_path: str):
-    for file in files_rbd:
-        match = re.search(r'sub-(.*)_confounds_regressed.nii.gz', file)
-
-        if match:
-            extracted_part = match.group(1)
-
-        calculate_3dReHo_HC(file, extracted_part)
+        calculate_3dReHo(file, extracted_part, os.path.join(files_path + '/reho'))
 
     return
 
 
 ### input_alff()는 alff파일을 만들어서 로컬에 저장하는 함수입니다.
 
-def input_alff_RBD(files_path: str):
+def input_alff(files_path: str):
+    files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
+
+    files = sorted(files)
+
     for file in files_path:
         match = re.search(r'sub-(.*)_confounds_regressed.nii.gz', file)
 
         if match:
             extracted_part = match.group(1)
 
-        calculate_Bandpass_RBD(file, extracted_part)
-
-    return
-
-
-def input_alff_HC(files_path: str):
-    for file in files_path:
-        match = re.search(r'sub-(.*)_confounds_regressed.nii.gz', file)
-
-        if match:
-            extracted_part = match.group(1)
-
-        calculate_Bandpass_HC(file, extracted_part)
+        calculate_Bandpass(file, extracted_part, os.path.join(files_path + '/alff'))
 
     return
 
@@ -142,4 +125,5 @@ def input_alff_shen(data: List):
     return
 
 
-input_alff_HC(files_hc)
+input_alff(root_rbd_dir)
+input_alff(reho_hc_dir)
