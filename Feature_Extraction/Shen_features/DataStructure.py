@@ -5,8 +5,8 @@ import os
 import numpy as np
 import glob
 from Feature_Extraction import Shen_features
-import Classification_feature
-from Classification_feature import calculate_Bandpass_HC, calculate_Bandpass_RBD
+import Feature_Extraction.Shen_features.Classification_feature
+from Feature_Extraction.Shen_features.Classification_feature import calculate_Bandpass_HC, calculate_Bandpass_RBD
 from Classification_feature import calculate_3dReHo_HC, calculate_3dReHo_RBD
 from Classification_feature import region_reho_average
 from Classification_feature import atlas_path, FC_extraction
