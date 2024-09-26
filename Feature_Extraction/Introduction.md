@@ -6,6 +6,8 @@
 | ---| ---|
 | 50개 | 39개 |
 
+---
+
 2️⃣ 전처리된 데이터에서 Confounds_regressed된 파일 추출하기
 
 ~~~python3
@@ -28,9 +30,13 @@ for index in range(len(fMRI_img)):
         f"/Users/oj/Desktop/***_Lab/post_fMRI/confounds_regressed_HC/sub-{subject_number}_confounds_regressed.nii.gz")
 ~~~
 
+---
+
 3️⃣ Confounds_regressed된 파일들에서 alff,reho,fc 추출하기
 
 해당 코드는 Shen_Features의 Classification_feature안에 들어있다.
+
+---
 
 4️⃣ 추출한 Feature들을 데이터 프레임에 넣어주고, RBD는 1로, HC는 0으로 라벨링하기
 
