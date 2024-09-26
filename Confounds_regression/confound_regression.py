@@ -13,18 +13,36 @@ root_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/post_prep_HC'
 
 # 전처리가 끝난 fMRI 파일과 fMRIprep이 제공한 confound파일을 읽어온다.
 
-fMRI_img = glob.glob(os.path.join(root_dir, 'sub-*', 'func',
-                                  'sub-*_task-RESEARCHMRI_acq-AxialfMRIrest_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz'))
 
-raw_confounds = glob.glob(os.path.join(root_dir, 'sub-[0-9][0-9]', 'func',
-                                       'sub-[0-9][0-9]_task-RESEARCHMRI_acq-AxialfMRIrest_desc-confounds_timeseries.tsv'))
+fMRI_img = glob.glob(os.path.join(root_dir, 'sub-*', 'func',
+                                  'sub-*_task-BRAINMRINONCONTRASTDIFFUSION_acq-AxialfMRIrest_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz')) + glob.glob(
+    os.path.join(root_dir, 'sub-*', 'func',
+                 'sub-*_task-BRAINMRINONCONTRAST_acq-WIPfMRIRESTCLEAR_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz')) + glob.glob(
+    os.path.join(root_dir, 'sub-*', 'func',
+                 'sub-*_task-DIFFUSIONMRINONCONTRAST_acq-WIPfMRIRESTCLEAR_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz')) + glob.glob(
+    os.path.join(root_dir, 'sub-*', 'func',
+                 'sub-*_task-BRAINMRINONCONTRAST_acq-fMRIRESTSENSE_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz')) + glob.glob(
+    os.path.join(root_dir, 'sub-*', 'func',
+                 'sub-*_task-BRAINMRINONCONTRAST_acq-AxialfMRIrest_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz')) + glob.glob(
+    os.path.join(root_dir, 'sub-*', 'func',
+                 'sub-*_task-RESEARCHMRI_acq-AxialfMRIrest_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz'))
+
+raw_confounds = glob.glob(os.path.join(root_dir, 'sub-*', 'func',
+                                       'sub-*_task-BRAINMRINONCONTRASTDIFFUSION_acq-AxialfMRIrest_desc-confounds_timeseries.tsv')) + glob.glob(
+    os.path.join(root_dir, 'sub-*', 'func',
+                 'sub-*_task-BRAINMRINONCONTRAST_acq-WIPfMRIRESTCLEAR_desc-confounds_timeseries.tsv')) + glob.glob(
+    os.path.join(root_dir, 'sub-*', 'func',
+                 'sub-*_task-DIFFUSIONMRINONCONTRAST_acq-WIPfMRIRESTCLEAR_desc-confounds_timeseries.tsv')) + glob.glob(
+    os.path.join(root_dir, 'sub-*', 'func',
+                 'sub-*_task-BRAINMRINONCONTRAST_acq-fMRIRESTSENSE_desc-confounds_timeseries.tsv')) + glob.glob(
+    os.path.join(root_dir, 'sub-*', 'func',
+                 'sub-*_task-BRAINMRINONCONTRAST_acq-AxialfMRIrest_desc-confounds_timeseries.tsv')) + glob.glob(
+    os.path.join(root_dir, 'sub-*', 'func',
+                 'sub-*_task-RESEARCHMRI_acq-AxialfMRIrest_desc-confounds_timeseries.tsv'))
 
 fMRI_img = sorted(fMRI_img)
 
 raw_confounds = sorted(raw_confounds)
-
-## print(raw_confounds)
-
 
 for index in range(len(fMRI_img)):
     # fMRI_image와 confounds 업로드

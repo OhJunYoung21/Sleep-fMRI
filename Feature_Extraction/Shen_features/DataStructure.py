@@ -123,10 +123,6 @@ def input_alff_shen(file_path: str, data: List):
     return
 
 
-input_fc(root_hc_dir, FC_HC)
-
-print(len(FC_HC))
-
 input_reho_shen(reho_hc_dir, ReHo_HC)
 input_alff_shen(alff_hc_dir, ALFF_HC)
 input_fc(root_hc_dir, FC_HC)
