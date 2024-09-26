@@ -40,13 +40,7 @@ reho_hc_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_HC/reho'
 
 alff_hc_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_HC/alff'
 
-files_rbd = glob.glob(os.path.join(root_rbd_dir, 'sub-*_confounds_regressed.nii.gz'))
-
-files_hc = glob.glob(os.path.join(root_hc_dir, 'sub-*_confounds_regressed.nii.gz'))
-
-files_rbd = sorted(files_rbd)
-
-files_hc = sorted(files_hc)
+feature_path = '/Users/oj/Desktop/Yoo_Lab/Classification_Features'
 
 
 ## 데이터프레임안의 요소들을 전부 지우는 함수이다. 혹시나 데이터프레임안의 데이터가 꼬이는 경우에 빠른 초기화를 위해 제작하였다.
@@ -56,6 +50,23 @@ def delete():
 
 
 ### reho를 계산해서 reho 디렉토리 안에 넣어주는 코드
+
+def input_fc(files_path: str, data: List):
+    files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
+
+    files = sorted(files)
+
+    for file in files:
+        connectivity = FC_extraction(file, atlas_path)
+        connectivity = connectivity.tolist()
+
+        for j in range(len(connectivity)):
+            connectivity[j][:] = connectivity[j][:-(len(connectivity) - j)]
+
+        data.append(connectivity)
+
+    return
+
 
 def input_reho(files_path: str):
     files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
@@ -80,7 +91,7 @@ def input_alff(files_path: str):
 
     files = sorted(files)
 
-    for file in files_path:
+    for file in files:
         match = re.search(r'sub-(.*)_confounds_regressed.nii.gz', file)
 
         if match:
@@ -91,8 +102,8 @@ def input_alff(files_path: str):
     return
 
 
-def input_reho_shen(data: List):
-    reho_path = glob.glob(os.path.join(reho_rbd_dir, 'reho_*.nii.gz'))
+def input_reho_shen(file_path: str, data: List):
+    reho_path = glob.glob(os.path.join(file_path, 'reho_*.nii.gz'))
 
     for file in reho_path:
         ##Classification_feature에서 불러온 atlas_path를 매개변수로 넣어준다.
@@ -101,22 +112,9 @@ def input_reho_shen(data: List):
     return
 
 
-def input_fc_shen(data: List):
-    for file in files_rbd:
-        correlation_matrix = FC_extraction(file, atlas_path)
-
-        correlation_matrix = correlation_matrix.tolist()
-
-        for j in range(len(correlation_matrix)):
-            correlation_matrix[j][:] = correlation_matrix[j][:-(len(correlation_matrix) - j)]
-
-        data.append(correlation_matrix)
-    return
-
-
 ### 로컬의 alff폴더에서 파일을 읽어온 후, shen_atlas를 적용하고 ALFF 리스트에 넣어준다.
-def input_alff_shen(data: List):
-    alff_path = glob.glob(os.path.join(alff_rbd_dir, 'alff_transformed_*.nii.gz'))
+def input_alff_shen(file_path: str, data: List):
+    alff_path = glob.glob(os.path.join(file_path, 'alff_transformed_*.nii.gz'))
 
     for file in alff_path:
         ##Classification_feature에서 불러온 atlas_path를 매개변수로 넣어준다.
@@ -125,5 +123,26 @@ def input_alff_shen(data: List):
     return
 
 
-input_alff(root_rbd_dir)
-input_alff(reho_hc_dir)
+input_fc(root_hc_dir, FC_HC)
+
+print(len(FC_HC))
+
+input_reho_shen(reho_hc_dir, ReHo_HC)
+input_alff_shen(alff_hc_dir, ALFF_HC)
+input_fc(root_hc_dir, FC_HC)
+input_reho_shen(reho_rbd_dir, ReHo_RBD)
+input_alff_shen(alff_rbd_dir, ALFF_RBD)
+input_fc(root_rbd_dir, FC_RBD)
+
+len_hc = len(ReHo_HC)
+len_rbd = len(ReHo_RBD)
+
+for j in range(len_hc):
+    shen_data.loc[j] = [FC_HC[j], ALFF_HC[j], ReHo_HC[j], 0]
+
+for k in range(len_rbd):
+    shen_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[k], 1]
+
+shen_data_path = os.path.join(feature_path, 'Shen/Shen_features')
+
+shen_data.to_csv(shen_data_path, index=False)
