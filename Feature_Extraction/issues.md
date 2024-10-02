@@ -1,5 +1,7 @@
 ## 내가 겪은 오류들
 
+### Resampling Error
+
 ~~~python3
 UserWarning: After resampling the label image to the data image, the following labels were removed:
 ~~~
@@ -19,3 +21,5 @@ If it is "labels" then mask_img and images provided to fit() are resampled to th
 "None" means no resampling: if shapes and affines do not match, a ValueError is raised.
 
 참조 링크 :(https://nilearn.github.io/stable/modules/generated/nilearn.maskers.NiftiLabelsMasker.html)
+
+### CSV파일에서 데이터를 불러들일때는 문자열로 데이터를 읽어들인다.
