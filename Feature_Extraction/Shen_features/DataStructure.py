@@ -1,16 +1,13 @@
 import re
-
 import pandas as pd
 import os
 import numpy as np
 import glob
-from Feature_Extraction import Shen_features
-import Feature_Extraction.Shen_features.Classification_feature
-from Classification_feature import calculate_Bandpass
-from Classification_feature import calculate_3dReHo
-from Classification_feature import region_reho_average
-from Classification_feature import atlas_path, FC_extraction
-from Classification_feature import region_alff_average
+from Feature_Extraction.Shen_features.Classification_feature import calculate_Bandpass
+from Feature_Extraction.Shen_features.Classification_feature import calculate_3dReHo
+from Feature_Extraction.Shen_features.Classification_feature import region_reho_average
+from Feature_Extraction.Shen_features.Classification_feature import atlas_path, FC_extraction
+from Feature_Extraction.Shen_features.Classification_feature import region_alff_average
 from typing import List
 
 shen_data = pd.DataFrame(index=None)
@@ -58,10 +55,12 @@ def input_fc(files_path: str, data: List):
 
     for file in files:
         connectivity = FC_extraction(file, atlas_path)
+
         connectivity = connectivity.tolist()
 
         for j in range(len(connectivity)):
             connectivity[j][:] = connectivity[j][:-(len(connectivity) - j)]
+
 
         data.append(connectivity)
 
@@ -139,6 +138,8 @@ for j in range(len_hc):
 for k in range(len_rbd):
     shen_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[k], 1]
 
+
 shen_data_path = os.path.join(feature_path, 'Shen/Shen_features')
 
 shen_data.to_csv(shen_data_path, index=False)
+

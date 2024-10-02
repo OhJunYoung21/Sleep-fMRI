@@ -65,15 +65,6 @@ def region_reho_average(reho_file, atlas_path):
     return masked_data
 
 
-'''
----------------------------------------------------------------------------
-'''
-
-'''
-ALFF를 계산한다.
-'''
-
-
 def calculate_Bandpass(file_path, output_name: str, root_dir: str):
     Bandpass = afni.Bandpass()
     Bandpass.inputs.in_file = file_path
@@ -125,5 +116,3 @@ def region_alff_average(alff_path, atlas_path):
     masked_data = shen_atlas.fit_transform([alff_img])
 
     return masked_data
-
-
