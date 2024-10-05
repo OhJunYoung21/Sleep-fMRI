@@ -22,6 +22,9 @@ If it is "labels" then mask_img and images provided to fit() are resampled to th
 
 참조 링크 :(https://nilearn.github.io/stable/modules/generated/nilearn.maskers.NiftiLabelsMasker.html)
 
+---
+
+
 ### CSV파일에서 데이터를 불러들일때는 문자열로 데이터를 읽어들인다.
 
 Data Features(ALFF,Reho,Functional Connectivity)를 추출해서 csv 파일로 저장하였다.(매번 파이썬 코드를 실행해서 데이터를 얻어오는 과정이 귀찮았기 때문에)
