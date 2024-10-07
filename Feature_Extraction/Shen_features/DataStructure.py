@@ -96,7 +96,7 @@ def input_reho(files_path: str):
 
 def input_alff(files_path: str, mask_path: str, status: str):
     fmri_files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
-    mask_files = glob.glob(mask_path)
+    mask_files = glob.glob(os.path.join(mask_path, 'sub-*_desc-brain_mask.nii.gz'))
 
     fmri_files = sorted(fmri_files)
     mask_files = sorted(mask_files)
@@ -107,12 +107,12 @@ def input_alff(files_path: str, mask_path: str, status: str):
         if match:
             extracted_part = match.group(1)
 
-        output_path = os.path.join(f'/Users/oj/Desktop/Yoo_Lab/CPAC/{status}/{extracted_part}')
+        output_path = os.path.join(f'/Users/oj/Desktop/Yoo_Lab/CPAC/{status}/sub-{extracted_part}')
 
         static_measures(fmri_files[idx], mask_files[idx], output_path,
                         nClusterSize=27, nJobs=1)
 
-        return
+    return
 
 
 def input_reho_shen(file_path: str, data: List):
@@ -138,10 +138,6 @@ def make_alff_shen(file_path: str, data: List):
     return
 
 
-input_alff(root_rbd_dir, '/Users/oj/Desktop/mask_rbd', "RBD")
-
-'''
-
 input_reho_shen(reho_hc_dir, ReHo_HC)
 make_alff_shen(alff_CPAC_hc, ALFF_HC)
 input_fc(root_hc_dir, FC_HC)
@@ -161,5 +157,3 @@ for k in range(len_rbd):
 shen_data_path = os.path.join(feature_path, 'Shen/Shen_features_ex')
 
 shen_data.to_csv(shen_data_path, index=False)
-
-'''

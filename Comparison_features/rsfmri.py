@@ -145,18 +145,17 @@ def static_measures(strFunc, strMask, strDir,
     alffWf.inputs.inputspec.rest_res = strFunc
 
     # Compute ReHo with CPAC's workflow
-    '''
-    rehoWf = reho.create_reho()
+
+    rehoWf = reho.create_reho('static')
     rehoWf.inputs.inputspec.cluster_size = nClusterSize
     rehoWf.inputs.inputspec.rest_mask = strMask
     rehoWf.inputs.inputspec.rest_res_filt = strFunc
-    '''
 
     # Copy outputs into a user-friendly location
     outputNode = Node(DataSink(base_directory=strDir, remove_dest_dir=True), name='datasink')
     workflow.connect(alffWf, 'outputspec.alff_img', outputNode, 'results.@alff')
     workflow.connect(alffWf, 'outputspec.falff_img', outputNode, 'results.@falff')
-    # workflow.connect(rehoWf, 'outputspec.raw_reho_map', outputNode, 'results.@reho')
+    workflow.connect(rehoWf, 'outputspec.raw_reho_map', outputNode, 'results.@reho')
 
     if nJobs > 1:
         # Run with multiprocess parallelization
@@ -165,11 +164,9 @@ def static_measures(strFunc, strMask, strDir,
         workflow.run()
 
 
-'''
 func_path = os.path.join(root_dir, 'post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz')
-mask_path = '/Users/oj/Desktop/mask_rbd/sub-01_task-BRAINMRINONCONTRASTDIFFUSION_acq-AxialfMRIrest_space-MNI152NLin2009cAsym_desc-brain_mask.nii.gz'
+mask_path = '/Users/oj/Desktop/Yoo_Lab/mask_rbd/sub-01_task-BRAINMRINONCONTRASTDIFFUSION_acq-AxialfMRIrest_space-MNI152NLin2009cAsym_desc-brain_mask.nii.gz'
 
-output_path = '/Users/oj/Desktop/Yoo_Lab/CPAC/sub-01'
+output_path = '/Users/oj/Desktop/Yoo_Lab/CPAC/sub-ex'
 
 static_measures(func_path, mask_path, output_path, fFilterHP=0.01, fFilterLP=0.1, nClusterSize=27, nJobs=1)
-'''
