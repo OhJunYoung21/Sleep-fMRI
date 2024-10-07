@@ -9,6 +9,8 @@ from Feature_Extraction.Shen_features.Classification_feature import region_reho_
 from Feature_Extraction.Shen_features.Classification_feature import atlas_path, FC_extraction
 from Feature_Extraction.Shen_features.Classification_feature import region_alff_average
 from typing import List
+from CPAC import alff
+from Comparison_features.rsfmri import static_measures
 
 shen_data = pd.DataFrame(index=None)
 
@@ -20,10 +22,12 @@ shen_data['STATUS'] = None
 ReHo_RBD = []
 FC_RBD = []
 ALFF_RBD = []
+fALFF_RBD = []
 
 ReHo_HC = []
 FC_HC = []
 ALFF_HC = []
+fALFF_HC = []
 
 root_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD'
 
@@ -38,6 +42,12 @@ reho_hc_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_HC/reho'
 alff_hc_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_HC/alff'
 
 feature_path = '/Users/oj/Desktop/Yoo_Lab/Classification_Features'
+
+alff_CPAC_rbd = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD'
+
+alff_CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/HC'
+
+mask_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI'
 
 
 ## 데이터프레임안의 요소들을 전부 지우는 함수이다. 혹시나 데이터프레임안의 데이터가 꼬이는 경우에 빠른 초기화를 위해 제작하였다.
@@ -84,20 +94,25 @@ def input_reho(files_path: str):
 
 ### input_alff()는 alff파일을 만들어서 로컬에 저장하는 함수입니다.
 
-def input_alff(files_path: str):
-    files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
+def input_alff(files_path: str, mask_path: str, status: str):
+    fmri_files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
+    mask_files = glob.glob(mask_path)
 
-    files = sorted(files)
+    fmri_files = sorted(fmri_files)
+    mask_files = sorted(mask_files)
 
-    for file in files:
-        match = re.search(r'sub-(.*)_confounds_regressed.nii.gz', file)
+    for idx in range(len(fmri_files)):
+        match = re.search(r'sub-(.*)_confounds_regressed.nii.gz', fmri_files[idx])
 
         if match:
             extracted_part = match.group(1)
 
-        calculate_Bandpass(file, extracted_part, os.path.join(files_path + '/alff'))
+        output_path = os.path.join(f'/Users/oj/Desktop/Yoo_Lab/CPAC/{status}/{extracted_part}')
 
-    return
+        static_measures(fmri_files[idx], mask_files[idx], output_path,
+                        nClusterSize=27, nJobs=1)
+
+        return
 
 
 def input_reho_shen(file_path: str, data: List):
@@ -111,8 +126,10 @@ def input_reho_shen(file_path: str, data: List):
 
 
 ### 로컬의 alff폴더에서 파일을 읽어온 후, shen_atlas를 적용하고 ALFF 리스트에 넣어준다.
-def input_alff_shen(file_path: str, data: List):
-    alff_path = glob.glob(os.path.join(file_path, 'alff_transformed_*.nii.gz'))
+def make_alff_shen(file_path: str, data: List):
+    alff_path = glob.glob(os.path.join(file_path, 'sub-*/results/alff.nii.gz'))
+
+    alff_path = sorted(alff_path)
 
     for file in alff_path:
         ##Classification_feature에서 불러온 atlas_path를 매개변수로 넣어준다.
@@ -121,11 +138,15 @@ def input_alff_shen(file_path: str, data: List):
     return
 
 
+input_alff(root_rbd_dir, '/Users/oj/Desktop/mask_rbd', "RBD")
+
+'''
+
 input_reho_shen(reho_hc_dir, ReHo_HC)
-input_alff_shen(alff_hc_dir, ALFF_HC)
+make_alff_shen(alff_CPAC_hc, ALFF_HC)
 input_fc(root_hc_dir, FC_HC)
 input_reho_shen(reho_rbd_dir, ReHo_RBD)
-input_alff_shen(alff_rbd_dir, ALFF_RBD)
+make_alff_shen(alff_CPAC_rbd, ALFF_RBD)
 input_fc(root_rbd_dir, FC_RBD)
 
 len_hc = len(ReHo_HC)
@@ -140,3 +161,5 @@ for k in range(len_rbd):
 shen_data_path = os.path.join(feature_path, 'Shen/Shen_features_ex')
 
 shen_data.to_csv(shen_data_path, index=False)
+
+'''

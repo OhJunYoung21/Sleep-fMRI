@@ -1,7 +1,7 @@
-import glob, os
+import os
 from nilearn import image
 from nipype.pipeline.engine import Workflow, Node, JoinNode
-from nipype import IdentityInterface, Rename, DataSink
+from nipype import IdentityInterface, DataSink
 from nipype.interfaces.fsl import ExtractROI, Merge
 from CPAC.alff import alff
 from CPAC.reho import reho
@@ -165,10 +165,11 @@ def static_measures(strFunc, strMask, strDir,
         workflow.run()
 
 
+'''
 func_path = os.path.join(root_dir, 'post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz')
-mask_path = os.path.join(root_dir,
-                         'post_fMRI/post_prep_RBD/sub-01/func/sub-01_task-BRAINMRINONCONTRASTDIFFUSION_acq-AxialfMRIrest_space-MNI152NLin2009cAsym_desc-brain_mask.nii.gz')
+mask_path = '/Users/oj/Desktop/mask_rbd/sub-01_task-BRAINMRINONCONTRASTDIFFUSION_acq-AxialfMRIrest_space-MNI152NLin2009cAsym_desc-brain_mask.nii.gz'
 
 output_path = '/Users/oj/Desktop/Yoo_Lab/CPAC/sub-01'
 
 static_measures(func_path, mask_path, output_path, fFilterHP=0.01, fFilterLP=0.1, nClusterSize=27, nJobs=1)
+'''
