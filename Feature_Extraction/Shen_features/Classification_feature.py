@@ -90,7 +90,7 @@ def calculate_Bandpass(file_path, output_name: str, root_dir: str):
             for z in range(z):
                 time_series = alff_data[x, y, z, :]
                 if np.mean(time_series) != 0:
-                    alff_img[x, y, z] = np.sum(time_series ** 2) / np.mean(time_series)
+                    alff_img[x, y, z] = np.sum(time_series ** 2)
                 else:
                     alff_img[x, y, z] = 0.0
     '''

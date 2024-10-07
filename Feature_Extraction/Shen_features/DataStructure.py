@@ -61,7 +61,6 @@ def input_fc(files_path: str, data: List):
         for j in range(len(connectivity)):
             connectivity[j][:] = connectivity[j][:-(len(connectivity) - j)]
 
-
         data.append(connectivity)
 
     return
@@ -138,8 +137,6 @@ for j in range(len_hc):
 for k in range(len_rbd):
     shen_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[k], 1]
 
-
-shen_data_path = os.path.join(feature_path, 'Shen/Shen_features')
+shen_data_path = os.path.join(feature_path, 'Shen/Shen_features_ex')
 
 shen_data.to_csv(shen_data_path, index=False)
-
