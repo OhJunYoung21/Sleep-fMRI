@@ -6,6 +6,8 @@ from nipype.interfaces.fsl import ExtractROI, Merge
 from CPAC.alff import alff
 from CPAC.reho import reho
 
+root_dir = '/Users/oj/Desktop/Yoo_Lab'
+
 """
 Computation of rs-fMRI derivatives, such as dynamic ALFF, fALFF, and ReHo
 
@@ -105,3 +107,66 @@ def dynamic_measures(strFunc, strMask, strDir,
         workflow.run(plugin='MultiProc', plugin_args={'n_procs': nJobs})
     else:
         workflow.run()
+
+
+def static_measures(strFunc, strMask, strDir,
+                    fFilterHP=0.01, fFilterLP=0.1, nClusterSize=27, nJobs=1):
+    '''
+    Compute static ALFF, fALFF, and ReHo for an fMRI image.
+
+    :param strFunc: path to preprocessed (normalized, denoised, etc.) fMRI NIfTI file
+    :type strFunc: str
+    :param strMask: path to binary brain mask NIfTI file
+    :type strMask: str
+    :param strDir: path to output directory
+    :type strDir: str
+    :param fFilterHP: cutoff in Hz for highpass filter. Default 0.01 Hz
+    :type fFilterHP: float
+    :param fFilterLP: cutoff in Hz for lowpass filter. Default 0.1 Hz
+    :type fFilterLP: float
+    :param nClusterSize: cluster size (neighborhood) for ReHo computation. Can be 7, 19, or 27. Default 27
+    :type nClusterSize: int
+    :param nJobs: number of parallel processes
+    :type nJobs: int
+    '''
+
+    strDir = os.path.realpath(strDir)
+
+    if nClusterSize not in [7, 19, 27]:
+        raise ValueError('{} is not a valid cluster size. Must be 7, 19, or 27'.format(nClusterSize))
+
+    workflow = Workflow('static', base_dir=os.path.join(strDir, 'working_dir'))
+
+    # Compute ALFF and fALFF with CPAC's workflow
+    alffWf = alff.create_alff()
+    alffWf.inputs.hp_input.hp = fFilterHP
+    alffWf.inputs.lp_input.lp = fFilterLP
+    alffWf.inputs.inputspec.rest_mask = strMask
+    alffWf.inputs.inputspec.rest_res = strFunc
+
+    # Compute ReHo with CPAC's workflow
+    rehoWf = reho.create_reho()
+    rehoWf.inputs.inputspec.cluster_size = nClusterSize
+    rehoWf.inputs.inputspec.rest_mask = strMask
+    rehoWf.inputs.inputspec.rest_res_filt = strFunc
+
+    # Copy outputs into a user-friendly location
+    outputNode = Node(DataSink(base_directory=strDir, remove_dest_dir=True), name='datasink')
+    workflow.connect(alffWf, 'outputspec.alff_img', outputNode, 'results.@alff')
+    workflow.connect(alffWf, 'outputspec.falff_img', outputNode, 'results.@falff')
+    workflow.connect(rehoWf, 'outputspec.raw_reho_map', outputNode, 'results.@reho')
+
+    if nJobs > 1:
+        # Run with multiprocess parallelization
+        workflow.run(plugin='MultiProc', plugin_args={'n_procs': nJobs})
+    else:
+        workflow.run()
+
+
+func_path = os.path.join(root_dir, 'post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz')
+mask_path = os.path.join(root_dir,
+                         'post_fMRI/post_prep_RBD/sub-01/func/sub-01_task-BRAINMRINONCONTRASTDIFFUSION_acq-AxialfMRIrest_space-MNI152NLin2009cAsym_desc-brain_mask.nii.gz')
+
+output_path = '/Users/oj/Desktop/Yoo_Lab/CPAC/sub-01'
+
+static_measures(func_path, mask_path, output_path, fFilterHP=0.01, fFilterLP=0.1, nClusterSize=27, nJobs=2)
