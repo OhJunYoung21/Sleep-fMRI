@@ -17,6 +17,7 @@ shen_data = pd.DataFrame(index=None)
 shen_data['FC'] = None
 shen_data['ALFF'] = None
 shen_data['REHO'] = None
+shen_data['fALFF'] = None
 shen_data['STATUS'] = None
 
 ReHo_RBD = []
@@ -153,10 +154,11 @@ def make_falff_shen(file_path: str, data: List):
     return
 
 
+'''
 input_features(root_rbd_dir, mask_path_rbd, "RBD")
 input_features(root_hc_dir, mask_path_hc, "HC")
-
 '''
+
 make_reho_shen(CPAC_hc, ReHo_HC)
 make_alff_shen(CPAC_hc, ALFF_HC)
 make_falff_shen(CPAC_hc, fALFF_HC)
@@ -174,9 +176,8 @@ for j in range(len_hc):
     shen_data.loc[j] = [FC_HC[j], ALFF_HC[j], ReHo_HC[j], fALFF_HC[j], 0]
 
 for k in range(len_rbd):
-    shen_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], fALFF_RBD[j], 1]
+    shen_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[j], fALFF_RBD[j], 1]
 
 shen_data_path = os.path.join(feature_path, 'Shen/Shen_features_ex')
 
 shen_data.to_csv(shen_data_path, index=False)
-'''
