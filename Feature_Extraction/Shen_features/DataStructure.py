@@ -17,6 +17,7 @@ shen_data = pd.DataFrame(index=None)
 shen_data['FC'] = None
 shen_data['ALFF'] = None
 shen_data['REHO'] = None
+shen_data['fALFF'] = None
 shen_data['STATUS'] = None
 
 ReHo_RBD = []
@@ -43,11 +44,12 @@ alff_hc_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_HC/alff'
 
 feature_path = '/Users/oj/Desktop/Yoo_Lab/Classification_Features'
 
-alff_CPAC_rbd = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD'
+CPAC_rbd = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD'
 
-alff_CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/HC'
+CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/HC'
 
-mask_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI'
+mask_path_rbd = '/Users/oj/Desktop/Yoo_Lab/mask_rbd'
+mask_path_hc = '/Users/oj/Desktop/Yoo_Lab/mask_hc'
 
 
 ## 데이터프레임안의 요소들을 전부 지우는 함수이다. 혹시나 데이터프레임안의 데이터가 꼬이는 경우에 빠른 초기화를 위해 제작하였다.
@@ -68,8 +70,10 @@ def input_fc(files_path: str, data: List):
 
         connectivity = connectivity.tolist()
 
+        ''' 
         for j in range(len(connectivity)):
             connectivity[j][:] = connectivity[j][:-(len(connectivity) - j)]
+        '''
 
         data.append(connectivity)
 
@@ -94,7 +98,7 @@ def input_reho(files_path: str):
 
 ### input_alff()는 alff파일을 만들어서 로컬에 저장하는 함수입니다.
 
-def input_alff(files_path: str, mask_path: str, status: str):
+def input_features(files_path: str, mask_path: str, status: str):
     fmri_files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
     mask_files = glob.glob(os.path.join(mask_path, 'sub-*_desc-brain_mask.nii.gz'))
 
@@ -115,8 +119,8 @@ def input_alff(files_path: str, mask_path: str, status: str):
     return
 
 
-def input_reho_shen(file_path: str, data: List):
-    reho_path = glob.glob(os.path.join(file_path, 'reho_*.nii.gz'))
+def make_reho_shen(file_path: str, data: List):
+    reho_path = glob.glob(os.path.join(file_path, 'sub-*/results/ReHo.nii.gz'))
 
     for file in reho_path:
         ##Classification_feature에서 불러온 atlas_path를 매개변수로 넣어준다.
@@ -138,21 +142,41 @@ def make_alff_shen(file_path: str, data: List):
     return
 
 
-input_reho_shen(reho_hc_dir, ReHo_HC)
-make_alff_shen(alff_CPAC_hc, ALFF_HC)
+def make_falff_shen(file_path: str, data: List):
+    alff_path = glob.glob(os.path.join(file_path, 'sub-*/results/falff.nii.gz'))
+
+    alff_path = sorted(alff_path)
+
+    for file in alff_path:
+        ##Classification_feature에서 불러온 atlas_path를 매개변수로 넣어준다.
+        shen_alff = region_alff_average(file, atlas_path)
+        data.append(shen_alff)
+    return
+
+
+'''
+input_features(root_rbd_dir, mask_path_rbd, "RBD")
+input_features(root_hc_dir, mask_path_hc, "HC")
+'''
+
+make_reho_shen(CPAC_hc, ReHo_HC)
+make_alff_shen(CPAC_hc, ALFF_HC)
+make_falff_shen(CPAC_hc, fALFF_HC)
 input_fc(root_hc_dir, FC_HC)
-input_reho_shen(reho_rbd_dir, ReHo_RBD)
-make_alff_shen(alff_CPAC_rbd, ALFF_RBD)
+
+make_reho_shen(CPAC_rbd, ReHo_RBD)
+make_alff_shen(CPAC_rbd, ALFF_RBD)
+make_falff_shen(CPAC_rbd, fALFF_RBD)
 input_fc(root_rbd_dir, FC_RBD)
 
 len_hc = len(ReHo_HC)
 len_rbd = len(ReHo_RBD)
 
 for j in range(len_hc):
-    shen_data.loc[j] = [FC_HC[j], ALFF_HC[j], ReHo_HC[j], 0]
+    shen_data.loc[j] = [FC_HC[j], ALFF_HC[j], ReHo_HC[j], fALFF_HC[j], 0]
 
 for k in range(len_rbd):
-    shen_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[k], 1]
+    shen_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[j], fALFF_RBD[j], 1]
 
 shen_data_path = os.path.join(feature_path, 'Shen/Shen_features_ex')
 
