@@ -12,7 +12,7 @@ from Feature_Extraction.Shen_features.Classification_feature import region_alff_
 
 reho_path_afni = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/reho/reho_01.nii.gz'
 reho_path_CPAC = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD/sub-01/results/ReHo.nii.gz'
-alff_path = '/Users/oj/Desktop/Yoo_Lab/CPAC/HC/sub-01/results/alff.nii.gz'
+alff_path = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD/sub-01/results/alff.nii.gz'
 falff_path = '/Users/oj/Desktop/Yoo_Lab/CPAC/HC/sub-01/results/falff.nii.gz'
 
 alff_img = image.load_img(alff_path)
@@ -30,7 +30,7 @@ alff_img_masked = shen_atlas.inverse_transform(alff_data)
 falff_img_masked = shen_atlas.inverse_transform(falff_data)
 
 
-plotting.plot_stat_map(alff_img_masked, title="Shen_ALFF_HC")
+plotting.plot_stat_map(alff_img_masked, title="Shen_ALFF_RBD")
 plotting.show()
 
 
