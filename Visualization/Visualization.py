@@ -32,12 +32,8 @@ reho_hc_data = shen_atlas.fit_transform(reho_img_hc)
 rbd_img_masked = shen_atlas.inverse_transform(reho_rbd_data)
 hc_img_masked = shen_atlas.inverse_transform(reho_hc_data)
 
-
 plotting.plot_stat_map(rbd_img_masked, title="Shen_ReHo_RBD")
 plotting.show()
 
 plotting.plot_stat_map(hc_img_masked, title="Shen_ReHo_HC")
 plotting.show()
-
-
-
