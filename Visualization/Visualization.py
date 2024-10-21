@@ -15,22 +15,28 @@ reho_path_CPAC = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD/sub-01/results/ReHo.nii.gz'
 alff_path = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD/sub-01/results/alff.nii.gz'
 falff_path = '/Users/oj/Desktop/Yoo_Lab/CPAC/HC/sub-01/results/falff.nii.gz'
 
+reho_path_rbd = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD/sub-01/results/ReHo.nii.gz'
+reho_path_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/HC/sub-01/results/ReHo.nii.gz'
+
 alff_img = image.load_img(alff_path)
 falff_img = image.load_img(falff_path)
-reho_img_CPAC = image.load_img(reho_path_CPAC)
-reho_img_afni = image.load_img(reho_path_afni)
+reho_img_rbd = image.load_img(reho_path_rbd)
+reho_img_hc = image.load_img(reho_path_hc)
 
 shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True, strategy='mean',
                                           resampling_target="labels")
 
-alff_data = shen_atlas.fit_transform(alff_img)
-falff_data = shen_atlas.fit_transform(falff_img)
+reho_rbd_data = shen_atlas.fit_transform(reho_img_rbd)
+reho_hc_data = shen_atlas.fit_transform(reho_img_hc)
 
-alff_img_masked = shen_atlas.inverse_transform(alff_data)
-falff_img_masked = shen_atlas.inverse_transform(falff_data)
+rbd_img_masked = shen_atlas.inverse_transform(reho_rbd_data)
+hc_img_masked = shen_atlas.inverse_transform(reho_hc_data)
 
 
-plotting.plot_stat_map(alff_img_masked, title="Shen_ALFF_RBD")
+plotting.plot_stat_map(rbd_img_masked, title="Shen_ReHo_RBD")
+plotting.show()
+
+plotting.plot_stat_map(hc_img_masked, title="Shen_ReHo_HC")
 plotting.show()
 
 
