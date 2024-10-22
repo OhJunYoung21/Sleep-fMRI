@@ -9,6 +9,8 @@ import nibabel as nib
 from nilearn.image import threshold_img
 from Feature_Extraction.Shen_features.Classification_feature import FC_extraction, file_path, atlas_path
 from Feature_Extraction.Shen_features.Classification_feature import region_alff_average
+from Feature_Extraction.Shen_features.Classification_feature import FC_extraction
+from Feature_Extraction.Shen_features.Classification_feature import atlas_path, file_path
 
 reho_path_afni = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/reho/reho_01.nii.gz'
 reho_path_CPAC = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD/sub-01/results/ReHo.nii.gz'
@@ -32,8 +34,5 @@ reho_hc_data = shen_atlas.fit_transform(reho_img_hc)
 rbd_img_masked = shen_atlas.inverse_transform(reho_rbd_data)
 hc_img_masked = shen_atlas.inverse_transform(reho_hc_data)
 
-plotting.plot_stat_map(rbd_img_masked, title="Shen_ReHo_RBD")
-plotting.show()
-
-plotting.plot_stat_map(hc_img_masked, title="Shen_ReHo_HC")
+plotting.plot_img(rbd_img_masked)
 plotting.show()

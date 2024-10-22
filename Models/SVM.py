@@ -1,28 +1,48 @@
 import pandas as pd
 import ast
+from nilearn import plotting
 from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
+from sklearn import svm
 from sklearn.metrics import accuracy_score
-from itertools import chain
 import numpy as np
+from sklearn.metrics import confusion_matrix
 
 shen_features = pd.read_csv('/Users/oj/Desktop/Yoo_Lab/Classification_Features/Shen/Shen_features_final.csv',
-                            converters={
-                                'FC': ast.literal_eval,
-                                'STATUS': ast.literal_eval
-                            })
+                            converters={'ALFF': ast.literal_eval,
+                                        'fALFF': ast.literal_eval,
+                                        'REHO': ast.literal_eval,
+                                        'STATUS': ast.literal_eval,
+                                        'FC': ast.literal_eval}
+                            )
+shen_features['ALFF'] = shen_features['ALFF'].apply(
+    lambda x: np.array(x).flatten())
+
+X = np.array(shen_features['ALFF'])
+y = shen_features['STATUS']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+X_train = np.array(X_train.tolist())
+X_test = np.array(X_test.tolist())
+
+clf = svm.SVC(kernel='linear')
+clf.fit(X_train, y_train)
+
+y_pred = clf.predict(X_test)
+
+acc = accuracy_score(y_test, y_pred)
+
+result_matrix = confusion_matrix(y_test, y_pred)
+
+print(result_matrix,len(y_pred))
 
 '''
-alff_to_process = 'ALFF'  # 처리할 컬럼 이름
-shen_features[alff_to_process] = shen_features[alff_to_process].str.split().str.join(',').flatten()
+target = shen_features['FC'][1]
 
-reho_to_process = 'REHO'  # 처리할 컬럼 이름
-shen_features[reho_to_process] = shen_features[reho_to_process].str.split().str.join(',').flatten()
-
-falff_to_process = 'fALFF'  # 처리할 컬럼 이름
-shen_features[falff_to_process] = shen_features[falff_to_process].str.split().str.join(',').flatten()
-
-shen_features.to_csv('/Users/oj/Desktop/Yoo_Lab/Classification_Features/Shen/Shen_features_final.csv', index=False)
+plotting.plot_matrix(target,
+                     figure=(9, 7),
+                     vmax=0.5,
+                     vmin=-0.5,
+                     title="Functional Connectivity")
+plotting.show()
 '''
-
-shen_features.to_csv('/Users/oj/Desktop/Yoo_Lab/Classification_Features/Shen/Shen_features_final_1.csv', index=False)
