@@ -31,20 +31,31 @@ reho_img_hc = image.load_img(reho_path_hc)
 shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True, strategy='mean',
                                           resampling_target="labels")
 
-reho_imgs = glob.glob(os.path.join('/Users/oj/Desktop/CPAC_features', 'ReHo_*.nii.gz'))
-reho_nifti = []
+reho_rbd_imgs = glob.glob(os.path.join('/Users/oj/Desktop/CPAC_features/RBD', 'ReHo_*.nii.gz'))
+reho_rbd_nifti = []
+reho_hc_imgs = glob.glob(os.path.join('/Users/oj/Desktop/CPAC_features/HC', 'ReHo_*.nii.gz'))
+reho_hc_nifti = []
 
-for k in reho_imgs:
+for k in reho_rbd_imgs:
     img = image.load_img(k)
-    reho_nifti.append(img)
+    reho_rbd_nifti.append(img)
 
-mean_img = image.mean_img(reho_nifti)
-mean_data = shen_atlas.fit_transform(mean_img)
+for k in reho_hc_imgs:
+    img = image.load_img(k)
+    reho_hc_nifti.append(img)
 
-mean_masked = shen_atlas.inverse_transform(mean_data)
-plotting.plot_stat_map(mean_masked)
+mean_rbd_img = image.mean_img(reho_rbd_nifti)
+mean_rbd_data = shen_atlas.fit_transform(mean_rbd_img)
+
+mean_hc_img = image.mean_img(reho_hc_nifti)
+mean_hc_data = shen_atlas.fit_transform(mean_hc_img)
+
+mean_rbd_masked = shen_atlas.inverse_transform(mean_rbd_data)
+mean_hc_masked = shen_atlas.inverse_transform(mean_hc_data)
+plotting.plot_stat_map(mean_rbd_masked, title="RBD_mean")
 plotting.show()
-
+plotting.plot_stat_map(mean_hc_masked, title="HC_mean")
+plotting.show()
 
 '''
 reho_rbd_data = shen_atlas.fit_transform(reho_img_rbd)
