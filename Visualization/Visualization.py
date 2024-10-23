@@ -52,9 +52,8 @@ mean_hc_data = shen_atlas.fit_transform(mean_hc_img)
 
 mean_rbd_masked = shen_atlas.inverse_transform(mean_rbd_data)
 mean_hc_masked = shen_atlas.inverse_transform(mean_hc_data)
-plotting.plot_stat_map(mean_rbd_masked, title="RBD_mean")
-plotting.show()
-plotting.plot_stat_map(mean_hc_masked, title="HC_mean")
+diff_img = image.math_img('img1 - img2', img1=mean_rbd_masked, img2=mean_hc_masked)
+plotting.plot_stat_map(diff_img, title='Difference between RBD vs HC')
 plotting.show()
 
 '''
