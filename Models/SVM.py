@@ -44,33 +44,15 @@ threshold = np.percentile(values_array, 90)
 
 top_10_percent_indices = np.where(values_array >= threshold)[0]
 
-upgraded_features['ALFF'] = X_pre_train.tolist()
-upgraded_features['up_ALFF'] = upgraded_features['ALFF'].apply(lambda x: [x[i] for i in top_10_percent_indices])
-
-print(upgraded_features.head())
-
 '''
-print(upgraded_features)
-
-
 clf = svm.SVC(kernel='linear')
-clf.fit(X_train, y_train)
+clf.fit(X_sample_train, y_sample_train)
 
-y_pred = clf.predict(X_test)
+y_sample_pred = clf.predict(X_sample_test)
 
-acc = accuracy_score(y_test, y_pred)
+acc = accuracy_score(y_sample_test, y_sample_pred)
 
-result_matrix = confusion_matrix(y_test, y_pred)
+result_matrix = confusion_matrix(y_sample_test, y_sample_pred)
 
-print(result_matrix,len(y_pred))
-
-
-target = shen_features['FC'][1]
-
-plotting.plot_matrix(target,
-                     figure=(9, 7),
-                     vmax=0.5,
-                     vmin=-0.5,
-                     title="Functional Connectivity")
-plotting.show()
+print(acc)
 '''
