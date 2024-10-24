@@ -14,14 +14,21 @@ upgraded_features['up_ALFF'] = None
 upgraded_features['STATUS'] = None
 upgraded_features['ALFF'] = None
 
-juelich_features = pd.read_csv('/Users/oj/Desktop/Yoo_Lab/Classification_Features/Juelich/Juelich_features_final.csv',
-                               converters={'ALFF': ast.literal_eval,
-                                           'fALFF': ast.literal_eval,
-                                           'REHO': ast.literal_eval,
-                                           'STATUS': ast.literal_eval,
-                                           'FC': ast.literal_eval}
+juelich_features = pd.read_csv('/Users/oj/Desktop/Yoo_Lab/Classification_Features/BASC/BASC_features_final.csv',
+                               converters={
+                                   'STATUS': ast.literal_eval,
+                                   'FC': ast.literal_eval}
                                )
 
+alff_to_process = 'ALFF'  # 처리할 컬럼 이름
+juelich_features[alff_to_process] = juelich_features[alff_to_process].str.split().str.join(',')
+reho_to_process = 'REHO'  # 처리할 컬럼 이름
+juelich_features[reho_to_process] = juelich_features[reho_to_process].str.split().str.join(',')
+falff_to_process = 'fALFF'  # 처리할 컬럼 이름
+juelich_features[falff_to_process] = juelich_features[falff_to_process].str.split().str.join(',')
+juelich_features.to_csv('/Users/oj/Desktop/Yoo_Lab/Classification_Features/BASC/BASC_features_final.csv',
+                        index=False)
+'''
 juelich_features['FC'] = juelich_features['FC'].apply(
     lambda x: np.array(x).flatten())
 
@@ -43,3 +50,4 @@ acc = accuracy_score(y_test, y_pred)
 result_matrix = confusion_matrix(y_test, y_pred)
 
 print(acc)
+'''

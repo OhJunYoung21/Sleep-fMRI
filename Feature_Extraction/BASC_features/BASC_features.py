@@ -16,7 +16,6 @@ file_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_
 
 dataset = datasets.fetch_atlas_basc_multiscale_2015(version="sym", resolution=444)
 atlas_filename = dataset.maps
-labels = dataset.labels
 
 
 def FC_extraction(path):
