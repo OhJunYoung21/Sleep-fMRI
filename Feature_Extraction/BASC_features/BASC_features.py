@@ -14,17 +14,17 @@ from scipy import stats
 
 file_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz'
 
-dataset = datasets.fetch_atlas_juelich('maxprob-thr0-2mm')
+dataset = datasets.fetch_atlas_basc_multiscale_2015(version="sym", resolution=444)
 atlas_filename = dataset.maps
 labels = dataset.labels
 
 
 def FC_extraction(path):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True)
+    basc_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True)
 
     data = image.load_img(path)
 
-    time_series = shen_atlas.fit_transform(data)
+    time_series = basc_atlas.fit_transform(data)
 
     correlation_measure = ConnectivityMeasure(kind='correlation')
     correlation_matrix = correlation_measure.fit_transform([time_series])[0]
@@ -41,22 +41,22 @@ def FC_extraction(path):
 
 
 ## region_reho_average는 mask가 나눈 region안의 voxel 값들의 평균을 계산한다.
-def juelich_reho_average(reho_file):
-    juelich_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True, strategy='mean')
+def basc_reho_average(reho_file):
+    BASC_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True, strategy='mean')
 
     reho_img = image.load_img(reho_file)
 
-    masked_data = juelich_atlas.fit_transform([reho_img])
+    masked_data = BASC_atlas.fit_transform([reho_img])
 
     return masked_data
 
 
-def juelich_alff_average(alff_path):
-    juelich_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True, strategy='mean',
+def basc_alff_average(alff_path):
+    BASC_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True, strategy='mean',
                                                  resampling_target="labels")
 
     alff_img = image.load_img(alff_path)
 
-    masked_data = juelich_atlas.fit_transform([alff_img])
+    masked_data = BASC_atlas.fit_transform([alff_img])
 
     return masked_data
