@@ -14,8 +14,16 @@ from scipy import stats
 
 file_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz'
 
-dataset = datasets.fetch_atlas_aal()
+dataset = datasets.fetch_atlas_basc_multiscale_2015(version="sym", resolution=444)
 atlas_filename = dataset.maps
+
+data = image.load_img(file_path)
+
+AAL_atlas = input_data.NiftiLabelsMasker(labels_img=image.load_img(atlas_filename), standardize=True)
+
+sample = AAL_atlas.fit_transform(data)
+
+print(sample.shape)
 
 
 def FC_extraction(path):
@@ -42,7 +50,7 @@ def FC_extraction(path):
 ## region_reho_average는 mask가 나눈 region안의 voxel 값들의 평균을 계산한다.
 def aal_reho_average(reho_file):
     AAL_atlas = input_data.NiftiLabelsMasker(labels_img=image.load_img(atlas_filename), standardize=True,
-                                              strategy='mean')
+                                             strategy='mean')
 
     reho_img = image.load_img(reho_file)
 
@@ -52,8 +60,9 @@ def aal_reho_average(reho_file):
 
 
 def aal_alff_average(alff_path):
-    AAL_atlas = input_data.NiftiLabelsMasker(labels_img=image.load_img(atlas_filename), standardize=True, strategy='mean',
-                                              resampling_target="labels")
+    AAL_atlas = input_data.NiftiLabelsMasker(labels_img=image.load_img(atlas_filename), standardize=True,
+                                             strategy='mean',
+                                             resampling_target="labels")
 
     alff_img = image.load_img(alff_path)
 
