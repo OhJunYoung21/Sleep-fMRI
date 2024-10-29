@@ -31,9 +31,9 @@ reho_img_hc = image.load_img(reho_path_hc)
 shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True, strategy='mean',
                                           resampling_target="labels")
 
-reho_rbd_imgs = glob.glob(os.path.join('/Users/oj/Desktop/CPAC_features/RBD', 'ReHo_*.nii.gz'))
+reho_rbd_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/RBD', 'ReHo_*.nii.gz'))
 reho_rbd_nifti = []
-reho_hc_imgs = glob.glob(os.path.join('/Users/oj/Desktop/CPAC_features/HC', 'ReHo_*.nii.gz'))
+reho_hc_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/HC', 'ReHo_*.nii.gz'))
 reho_hc_nifti = []
 
 for k in reho_rbd_imgs:
@@ -52,8 +52,8 @@ mean_hc_data = shen_atlas.fit_transform(mean_hc_img)
 
 mean_rbd_masked = shen_atlas.inverse_transform(mean_rbd_data)
 mean_hc_masked = shen_atlas.inverse_transform(mean_hc_data)
-diff_img = image.math_img('img1 - img2', img1=mean_rbd_masked, img2=mean_hc_masked)
-plotting.plot_stat_map(diff_img, title='Difference between RBD vs HC')
+diff_img = image.math_img('np.abs(img1 - img2)', img1=mean_rbd_masked, img2=mean_hc_masked)
+plotting.plot_stat_map(diff_img, title='Difference in ReHo between RBD vs HC', threshold=0.02)
 plotting.show()
 
 '''

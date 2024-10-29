@@ -6,7 +6,7 @@ from sklearn import svm
 from sklearn.metrics import accuracy_score
 import numpy as np
 from sklearn.metrics import confusion_matrix
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV, train_test_split
 
 upgraded_features = pd.DataFrame()
 
@@ -25,17 +25,16 @@ Schaefer_features = pd.read_csv(
     }
 )
 '''
-alff_to_process = 'ALFF'  # 처리할 컬럼 이름
-Schaefer_features[alff_to_process] = Schaefer_features[alff_to_process].str.split().str.join(',')
-reho_to_process = 'REHO'  # 처리할 컬럼 이름
-Schaefer_features[reho_to_process] = Schaefer_features[reho_to_process].str.split().str.join(',')
-falff_to_process = 'fALFF'  # 처리할 컬럼 이름
-Schaefer_features[falff_to_process] = Schaefer_features[falff_to_process].str.split().str.join(',')
-Schaefer_features.to_csv('/Users/oj/Desktop/Yoo_Lab/Classification_Features/Schaefer/Schaefer_features_final.csv',
-                         index=False)
-'''
+X = np.array(Schaefer_features['REHO'])
+y = Schaefer_features['STATUS']
 
-Schaefer_features['REHO'] = Schaefer_features['REHO'].apply(
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+X_train = np.array(X_train.tolist())
+
+
+'''
+Schaefer_features[['REHO']] = Schaefer_features[['REHO']].apply(
     lambda x: np.array(x).flatten())
 
 X = np.array(Schaefer_features['REHO'])
@@ -46,7 +45,13 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 X_train = np.array(X_train.tolist())
 X_test = np.array(X_test.tolist())
 
-clf = svm.SVC(kernel='sigmoid')
+param_grid = {
+    'C': [0.1, 1, 10, 100],
+    'gamma': [1, 0.1, 0.01, 0.001],
+    'kernel': ['linear', 'rbf', 'poly', 'sigmoid']
+}
+
+clf = svm.SVC(kernel='linear', C=0.1, gamma=1)
 clf.fit(X_train, y_train)
 
 y_pred = clf.predict(X_test)
