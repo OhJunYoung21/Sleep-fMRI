@@ -36,3 +36,21 @@ csv파일에서 데이터를 읽어오려면 pd.read_csv()를 해야 하는데, 
 ~~~python3
 import ast
 ~~~
+
+---
+
+### 잘못된 데이터로 인해 잘못된 결과를 초래
+
+fALFF와 ReHo를 기준으로 했을때, 분류 성능이 1.0이 반복적으로 나오는 것을 보고 혹시 코드가 잘못되지는 않았을까 하는 생각에 코드를 살펴보다가 이상한점을 발견하였다.
+
+~~~python3
+for j in range(len_rbd):
+    schaefer_data.loc[j] = [FC_RBD[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
+
+for k in range(len_hc):
+    schaefer_data.loc[len_rbd + k] = [FC_HC[k], ALFF_HC[k], ReHo_HC[j], fALFF_HC[j], 0]
+~~~
+
+k대신 j가 들어있었다.물론, 이게 사실이라면 코드가 안 돌아갔을 법하지만 그래도 확인차 다시 j를 k로 수정하고 다시 데이터 프레임을 만들어주려고 하였다.
+
+데이터를 수정하고 나서 SVM으로 분류한 결과, 각 feature별 정확도는 아래와 같다.
