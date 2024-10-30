@@ -77,6 +77,7 @@ def input_fc(files_path: str, data: List):
 
     return
 
+
 def input_features(files_path: str, mask_path: str, status: str):
     fmri_files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
     mask_files = glob.glob(os.path.join(mask_path, 'sub-*_desc-brain_mask.nii.gz'))
@@ -151,12 +152,12 @@ input_fc(root_rbd_dir, FC_RBD)
 len_hc = len(ReHo_HC)
 len_rbd = len(ReHo_RBD)
 
-for j in range(len_hc):
-    schaefer_data.loc[j] = [FC_HC[j], ALFF_HC[j], ReHo_HC[j], fALFF_HC[j], 0]
+for j in range(len_rbd):
+    schaefer_data.loc[j] = [FC_RBD[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
 
-for k in range(len_rbd):
-    schaefer_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[j], fALFF_RBD[j], 1]
+for k in range(len_hc):
+    schaefer_data.loc[len_rbd + k] = [FC_HC[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-schaefer_data_path = os.path.join(feature_path, 'Schaefer/Schaefer_features_ex')
+schaefer_data_path = os.path.join(feature_path, 'Schaefer/Schaefer_features.csv')
 
 schaefer_data.to_csv(schaefer_data_path, index=False)
