@@ -9,6 +9,7 @@ from Feature_Extraction.Schaefer_features.Classification_feature import FC_extra
 from typing import List
 from CPAC import alff
 from Comparison_features.rsfmri import static_measures
+from sklearn.decomposition import PCA
 
 schaefer_data = pd.DataFrame(index=None)
 
@@ -66,16 +67,19 @@ def input_fc(files_path: str, data: List):
     for file in files:
         connectivity = FC_extraction(file)
 
-        connectivity = connectivity.tolist()
+        connectivity = np.array(connectivity)
 
-        ''' 
-        for j in range(len(connectivity)):
-            connectivity[j][:] = connectivity[j][:-(len(connectivity) - j)]
-        '''
+        connectivity = (connectivity + connectivity.T) / 2  # 대칭화
+        np.fill_diagonal(connectivity
+                         , 0)
 
-        data.append(connectivity)
+        vectorized_fc = connectivity[np.triu_indices(400, k=1)]
 
-    return
+        connectivity_pca = vectorized_fc.reshape(1, -1)
+
+        data.append(connectivity_pca)
+
+    return data
 
 
 def input_features(files_path: str, mask_path: str, status: str):
@@ -134,11 +138,14 @@ def make_falff_schaefer(file_path: str, data: List):
     return
 
 
-'''
-input_features(root_rbd_dir, mask_path_rbd, "RBD")
-input_features(root_hc_dir, mask_path_hc, "HC")
-'''
+result = input_fc(root_hc_dir, FC_HC)
 
+pca = PCA(n_components=50)
+result_pca = pca.fit_transform(result)
+
+print(result_pca.shape)
+
+'''
 make_reho_schaefer(CPAC_hc, ReHo_HC)
 make_alff_schaefer(CPAC_hc, ALFF_HC)
 make_falff_schaefer(CPAC_hc, fALFF_HC)
@@ -152,12 +159,20 @@ input_fc(root_rbd_dir, FC_RBD)
 len_hc = len(ReHo_HC)
 len_rbd = len(ReHo_RBD)
 
+pca = PCA(n_components=50)
+connectivity_pca_HC = pca.fit_transform(FC_HC)
+connectivity_pca_RBD = pca.fit_transform(FC_RBD)
+
+connectivity_pca_HC.tolist()
+connectivity_pca_RBD.tolist()
+
 for j in range(len_rbd):
-    schaefer_data.loc[j] = [FC_RBD[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
+    schaefer_data.loc[j] = [connectivity_pca_RBD[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
 
 for k in range(len_hc):
-    schaefer_data.loc[len_rbd + k] = [FC_HC[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
+    schaefer_data.loc[len_rbd + k] = [connectivity_pca_HC[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-schaefer_data_path = os.path.join(feature_path, 'Schaefer/Schaefer_features.csv')
+schaefer_data_path = os.path.join(feature_path, 'Schaefer/Schaefer_features_selection.csv')
 
 schaefer_data.to_csv(schaefer_data_path, index=False)
+'''

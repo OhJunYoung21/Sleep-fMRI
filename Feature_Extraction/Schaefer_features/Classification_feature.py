@@ -11,6 +11,7 @@ from nilearn import image
 from nilearn import input_data
 from nipype.interfaces import afni
 from scipy import stats
+from sklearn.decomposition import PCA
 
 file_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz'
 

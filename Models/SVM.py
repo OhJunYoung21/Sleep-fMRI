@@ -19,10 +19,10 @@ Shen_features = pd.read_csv(
     }
 )
 
-Shen_features['FC'] = Shen_features['FC'].apply(
+Shen_features['ALFF'] = Shen_features['ALFF'].apply(
     lambda x: np.array(x).flatten())
 
-X = np.array(Shen_features['FC'])
+X = np.array(Shen_features['ALFF'])
 y = Shen_features['STATUS']
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
