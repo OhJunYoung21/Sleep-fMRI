@@ -176,7 +176,7 @@ for j in range(len_hc):
     shen_data.loc[j] = [FC_HC[j], ALFF_HC[j], ReHo_HC[j], fALFF_HC[j], 0]
 
 for k in range(len_rbd):
-    shen_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[j], fALFF_RBD[j], 1]
+    shen_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[k], fALFF_RBD[k], 1]
 
 shen_data_path = os.path.join(feature_path, 'Shen/Shen_features_ex')
 

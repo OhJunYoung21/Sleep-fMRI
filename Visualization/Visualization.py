@@ -32,12 +32,12 @@ reho_img_hc = image.load_img(reho_path_hc)
 Schaefer = datasets.fetch_atlas_schaefer_2018(n_rois=400)
 atlas_filename = Schaefer.maps
 
-shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True, strategy='mean',
-                                          resampling_target="labels")
+Schaefer_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True, strategy='mean',
+                                              resampling_target="labels")
 
-alff_rbd_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/RBD/ALFF', 'alff_*.nii.gz'))
+alff_rbd_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/RBD/ReHo', 'ReHo_*.nii.gz'))
 reho_rbd_nifti = []
-alff_hc_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/HC/ALFF', 'alff_*.nii.gz'))
+alff_hc_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/HC/ReHo', 'ReHo_*.nii.gz'))
 reho_hc_nifti = []
 
 for k in alff_rbd_imgs:
@@ -49,15 +49,15 @@ for k in alff_hc_imgs:
     reho_hc_nifti.append(img)
 
 mean_rbd_img = image.mean_img(reho_rbd_nifti)
-mean_rbd_data = shen_atlas.fit_transform(mean_rbd_img)
+mean_rbd_data = Schaefer_atlas.fit_transform(mean_rbd_img)
 
 mean_hc_img = image.mean_img(reho_hc_nifti)
-mean_hc_data = shen_atlas.fit_transform(mean_hc_img)
+mean_hc_data = Schaefer_atlas.fit_transform(mean_hc_img)
 
-mean_rbd_masked = shen_atlas.inverse_transform(mean_rbd_data)
-mean_hc_masked = shen_atlas.inverse_transform(mean_hc_data)
+mean_rbd_masked = Schaefer_atlas.inverse_transform(mean_rbd_data)
+mean_hc_masked = Schaefer_atlas.inverse_transform(mean_hc_data)
 diff_img = image.math_img('np.abs(img1 - img2)', img1=mean_rbd_masked, img2=mean_hc_masked)
-plotting.plot_stat_map(diff_img, title='Difference in ALFF between RBD vs HC', threshold=0.02)
+plotting.plot_stat_map(diff_img, title='Difference in REHO between RBD vs HC', threshold=0.02)
 plotting.show()
 
 '''
