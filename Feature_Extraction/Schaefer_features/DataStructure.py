@@ -5,11 +5,17 @@ import numpy as np
 import glob
 from Feature_Extraction.Schaefer_features.Classification_feature import region_reho_average, region_alff_average
 from Feature_Extraction.Schaefer_features.Classification_feature import FC_extraction
-
+import scipy.stats as stats
 from typing import List
 from CPAC import alff
 from Comparison_features.rsfmri import static_measures
 from sklearn.decomposition import PCA
+from sklearn import svm
+from sklearn.metrics import accuracy_score
+import numpy as np
+from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import GridSearchCV, train_test_split
+
 
 schaefer_data = pd.DataFrame(index=None)
 
@@ -18,6 +24,7 @@ schaefer_data['ALFF'] = None
 schaefer_data['REHO'] = None
 schaefer_data['fALFF'] = None
 schaefer_data['STATUS'] = None
+
 
 ReHo_RBD = []
 FC_RBD = []
@@ -50,11 +57,12 @@ CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/HC'
 mask_path_rbd = '/Users/oj/Desktop/Yoo_Lab/mask_rbd'
 mask_path_hc = '/Users/oj/Desktop/Yoo_Lab/mask_hc'
 
-
 ## 데이터프레임안의 요소들을 전부 지우는 함수이다. 혹시나 데이터프레임안의 데이터가 꼬이는 경우에 빠른 초기화를 위해 제작하였다.
+'''
 def delete():
     schaefer_data.iloc[:, :] = None
     return schaefer_data
+'''
 
 
 ### reho를 계산해서 reho 디렉토리 안에 넣어주는 코드
@@ -75,9 +83,7 @@ def input_fc(files_path: str, data: List):
 
         vectorized_fc = connectivity[np.triu_indices(400, k=1)]
 
-        connectivity_pca = vectorized_fc.reshape(1, -1)
-
-        data.append(connectivity_pca)
+        data.append(vectorized_fc)
 
     return data
 
@@ -138,14 +144,7 @@ def make_falff_schaefer(file_path: str, data: List):
     return
 
 
-result = input_fc(root_hc_dir, FC_HC)
 
-pca = PCA(n_components=50)
-result_pca = pca.fit_transform(result)
-
-print(result_pca.shape)
-
-'''
 make_reho_schaefer(CPAC_hc, ReHo_HC)
 make_alff_schaefer(CPAC_hc, ALFF_HC)
 make_falff_schaefer(CPAC_hc, fALFF_HC)
@@ -156,23 +155,17 @@ make_alff_schaefer(CPAC_rbd, ALFF_RBD)
 make_falff_schaefer(CPAC_rbd, fALFF_RBD)
 input_fc(root_rbd_dir, FC_RBD)
 
-len_hc = len(ReHo_HC)
-len_rbd = len(ReHo_RBD)
-
-pca = PCA(n_components=50)
-connectivity_pca_HC = pca.fit_transform(FC_HC)
-connectivity_pca_RBD = pca.fit_transform(FC_RBD)
-
-connectivity_pca_HC.tolist()
-connectivity_pca_RBD.tolist()
+len_hc = len(FC_HC)
+len_rbd = len(FC_RBD)
 
 for j in range(len_rbd):
-    schaefer_data.loc[j] = [connectivity_pca_RBD[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
+    schaefer_data.loc[j] = [FC_RBD[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
 
 for k in range(len_hc):
-    schaefer_data.loc[len_rbd + k] = [connectivity_pca_HC[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
+    schaefer_data.loc[len_rbd + k] = [FC_HC[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-schaefer_data_path = os.path.join(feature_path, 'Schaefer/Schaefer_features_selection.csv')
+
+schaefer_data_path = os.path.join(feature_path, 'Schaefer/Schaefer_features.csv')
 
 schaefer_data.to_csv(schaefer_data_path, index=False)
-'''
+

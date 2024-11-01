@@ -155,7 +155,7 @@ for j in range(len_hc):
     AAL_data.loc[j] = [FC_HC[j], ALFF_HC[j], ReHo_HC[j], fALFF_HC[j], 0]
 
 for k in range(len_rbd):
-    AAL_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[j], fALFF_RBD[j], 1]
+    AAL_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[k], fALFF_RBD[k], 1]
 
 aal_data_path = os.path.join(feature_path, 'AAL/AAL_features.csv')
 
