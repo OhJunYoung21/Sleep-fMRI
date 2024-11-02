@@ -16,13 +16,3 @@ AAL_features = pd.read_csv(
         'STATUS': ast.literal_eval
     }
 )
-
-
-'''
-falff_to_process = 'fALFF'  # 처리할 컬럼 이름
-AAL_features[falff_to_process] = AAL_features[falff_to_process].str.split().str.join(',')
-reho_to_process = 'REHO'  # 처리할 컬럼 이름
-AAL_features[reho_to_process] = AAL_features[reho_to_process].str.split().str.join(',')
-AAL_features.to_csv('/Users/oj/Desktop/Yoo_Lab/Classification_Features/AAL/AAL_features_final.csv',
-                    index=False)
-'''
