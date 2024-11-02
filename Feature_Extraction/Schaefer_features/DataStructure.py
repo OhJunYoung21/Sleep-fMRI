@@ -58,14 +58,15 @@ mask_path_rbd = '/Users/oj/Desktop/Yoo_Lab/mask_rbd'
 mask_path_hc = '/Users/oj/Desktop/Yoo_Lab/mask_hc'
 
 ## 데이터프레임안의 요소들을 전부 지우는 함수이다. 혹시나 데이터프레임안의 데이터가 꼬이는 경우에 빠른 초기화를 위해 제작하였다.
-'''
+
 def delete():
     schaefer_data.iloc[:, :] = None
     return schaefer_data
+
+
 '''
-
-
-### reho를 계산해서 reho 디렉토리 안에 넣어주는 코드
+input_fc는 FC_extraction를 사용해서 추출한 Functional Connectivity를 PCA과정을 위해 벡터화 시켜주는 코드입니다.
+'''
 
 def input_fc(files_path: str, data: List):
     files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
@@ -87,6 +88,11 @@ def input_fc(files_path: str, data: List):
 
     return data
 
+
+
+'''
+input_features는 CPAC의 alff,reho등을 사용해서 주어진 file과 mask file을 사용해서 reho와 alff,falff를 추출한다.
+'''
 
 def input_features(files_path: str, mask_path: str, status: str):
     fmri_files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))

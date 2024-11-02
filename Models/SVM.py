@@ -16,3 +16,16 @@ AAL_features = pd.read_csv(
         'STATUS': ast.literal_eval
     }
 )
+
+X = np.array(AAL_features['REHO'])
+y = AAL_features['STATUS']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+X_train = np.array(X_train.tolist())
+X_test = np.array(X_test.tolist())
+
+clf = svm.SVC(kernel='sigmoid')
+clf.fit(X_train, y_train)
+
+y_pred = clf.predict(X_test)

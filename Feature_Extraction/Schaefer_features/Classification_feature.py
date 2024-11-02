@@ -23,6 +23,10 @@ data = image.load_img(file_path)
 schafer_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True)
 
 
+'''
+ConeectivityMeasure를 사용해서 functional Connectivity를 계산한다. 여기서는 Pearson's correlation coefficient를 사용한다.
+'''
+
 def FC_extraction(file_path):
     schaefer_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True)
 
@@ -58,47 +62,6 @@ def region_reho_average(reho_file):
 
     return masked_data
 
-
-def calculate_Bandpass(file_path, output_name: str, root_dir: str):
-    Bandpass = afni.Bandpass()
-    Bandpass.inputs.in_file = file_path
-    Bandpass.inputs.highpass = 0.01
-    Bandpass.inputs.lowpass = 0.1
-
-    # 파일을 저장하는 경로는 out_file로 지정하며, out_file코드를 실행한다는 것은 파일을 저장하겠다는 의미이다.
-
-    ## out_file = alff_path, 위 둘의 경로는 동일하다.ALFF의 첫번째 결과물은 alff_path에 output_name을 추가해서 저장해준다.
-
-    Bandpass.inputs.out_file = os.path.join(root_dir, f'alff_{output_name}.nii.gz')
-
-    Bandpass.run()
-
-    alff_data = image.load_img(os.path.join(root_dir, f'alff_{output_name}.nii.gz')).get_fdata()
-
-    x, y, z, t = alff_data.shape
-
-    alff_img = np.empty((x, y, z))
-
-    for x in range(x):
-        for y in range(y):
-            for z in range(z):
-                time_series = alff_data[x, y, z, :]
-                if np.mean(time_series) != 0:
-                    alff_img[x, y, z] = np.sum(time_series ** 2)
-                else:
-                    alff_img[x, y, z] = 0.0
-    '''
-    alff_img = stats.zscore(alff_img, axis=0)
-    '''
-
-    alff_nifti = nib.Nifti1Image(alff_img, None)
-
-    end_path = os.path.join(root_dir, f'alff_transformed_{output_name}.nii.gz')
-
-    nib.save(alff_nifti,
-             end_path)
-
-    return
 
 
 def region_alff_average(alff_path):
