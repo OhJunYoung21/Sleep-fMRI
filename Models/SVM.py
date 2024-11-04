@@ -7,6 +7,8 @@ from sklearn.metrics import accuracy_score
 import numpy as np
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import LogisticRegression
 
 AAL_features = pd.read_csv(
     '/Users/oj/Desktop/Yoo_Lab/Classification_Features/AAL/AAL_features_final.csv',
@@ -16,11 +18,29 @@ AAL_features = pd.read_csv(
     }
 )
 
+'''
+
+---.csv에 문자열로 저장된 데이터를 읽어와주는 코드---
+
+alff_to_process = 'ALFF'  # 처리할 컬럼 이름
+Schaefer_features[alff_to_process] = Schaefer_features[alff_to_process].str.split().str.join(',')
+reho_to_process = 'REHO'  # 처리할 컬럼 이름
+Schaefer_features[reho_to_process] = Schaefer_features[reho_to_process].str.split().str.join(',')
+falff_to_process = 'fALFF'  # 처리할 컬럼 이름
+Schaefer_features[falff_to_process] = Schaefer_features[falff_to_process].str.split().str.join(',')
+Schaefer_features.to_csv('/Users/oj/Desktop/Yoo_Lab/Classification_Features/Schaefer/Schaefer_features_final.csv',
+                        index=False)
+'''
+
+AAL_features['REHO'] = AAL_features['REHO'].apply(
+    lambda x: np.array(x).flatten())
+
 X = AAL_features['REHO']
 
-X_features = {key: [value[0][4], value[0][5], value[0][8], value[0][9], value[0][24], value[0][25], value[0][26],
-                    value[0][33], value[0][34], value[0][35], value[0][42], value[0][43], value[0][56], value[0][87]]
+X_features = {key: [value[4], value[5], value[8], value[9], value[24], value[25], value[26],
+                    value[33], value[34], value[35], value[42], value[43], value[56], value[87]]
               for key, value in X.items()}
+
 y = AAL_features['STATUS']
 
 X_train, X_test, y_train, y_test = train_test_split(X_features, y, test_size=0.2, random_state=42)
@@ -28,8 +48,8 @@ X_train, X_test, y_train, y_test = train_test_split(X_features, y, test_size=0.2
 X_train = np.array(X_train)
 X_test = np.array(X_test)
 
-clf = svm.SVC()
-clf.fit(X_train, y_train)
+model = LogisticRegression()
+model.fit(X_train, y_train)
 
-y_pred = clf.predict(X_test)
+y_pred = model.predict(X_test)
 print(accuracy_score(y_test, y_pred))
