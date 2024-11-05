@@ -10,8 +10,8 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.linear_model import SGDClassifier
 from sklearn.linear_model import LogisticRegression
 
-AAL_features = pd.read_csv(
-    '/Users/oj/Desktop/Yoo_Lab/Classification_Features/AAL/AAL_features_final.csv',
+Schaefer_features = pd.read_csv(
+    '/Users/oj/Desktop/Yoo_Lab/Classification_Features/Schaefer/Schaefer_features_final.csv',
     converters={
         'REHO': ast.literal_eval,
         'STATUS': ast.literal_eval
@@ -32,23 +32,23 @@ Schaefer_features.to_csv('/Users/oj/Desktop/Yoo_Lab/Classification_Features/Scha
                         index=False)
 '''
 
-AAL_features['REHO'] = AAL_features['REHO'].apply(
+Schaefer_features['REHO'] = Schaefer_features['REHO'].apply(
     lambda x: np.array(x).flatten())
 
-X = AAL_features['REHO']
+X = Schaefer_features['REHO']
 
-X_features = {key: [value[4], value[5], value[8], value[9], value[24], value[25], value[26],
-                    value[33], value[34], value[35], value[42], value[43], value[56], value[87]]
+X_features = {key: [value[4], value[15], value[19], value[20], value[25], value[26], value[32],
+                    value[45], value[88], value[100], value[101], value[115]]
               for key, value in X.items()}
 
-y = AAL_features['STATUS']
+y = Schaefer_features['STATUS']
 
-X_train, X_test, y_train, y_test = train_test_split(X_features, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-X_train = np.array(X_train)
-X_test = np.array(X_test)
+X_train = np.array(X_train.tolist())
+X_test = np.array(X_test.tolist())
 
-model = LogisticRegression()
+model = svm.SVC(kernel='linear')
 model.fit(X_train, y_train)
 
 y_pred = model.predict(X_test)
