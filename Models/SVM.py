@@ -9,11 +9,13 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.linear_model import SGDClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import f1_score
 
 Schaefer_features = pd.read_csv(
     '/Users/oj/Desktop/Yoo_Lab/Classification_Features/Schaefer/Schaefer_features_final.csv',
     converters={
         'REHO': ast.literal_eval,
+        'ALFF': ast.literal_eval,
         'STATUS': ast.literal_eval
     }
 )
@@ -32,24 +34,39 @@ Schaefer_features.to_csv('/Users/oj/Desktop/Yoo_Lab/Classification_Features/Scha
                         index=False)
 '''
 
-Schaefer_features['REHO'] = Schaefer_features['REHO'].apply(
+Schaefer_features['ALFF'] = Schaefer_features['ALFF'].apply(
     lambda x: np.array(x).flatten())
 
-X = Schaefer_features['REHO']
+X = Schaefer_features['ALFF']
 
-X_features = {key: [value[4], value[15], value[19], value[20], value[25], value[26], value[32],
-                    value[45], value[88], value[100], value[101], value[115]]
-              for key, value in X.items()}
+alff_data = pd.read_excel('alff_diff_data.xlsx')
+
+alff_regions_normality = alff_data['significant_diff']
+alff_regions_mann = alff_data['significant_diff_mann']
+
+alff_nan_ttest = next((i for i, x in enumerate(alff_regions_normality) if np.isnan(x)), len(alff_regions_normality))
+alff_regions_normality = alff_regions_normality[:alff_nan_ttest].tolist()
+
+alff_nan_mann = next((i for i, x in enumerate(alff_regions_mann) if np.isnan(x)), len(alff_regions_mann))
+alff_regions_mann = alff_regions_mann[:alff_nan_mann].tolist()
+
+alff_regions = alff_regions_mann + alff_regions_normality
+
+alff_regions = [int(i) for i in alff_regions]
+
+X_features = {key: [value[i] for i in alff_regions if i < len(value)] for key, value in X.items()}
 
 y = Schaefer_features['STATUS']
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_features, y, test_size=0.2, random_state=42)
 
-X_train = np.array(X_train.tolist())
-X_test = np.array(X_test.tolist())
+X_train = np.array(X_train)
+X_test = np.array(X_test)
 
-model = svm.SVC(kernel='linear')
+model = svm.SVC(kernel='rbf', C=0.5, random_state=42, gamma='scale')
 model.fit(X_train, y_train)
 
 y_pred = model.predict(X_test)
 print(accuracy_score(y_test, y_pred))
+print(f1_score(y_test, y_pred))
+print(confusion_matrix(y_test, y_pred))
