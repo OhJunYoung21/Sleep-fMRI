@@ -40,6 +40,8 @@ Schaefer_features['ALFF'] = Schaefer_features['ALFF'].apply(
 
 X = Schaefer_features['ALFF']
 
+y = Schaefer_features['STATUS']
+
 alff_data = pd.read_excel('alff_diff_data.xlsx')
 
 alff_regions_normality = alff_data['significant_diff']
@@ -55,17 +57,37 @@ alff_regions = alff_regions_mann + alff_regions_normality
 
 alff_regions = [int(i) for i in alff_regions]
 
-X_features = np.array({key: [value[i] for i in alff_regions if i < len(value)] for key, value in X.items()})
+print(len(alff_regions))
 
-y = Schaefer_features['STATUS']
+for i in range(100):
+    rbd_X = X[y == 1]
+    rbd_y = y[y == 1]
 
-svm_model = svm.SVC(kernel='linear')
+    hc_X = X[y == 0]
+    hc_y = y[y == 0]
 
-k_fold = KFold(n_splits=10, shuffle=True, random_state=42)
+    np.random.seed(42 + i)
 
-scores = cross_val_score(svm_model, X.tolist(), y, cv=k_fold)
+    rbd_sample_indices = np.random.choice(rbd_X.index, size=len(hc_X), replace=False)
 
-# 결과 출력
-print("Cross-validation scores:", np.round(scores, 2))
-print("Mean accuracy:", np.mean(scores))
-print("Standard deviation of accuracy:", np.std(scores))
+    rbd_X_sample = rbd_X.loc[rbd_sample_indices]
+    rbd_y_sample = rbd_y.loc[rbd_sample_indices]
+
+    X_balanced = pd.concat([rbd_X_sample, hc_X])
+    y_balanced = pd.concat([rbd_y_sample, hc_y])
+
+    X_balanced = X_balanced.reset_index(drop=True)
+    y_balanced = y_balanced.reset_index(drop=True)
+
+    X_features = np.array([row[alff_regions] for row in X_balanced.values])
+
+    X_train, X_test, y_train, y_test = train_test_split(X_balanced, y_balanced, test_size=0.3,
+                                                        random_state=42)
+
+    model = svm.SVC(kernel='poly', C=1.0, gamma=0.1)
+
+    model.fit(np.array(X_train.tolist()), np.array(y_train.tolist()))
+
+    y_pred = model.predict(np.array(X_test.tolist()))
+
+    print(f"{i + 1}th Accuracy: {accuracy_score(y_test, y_pred):.2f}")
