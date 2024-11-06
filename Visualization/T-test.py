@@ -108,7 +108,7 @@ def mann_whitney_test(mann_list):
     result_mann = []
 
     for j in mann_list:
-        u_stats, p_val = mannwhitneyu(reho_rbd[:, j], reho_hc[:, j], equal_var=True)
+        u_stats, p_val = mannwhitneyu(reho_rbd[:, j], reho_hc[:, j], alternative='two-sided')
 
         if p_val < 0.05:
             result_mann.append(j)
