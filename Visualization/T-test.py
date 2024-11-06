@@ -8,43 +8,81 @@ import os
 import numpy as np
 from nilearn import image
 from nilearn import datasets
+from scipy.stats import shapiro
+from scipy.stats import mannwhitneyu
 from scipy.stats import ttest_ind
+from scipy.stats import levene
 
-AAL = datasets.fetch_atlas_aal()
-atlas_filename = AAL.maps
-labels = AAL.labels
+Schaefer = datasets.fetch_atlas_schaefer_2018(n_rois=200)
+atlas_filename = Schaefer.maps
+labels = Schaefer.labels
 
-AAL_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True, strategy='mean',
-                                         resampling_target="labels")
+Schaefer_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True, strategy='mean',
+                                              resampling_target="labels")
 
-alff_rbd_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/RBD/ReHo', 'ReHo_*.nii.gz'))
+reho_rbd_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/RBD/ReHo', 'ReHo_*.nii.gz'))
 reho_rbd = []
-alff_hc_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/HC/ReHo', 'ReHo_*.nii.gz'))
+reho_hc_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/HC/ReHo', 'ReHo_*.nii.gz'))
 reho_hc = []
 
-for k in alff_rbd_imgs:
+for k in reho_rbd_imgs:
     img = image.load_img(k)
-    aal_rbd = AAL_atlas.fit_transform(img)
-    reho_rbd.append(aal_rbd)
+    rbd = Schaefer_atlas.fit_transform(img)
+    reho_rbd.append(rbd)
 
-for k in alff_hc_imgs:
+for k in reho_hc_imgs:
     img = image.load_img(k)
-    aal_hc = AAL_atlas.fit_transform(img)
-    reho_hc.append(aal_hc)
-
-t_statistics = []
-p_values = []
+    hc = Schaefer_atlas.fit_transform(img)
+    reho_hc.append(hc)
 
 reho_rbd = np.array([item[0] for item in reho_rbd])
 reho_hc = np.array([item[0] for item in reho_hc])
 
-for i in range(116):
-    t_stat, p_val = ttest_ind(reho_rbd[:, i], reho_hc[:, i])
-    t_statistics.append(t_stat)
-    p_values.append(p_val)
 
-# 결과 출력
-for i in range(116):
-    print(f"Feature {i + 1}: T-statistic = {t_statistics[i]:.3f}, p-value = {p_values[i]:.3f}") if p_values[
-                                                                                                       i] <= 0.05 else print(
-        "None significant")
+# 정규분포를 따르는 region과 그렇지 않은 region의 노드를 알려준다.
+
+def check_normality(features):
+    mann_whitneyu = []
+    t_test = []
+
+    for i in range(200):
+        stat, p_val = shapiro(features[:, i])
+
+        if p_val < 0.05:
+            mann_whitneyu.append(i)
+        else:
+            t_test.append(i)
+
+    return mann_whitneyu, t_test
+
+
+'''
+alff_data = pd.read_excel('alff_final_data.xlsx')
+
+no_follow_normality = alff_data['no_follow_normality'].tolist()
+significant_diff = alff_data['significant_diff'].tolist()
+
+no_follow_index = next((i for i, x in enumerate(no_follow_normality) if np.isnan(x)), len(no_follow_normality))
+no_follow_normality = no_follow_normality[:no_follow_index]
+
+significant_diff_mann = []
+
+alff_rbd = np.array([item[0] for item in alff_rbd])
+alff_hc = np.array([item[0] for item in alff_hc])
+
+no_follow_normality = [int(i) for i in no_follow_normality]
+
+for i in no_follow_normality:
+    u_stats, p_value = mannwhitneyu(alff_rbd[:, i], alff_hc[:, i])  # i번째 열에 대해 Shapiro-Wilk 검정 수행
+
+    if p_value > 0.05:
+        print(f"Feature {i}: 유의미한 차이를 보이지 않는다. (p-value={p_value:.3f})")
+
+    else:
+        print(f"Feature {i}: 유의미한 차이를 보인다. (p-value={p_value:.3f})")
+        significant_diff_mann.append(i)
+
+alff_data['significant_diff_mann'] = pd.Series(significant_diff_mann)
+
+alff_data.to_excel('alff_diff_data.xlsx', index=False)
+'''

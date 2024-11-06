@@ -57,7 +57,6 @@ alff_regions = alff_regions_mann + alff_regions_normality
 
 alff_regions = [int(i) for i in alff_regions]
 
-print(len(alff_regions))
 
 for i in range(100):
     rbd_X = X[y == 1]
@@ -81,13 +80,12 @@ for i in range(100):
 
     X_features = np.array([row[alff_regions] for row in X_balanced.values])
 
-    X_train, X_test, y_train, y_test = train_test_split(X_balanced, y_balanced, test_size=0.3,
-                                                        random_state=42)
+    svm_model = svm.SVC(kernel='rbf')
 
-    model = svm.SVC(kernel='poly', C=1.0, gamma=0.1)
+    # KFold 설정 (5-폴드 교차검증)
+    kfold = KFold(n_splits=10, shuffle=True, random_state=42)
 
-    model.fit(np.array(X_train.tolist()), np.array(y_train.tolist()))
+    # 교차검증 수행
+    scores = cross_val_score(svm_model, X_features, y_balanced, cv=kfold,scoring = 'f1')
 
-    y_pred = model.predict(np.array(X_test.tolist()))
-
-    print(f"{i + 1}th Accuracy: {accuracy_score(y_test, y_pred):.2f}")
+    print(f"{i + 1}th F1-score: {np.mean(scores):.2f}")
