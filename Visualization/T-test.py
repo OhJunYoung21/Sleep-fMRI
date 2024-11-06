@@ -56,6 +56,83 @@ def check_normality(features):
     return mann_whitneyu, t_test
 
 
+def check_variance():
+    mann_whitneyu, t_test = check_normality(reho_rbd)
+
+    welch = []
+    student = []
+
+    for j in t_test:
+        t_stats, p_val = levene(reho_rbd[:, j], reho_hc[:, j])
+
+        # 두그룹의 분산이 동일하지 않은 경우.
+        if p_val < 0.05:
+            welch.append(j)
+        else:
+            student.append(j)
+    return welch, student
+
+
+mann_whitneyu_check, t_test_check = check_normality(reho_rbd)
+
+welch, student = check_variance()
+
+
+def welch_t_test(welch_list):
+    result_welch = []
+
+    for j in welch_list:
+        t_stats, p_val = ttest_ind(reho_rbd[:, j], reho_hc[:, j], equal_var=False)
+
+        if p_val < 0.05:
+            result_welch.append(j)
+        else:
+            continue
+    return result_welch
+
+
+def student_t_test(student_list):
+    result_student = []
+
+    for j in student_list:
+        t_stats, p_val = ttest_ind(reho_rbd[:, j], reho_hc[:, j], equal_var=True)
+
+        if p_val < 0.05:
+            result_student.append(j)
+        else:
+            continue
+    return result_student
+
+
+def mann_whitney_test(mann_list):
+    result_mann = []
+
+    for j in mann_list:
+        u_stats, p_val = mannwhitneyu(reho_rbd[:, j], reho_hc[:, j], equal_var=True)
+
+        if p_val < 0.05:
+            result_mann.append(j)
+        else:
+            continue
+    return result_mann
+
+
+student_test = student_t_test(student)
+welch_test = welch_t_test(welch)
+mann_test = mann_whitney_test(mann_whitneyu_check)
+reho_Schaefer_data = pd.DataFrame(
+    {
+        'follow_normality': pd.Series(t_test_check),
+        'no_follow_normality': pd.Series(mann_whitneyu_check),
+        'welch': pd.Series(welch_test),
+        'student': pd.Series(student_test),
+        'mann_whitneyu': pd.Series(mann_test),
+    }
+)
+
+reho_Schaefer_data.to_excel('reho_Schaefer_data.xlsx')
+
+# 두그룹의 분산이 동일한 경우
 '''
 alff_data = pd.read_excel('alff_final_data.xlsx')
 
