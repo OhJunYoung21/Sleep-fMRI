@@ -10,6 +10,7 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.linear_model import SGDClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score
+from sklearn.model_selection import KFold, cross_val_score
 
 Schaefer_features = pd.read_csv(
     '/Users/oj/Desktop/Yoo_Lab/Classification_Features/Schaefer/Schaefer_features_final.csv',
@@ -54,19 +55,17 @@ alff_regions = alff_regions_mann + alff_regions_normality
 
 alff_regions = [int(i) for i in alff_regions]
 
-X_features = {key: [value[i] for i in alff_regions if i < len(value)] for key, value in X.items()}
+X_features = np.array({key: [value[i] for i in alff_regions if i < len(value)] for key, value in X.items()})
 
 y = Schaefer_features['STATUS']
 
-X_train, X_test, y_train, y_test = train_test_split(X_features, y, test_size=0.2, random_state=42)
+svm_model = svm.SVC(kernel='linear')
 
-X_train = np.array(X_train)
-X_test = np.array(X_test)
+k_fold = KFold(n_splits=10, shuffle=True, random_state=42)
 
-model = svm.SVC(kernel='rbf', C=0.5, random_state=42, gamma='scale')
-model.fit(X_train, y_train)
+scores = cross_val_score(svm_model, X.tolist(), y, cv=k_fold)
 
-y_pred = model.predict(X_test)
-print(accuracy_score(y_test, y_pred))
-print(f1_score(y_test, y_pred))
-print(confusion_matrix(y_test, y_pred))
+# 결과 출력
+print("Cross-validation scores:", np.round(scores, 2))
+print("Mean accuracy:", np.mean(scores))
+print("Standard deviation of accuracy:", np.std(scores))
