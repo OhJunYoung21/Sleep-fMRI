@@ -61,6 +61,9 @@ reho_regions = reho_student + reho_mann + reho_welch
 
 reho_regions = [int(i) for i in reho_regions]
 
+
+## X와 y의 샘플수를 맞추기 위해서 다운샘플링을 진행하는 코드이다.
+
 for i in range(100):
     rbd_X = X[y == 1]
     rbd_y = y[y == 1]
@@ -83,12 +86,13 @@ for i in range(100):
 
     X_features = np.array([row[reho_regions] for row in X_balanced.values])
 
-    svm_model = svm.SVC(kernel='poly', degree=4)
+    svm_model = svm.SVC(kernel='rbf')
 
     # KFold 설정 (5-폴드 교차검증)
     kfold = KFold(n_splits=10, shuffle=True, random_state=42)
 
     # 교차검증 수행
-    scores = cross_val_score(svm_model, X_features, y_balanced, cv=kfold, scoring='f1')
+    scores = cross_val_score(svm_model, X_features, y_balanced, cv=kfold, scoring='accuracy')
 
     print(f"{i + 1}th F1-score: {np.mean(scores):.2f}")
+

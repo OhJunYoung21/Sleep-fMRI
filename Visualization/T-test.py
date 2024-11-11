@@ -161,5 +161,5 @@ for i in no_follow_normality:
 
 alff_data['significant_diff_mann'] = pd.Series(significant_diff_mann)
 
-alff_data.to_excel('alff_diff_data.xlsx', index=False)
+alff_data.to_excel('alff_Schaefer_data.xlsx', index=False)
 '''
