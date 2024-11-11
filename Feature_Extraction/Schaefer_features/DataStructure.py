@@ -16,7 +16,6 @@ import numpy as np
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import GridSearchCV, train_test_split
 
-
 schaefer_data = pd.DataFrame(index=None)
 
 schaefer_data['FC'] = None
@@ -24,7 +23,6 @@ schaefer_data['ALFF'] = None
 schaefer_data['REHO'] = None
 schaefer_data['fALFF'] = None
 schaefer_data['STATUS'] = None
-
 
 ReHo_RBD = []
 FC_RBD = []
@@ -57,6 +55,7 @@ CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/HC'
 mask_path_rbd = '/Users/oj/Desktop/Yoo_Lab/mask_rbd'
 mask_path_hc = '/Users/oj/Desktop/Yoo_Lab/mask_hc'
 
+
 ## 데이터프레임안의 요소들을 전부 지우는 함수이다. 혹시나 데이터프레임안의 데이터가 꼬이는 경우에 빠른 초기화를 위해 제작하였다.
 
 def delete():
@@ -67,6 +66,7 @@ def delete():
 '''
 input_fc는 FC_extraction를 사용해서 추출한 Functional Connectivity를 PCA과정을 위해 벡터화 시켜주는 코드입니다.
 '''
+
 
 def input_fc(files_path: str, data: List):
     files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
@@ -89,10 +89,10 @@ def input_fc(files_path: str, data: List):
     return data
 
 
-
 '''
 input_features는 CPAC의 alff,reho등을 사용해서 주어진 file과 mask file을 사용해서 reho와 alff,falff를 추출한다.
 '''
+
 
 def input_features(files_path: str, mask_path: str, status: str):
     fmri_files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
@@ -150,28 +150,32 @@ def make_falff_schaefer(file_path: str, data: List):
     return
 
 
+result_hc = input_fc(root_hc_dir, FC_HC)
+pca_hc = PCA(n_components=39)
+FC_PCA_HC = pca_hc.fit_transform(result_hc)
+
+result_rbd = input_fc(root_rbd_dir, FC_RBD)
+pca_rbd = PCA(n_components=50)
+FC_PCA_RBD = pca_rbd.fit_transform(result_rbd)
 
 make_reho_schaefer(CPAC_hc, ReHo_HC)
 make_alff_schaefer(CPAC_hc, ALFF_HC)
 make_falff_schaefer(CPAC_hc, fALFF_HC)
-input_fc(root_hc_dir, FC_HC)
 
 make_reho_schaefer(CPAC_rbd, ReHo_RBD)
 make_alff_schaefer(CPAC_rbd, ALFF_RBD)
 make_falff_schaefer(CPAC_rbd, fALFF_RBD)
-input_fc(root_rbd_dir, FC_RBD)
 
-len_hc = len(FC_HC)
-len_rbd = len(FC_RBD)
+len_hc = len(FC_PCA_HC)
+len_rbd = len(FC_PCA_RBD)
 
 for j in range(len_rbd):
-    schaefer_data.loc[j] = [FC_RBD[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
+    schaefer_data.loc[j] = [FC_PCA_RBD[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
 
 for k in range(len_hc):
-    schaefer_data.loc[len_rbd + k] = [FC_HC[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
+    schaefer_data.loc[len_rbd + k] = [FC_PCA_HC[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-
-schaefer_data_path = os.path.join(feature_path, 'Schaefer/Schaefer_features.csv')
+schaefer_data_path = os.path.join(feature_path, 'Schaefer/Schaefer_PCA_features.csv')
 
 schaefer_data.to_csv(schaefer_data_path, index=False)
 
