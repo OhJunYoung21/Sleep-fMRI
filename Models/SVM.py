@@ -12,20 +12,15 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold, cross_val_score
 
-Schaefer_features = pd.read_csv(
-    '/Users/oj/Desktop/Yoo_Lab/Classification_Features/Schaefer/Schaefer_features_final.csv',
-    converters={
-        'REHO': ast.literal_eval,
-        'ALFF': ast.literal_eval,
-        'FC': ast.literal_eval,
-        'fALFF': ast.literal_eval,
-        'STATUS': ast.literal_eval
-    }
-)
+Schaefer_features = pd.read_excel('Schaefer_PCA_features_final.xlsx')
+
+
+X = Schaefer_features['FC'].apply(lambda x: x.strip('[]').lstrip(','))
+
+print(X)
 
 '''
 fc_to_process = 'FC'  # 처리할 컬럼 이름
-Schaefer_features[fc_to_process] = Schaefer_features[fc_to_process].str.strip(',')
 Schaefer_features[fc_to_process] = Schaefer_features[fc_to_process].str.split().str.join(',')
 alff_to_process = 'ALFF'  # 처리할 컬럼 이름
 Schaefer_features[alff_to_process] = Schaefer_features[alff_to_process].str.split().str.join(',')
@@ -33,23 +28,11 @@ reho_to_process = 'REHO'  # 처리할 컬럼 이름
 Schaefer_features[reho_to_process] = Schaefer_features[reho_to_process].str.split().str.join(',')
 falff_to_process = 'fALFF'  # 처리할 컬럼 이름
 Schaefer_features[falff_to_process] = Schaefer_features[falff_to_process].str.split().str.join(',')
-Schaefer_features.to_csv('/Users/oj/Desktop/Yoo_Lab/Classification_Features/Schaefer/Schaefer_features_final.csv',
-                         index=False)
+Schaefer_features.to_excel(
+    'Schaefer_PCA_features_final.xlsx',
+    index=False)
+
 '''
-
-Schaefer_features['FC'] = Schaefer_features['FC'].apply(
-    lambda x: np.array(x).flatten())
-
-X = Schaefer_features['FC']
-
-y = Schaefer_features['STATUS']
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
-
-X_train = np.array(X_train)
-X_test = np.array(X_test)
-
-
 '''
 reho_data = pd.read_excel('reho_Schaefer_data.xlsx')
 
