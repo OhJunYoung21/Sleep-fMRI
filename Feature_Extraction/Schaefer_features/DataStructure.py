@@ -13,6 +13,7 @@ from sklearn.decomposition import PCA
 from sklearn import svm
 from sklearn.metrics import accuracy_score
 import numpy as np
+from scipy.stats import zscore
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import GridSearchCV, train_test_split
 
@@ -151,12 +152,16 @@ def make_falff_schaefer(file_path: str, data: List):
 
 
 result_hc = input_fc(root_hc_dir, FC_HC)
-pca_hc = PCA(n_components=39)
-FC_PCA_HC = pca_hc.fit_transform(result_hc)
 
 result_rbd = input_fc(root_rbd_dir, FC_RBD)
-pca_rbd = PCA(n_components=50)
-FC_PCA_RBD = pca_rbd.fit_transform(result_rbd)
+
+result_pca = result_hc + result_rbd
+
+pca = PCA(n_components=89)
+result_pca = pca.fit_transform(result_pca)
+
+FC_PCA_RBD_zscored = zscore(result_pca[:50], axis=0)
+FC_PCA_HC_zscored = zscore(result_pca[50:], axis=0)
 
 make_reho_schaefer(CPAC_hc, ReHo_HC)
 make_alff_schaefer(CPAC_hc, ALFF_HC)
@@ -166,16 +171,15 @@ make_reho_schaefer(CPAC_rbd, ReHo_RBD)
 make_alff_schaefer(CPAC_rbd, ALFF_RBD)
 make_falff_schaefer(CPAC_rbd, fALFF_RBD)
 
-len_hc = len(FC_PCA_HC)
-len_rbd = len(FC_PCA_RBD)
+len_hc = len(FC_PCA_HC_zscored)
+len_rbd = len(FC_PCA_RBD_zscored)
 
 for j in range(len_rbd):
-    schaefer_data.loc[j] = [FC_PCA_RBD[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
+    schaefer_data.loc[j] = [FC_PCA_RBD_zscored[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
 
 for k in range(len_hc):
-    schaefer_data.loc[len_rbd + k] = [FC_PCA_HC[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
+    schaefer_data.loc[len_rbd + k] = [FC_PCA_HC_zscored[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-schaefer_data_path = os.path.join(feature_path, 'Schaefer/Schaefer_PCA_features.csv')
+schaefer_data_path = os.path.join(feature_path, 'Schaefer/Schaefer_PCA_features.xlsx')
 
-schaefer_data.to_csv(schaefer_data_path, index=False)
-
+schaefer_data.to_excel(schaefer_data_path, index=False)
