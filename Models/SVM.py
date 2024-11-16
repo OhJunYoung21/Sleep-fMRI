@@ -13,7 +13,3 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold, cross_val_score
 
-Schaefer_data = pd.read_excel(
-    '/Users/oj/Desktop/Yoo_Lab/Classification_Features/Schaefer/Schaefer_PCA_features_final.xlsx')
-
-print(Schaefer_data.head())

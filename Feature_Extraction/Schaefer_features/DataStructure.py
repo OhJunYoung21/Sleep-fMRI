@@ -170,6 +170,13 @@ make_reho_schaefer(CPAC_rbd, ReHo_RBD)
 make_alff_schaefer(CPAC_rbd, ALFF_RBD)
 make_falff_schaefer(CPAC_rbd, fALFF_RBD)
 
+ALFF_RBD = [k.tolist()[0] for k in ALFF_RBD]
+ALFF_HC = [k.tolist()[0] for k in ALFF_HC]
+fALFF_RBD = [k.tolist()[0] for k in fALFF_RBD]
+fALFF_HC = [k.tolist()[0] for k in fALFF_HC]
+ReHo_RBD = [k.tolist()[0] for k in ReHo_RBD]
+ReHo_HC = [k.tolist()[0] for k in ReHo_HC]
+
 len_hc = len(FC_PCA_HC_zscored)
 len_rbd = len(FC_PCA_RBD_zscored)
 
@@ -179,4 +186,5 @@ for j in range(len_rbd):
 for k in range(len_hc):
     schaefer_data.loc[len_rbd + k] = [FC_PCA_HC_zscored[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-schaefer_data.to_pickle('schaefer_data.pkl')
+with open('schaefer_PCA_data.py', 'w') as file:
+    file.write(f"schaefer_data = {schaefer_data}")
