@@ -186,5 +186,7 @@ for j in range(len_rbd):
 for k in range(len_hc):
     schaefer_data.loc[len_rbd + k] = [FC_PCA_HC_zscored[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-with open('schaefer_PCA_data.py', 'w') as file:
-    file.write(f"schaefer_data = {schaefer_data}")
+schaefer_data.to_pickle('schaefer_data_pkl')
+
+
+

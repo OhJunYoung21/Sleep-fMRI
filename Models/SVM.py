@@ -13,3 +13,5 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold, cross_val_score
 
+schaefer_pkl = pd.read_pickle('schaefer_data_pkl')
+print(schaefer_pkl['REHO'])
