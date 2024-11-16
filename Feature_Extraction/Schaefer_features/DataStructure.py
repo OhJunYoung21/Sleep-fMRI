@@ -13,9 +13,8 @@ from sklearn.decomposition import PCA
 from sklearn import svm
 from sklearn.metrics import accuracy_score
 import numpy as np
+import scipy.io
 from scipy.stats import zscore
-from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import GridSearchCV, train_test_split
 
 schaefer_data = pd.DataFrame(index=None)
 
@@ -160,8 +159,8 @@ result_pca = result_hc + result_rbd
 pca = PCA(n_components=89)
 result_pca = pca.fit_transform(result_pca)
 
-FC_PCA_RBD_zscored = zscore(result_pca[:50], axis=0)
-FC_PCA_HC_zscored = zscore(result_pca[50:], axis=0)
+FC_PCA_RBD_zscored = zscore(result_pca[:50], axis=0).tolist()
+FC_PCA_HC_zscored = zscore(result_pca[50:], axis=0).tolist()
 
 make_reho_schaefer(CPAC_hc, ReHo_HC)
 make_alff_schaefer(CPAC_hc, ALFF_HC)
@@ -180,6 +179,4 @@ for j in range(len_rbd):
 for k in range(len_hc):
     schaefer_data.loc[len_rbd + k] = [FC_PCA_HC_zscored[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-schaefer_data_path = os.path.join(feature_path, 'Schaefer/Schaefer_PCA_features.xlsx')
-
-schaefer_data.to_excel(schaefer_data_path, index=False)
+schaefer_data.to_pickle('schaefer_data.pkl')

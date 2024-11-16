@@ -20,9 +20,9 @@ labels = Schaefer.labels
 Schaefer_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True, strategy='mean',
                                               resampling_target="labels")
 
-falff_rbd_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/RBD/fALFF', 'falff_*.nii.gz'))
+falff_rbd_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/RBD/ALFF', 'alff_*.nii.gz'))
 falff_rbd = []
-falff_hc_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/HC/fALFF', 'falff_*.nii.gz'))
+falff_hc_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/HC/ALFF', 'alff_*.nii.gz'))
 falff_hc = []
 
 for k in falff_rbd_imgs:
@@ -38,8 +38,8 @@ for k in falff_hc_imgs:
 falff_rbd = np.array([item[0] for item in falff_rbd])
 falff_hc = np.array([item[0] for item in falff_hc])
 
-
 # 정규분포를 따르는 region과 그렇지 않은 region의 노드를 알려준다.
+
 
 def check_normality(features):
     mann_whitneyu = []
@@ -126,4 +126,5 @@ reho_Schaefer_data = pd.DataFrame(
     }
 )
 
-reho_Schaefer_data.to_excel('Schaefer_data.xlsx')
+reho_Schaefer_data.to_excel('Schaefer_data_alff.xlsx')
+
