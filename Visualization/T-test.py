@@ -20,9 +20,9 @@ labels = Schaefer.labels
 Schaefer_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True, strategy='mean',
                                               resampling_target="labels")
 
-falff_rbd_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/RBD/ALFF', 'alff_*.nii.gz'))
+falff_rbd_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/RBD/ALFF', 'reho_*.nii.gz'))
 falff_rbd = []
-falff_hc_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/HC/ALFF', 'alff_*.nii.gz'))
+falff_hc_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/HC/ALFF', 'reho_*.nii.gz'))
 falff_hc = []
 
 for k in falff_rbd_imgs:
