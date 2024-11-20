@@ -15,7 +15,7 @@ from sklearn.decomposition import PCA
 
 file_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz'
 
-schaefer_atlas = datasets.fetch_atlas_schaefer_2018(n_rois=400)
+schaefer_atlas = datasets.fetch_atlas_schaefer_2018(n_rois=200)
 atlas_filename = schaefer_atlas.maps
 
 data = image.load_img(file_path)

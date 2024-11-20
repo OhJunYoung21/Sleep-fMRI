@@ -82,7 +82,7 @@ def input_fc(files_path: str, data: List):
         np.fill_diagonal(connectivity
                          , 0)
 
-        vectorized_fc = connectivity[np.triu_indices(400, k=1)]
+        vectorized_fc = connectivity[np.triu_indices(200, k=1)]
 
         data.append(vectorized_fc)
 
@@ -186,7 +186,4 @@ for j in range(len_rbd):
 for k in range(len_hc):
     schaefer_data.loc[len_rbd + k] = [FC_PCA_HC_zscored[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-schaefer_data.to_pickle('schaefer_data_pkl')
-
-
-
+schaefer_data.to_pickle('schaefer_200_pkl')
