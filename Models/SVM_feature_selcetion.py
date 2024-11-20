@@ -16,6 +16,9 @@ from Visualization.T_test import check_normality, student_t_test, welch_t_test, 
 
 schaefer_pkl = pd.read_pickle('../schaefer_data_pkl')
 
+different_nodes_alff = pd.DataFrame()
+different_nodes_alff['nodes'] = None
+
 
 def avoid_duplication(nested_list):
     unique_elements = set()
@@ -42,16 +45,18 @@ def statistic(rbd_data, hc_data):
     return np.unique(mann_test + student_test + welch_test).tolist()
 
 
+accuracy_score_mean = []
 feature_difference = []
-for i in range(20):
+
+for i in range(10):
     status_1_data = schaefer_pkl[schaefer_pkl['STATUS'] == 1]
     status_0_data = schaefer_pkl[schaefer_pkl['STATUS'] == 0]
     # Select only the REHO and STATUS columns
-    selected_data_1 = status_1_data[['REHO', 'STATUS']]
-    selected_data_0 = status_0_data[['REHO', 'STATUS']]
+    selected_data_1 = status_1_data[['fALFF', 'STATUS']]
+    selected_data_0 = status_0_data[['fALFF', 'STATUS']]
     # Split 80% of the data for training
-    train_data_1 = selected_data_1.sample(frac=0.7, random_state=42 + i)
-    train_data_0 = selected_data_0.sample(frac=0.7, random_state=42 + i)
+    train_data_1 = selected_data_1.sample(frac=0.8, random_state=42 + i)
+    train_data_0 = selected_data_0.sample(frac=0.8, random_state=42 + i)
 
     test_data_1 = selected_data_1.drop(train_data_1.index)
     test_data_0 = selected_data_0.drop(train_data_0.index)
@@ -59,21 +64,26 @@ for i in range(20):
     train_data = pd.concat([train_data_1, train_data_0])
     test_data = pd.concat([test_data_1, test_data_0])
 
-    rbd_data = train_data['REHO'][train_data['STATUS'] == 1]
-    hc_data = train_data['REHO'][train_data['STATUS'] == 0]
+    rbd_data = train_data['fALFF'][train_data['STATUS'] == 1]
+    hc_data = train_data['fALFF'][train_data['STATUS'] == 0]
 
-    result_list = statistic(rbd_data, hc_data)
+    '''
+    result = statistic(rbd_data, hc_data)
+    feature_difference.append(result)
+    
+    result = pd.read_pickle('different_nodes_alff.pkl')['nodes'].tolist()
 
-    feature_difference.append(result_list)
+    train_data['FC'] = train_data['ALFF'].apply(lambda x: [x[i] for i in result])
+    test_data['FC'] = test_data['ALFF'].apply(lambda x: [x[i] for i in result])
+    '''
 
-    result = avoid_duplication(feature_difference)
+    model = svm.SVC(kernel='rbf', C=1, probability=True)
+    model.fit(np.array(train_data['fALFF'].tolist()), train_data['STATUS'])
 
-    train_data['REHO'] = train_data['REHO'].apply(lambda x: [x[i] for i in result])
-    test_data['REHO'] = test_data['REHO'].apply(lambda x: [x[i] for i in result])
-
-    model = svm.SVC(kernel='linear', C=1)
-    model.fit(np.array(train_data['REHO'].tolist()), train_data['STATUS'])
-
-    accuracy = model.score(np.array(test_data['REHO'].tolist()), test_data['STATUS'])
+    accuracy = model.score(np.array(test_data['fALFF'].tolist()), test_data['STATUS'])
 
     print(f"{i + 1}th accuracy : {accuracy:.2f}")
+
+    accuracy_score_mean.append(accuracy)
+
+print(np.round(np.mean(accuracy_score_mean), 2))
