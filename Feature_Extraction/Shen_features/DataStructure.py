@@ -3,13 +3,12 @@ import pandas as pd
 import os
 import numpy as np
 import glob
-from Feature_Extraction.Shen_features.Classification_feature import calculate_Bandpass
-from Feature_Extraction.Shen_features.Classification_feature import calculate_3dReHo
-from Feature_Extraction.Shen_features.Classification_feature import region_reho_average
-from Feature_Extraction.Shen_features.Classification_feature import atlas_path, FC_extraction
-from Feature_Extraction.Shen_features.Classification_feature import region_alff_average
+from Feature_Extraction.Shen_features.Classification_feature import region_reho_average, region_alff_average, \
+    atlas_path, FC_extraction
 from typing import List
 from CPAC import alff
+from sklearn.decomposition import PCA
+from scipy.stats import zscore
 from Comparison_features.rsfmri import static_measures
 
 shen_data = pd.DataFrame(index=None)
@@ -66,34 +65,19 @@ def input_fc(files_path: str, data: List):
     files = sorted(files)
 
     for file in files:
-        connectivity = FC_extraction(file, atlas_path)
+        connectivity = FC_extraction(file)
 
-        connectivity = connectivity.tolist()
+        connectivity = np.array(connectivity)
 
-        ''' 
-        for j in range(len(connectivity)):
-            connectivity[j][:] = connectivity[j][:-(len(connectivity) - j)]
-        '''
+        connectivity = (connectivity + connectivity.T) / 2  # 대칭화
+        np.fill_diagonal(connectivity
+                         , 0)
 
-        data.append(connectivity)
+        vectorized_fc = connectivity[np.triu_indices(268, k=1)]
 
-    return
+        data.append(vectorized_fc)
 
-
-def input_reho(files_path: str):
-    files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
-
-    files = sorted(files)
-
-    for file in files:
-        match = re.search(r'sub-(.*)_confounds_regressed.nii.gz', file)
-
-        if match:
-            extracted_part = match.group(1)
-
-        calculate_3dReHo(file, extracted_part, os.path.join(files_path + '/reho'))
-
-    return
+    return data
 
 
 ### input_alff()는 alff파일을 만들어서 로컬에 저장하는 함수입니다.
@@ -159,25 +143,40 @@ input_features(root_rbd_dir, mask_path_rbd, "RBD")
 input_features(root_hc_dir, mask_path_hc, "HC")
 '''
 
+result_hc = input_fc(root_hc_dir, FC_HC)
+
+result_rbd = input_fc(root_rbd_dir, FC_RBD)
+
+result_pca = result_hc + result_rbd
+
+pca = PCA(n_components=89)
+result_pca = pca.fit_transform(result_pca)
+
+FC_PCA_RBD_zscored = zscore(result_pca[:50], axis=0).tolist()
+FC_PCA_HC_zscored = zscore(result_pca[50:], axis=0).tolist()
+
 make_reho_shen(CPAC_hc, ReHo_HC)
 make_alff_shen(CPAC_hc, ALFF_HC)
 make_falff_shen(CPAC_hc, fALFF_HC)
-input_fc(root_hc_dir, FC_HC)
 
 make_reho_shen(CPAC_rbd, ReHo_RBD)
 make_alff_shen(CPAC_rbd, ALFF_RBD)
 make_falff_shen(CPAC_rbd, fALFF_RBD)
-input_fc(root_rbd_dir, FC_RBD)
 
-len_hc = len(ReHo_HC)
-len_rbd = len(ReHo_RBD)
+ALFF_RBD = [k.tolist()[0] for k in ALFF_RBD]
+ALFF_HC = [k.tolist()[0] for k in ALFF_HC]
+fALFF_RBD = [k.tolist()[0] for k in fALFF_RBD]
+fALFF_HC = [k.tolist()[0] for k in fALFF_HC]
+ReHo_RBD = [k.tolist()[0] for k in ReHo_RBD]
+ReHo_HC = [k.tolist()[0] for k in ReHo_HC]
 
-for j in range(len_hc):
-    shen_data.loc[j] = [FC_HC[j], ALFF_HC[j], ReHo_HC[j], fALFF_HC[j], 0]
+len_hc = len(FC_PCA_HC_zscored)
+len_rbd = len(FC_PCA_RBD_zscored)
 
-for k in range(len_rbd):
-    shen_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[k], fALFF_RBD[k], 1]
+for j in range(len_rbd):
+    shen_data.loc[j] = [FC_PCA_RBD_zscored[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
 
-shen_data_path = os.path.join(feature_path, 'Shen/Shen_features_ex')
+for k in range(len_hc):
+    shen_data.loc[len_rbd + k] = [FC_PCA_HC_zscored[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-shen_data.to_csv(shen_data_path, index=False)
+shen_data.to_pickle('shen_268_pkl')

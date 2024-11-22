@@ -82,7 +82,7 @@ def input_fc(files_path: str, data: List):
         np.fill_diagonal(connectivity
                          , 0)
 
-        vectorized_fc = connectivity[np.triu_indices(200, k=1)]
+        vectorized_fc = connectivity[np.triu_indices(117, k=1)]
 
         data.append(vectorized_fc)
 

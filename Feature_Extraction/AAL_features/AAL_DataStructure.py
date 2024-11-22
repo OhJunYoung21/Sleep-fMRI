@@ -3,19 +3,25 @@ import pandas as pd
 import os
 import numpy as np
 import glob
-from Feature_Extraction.Shen_features.Classification_feature import calculate_Bandpass
+from Feature_Extraction.AAL_features.AAL_features import region_alff_average, region_reho_average, FC_extraction
+import scipy.stats as stats
 from typing import List
 from CPAC import alff
 from Comparison_features.rsfmri import static_measures
-from Feature_Extraction.AAL_features.AAL_features import aal_alff_average,aal_reho_average,FC_extraction
+from sklearn.decomposition import PCA
+from sklearn import svm
+from sklearn.metrics import accuracy_score
+import numpy as np
+import scipy.io
+from scipy.stats import zscore
 
-AAL_data = pd.DataFrame(index=None)
+aal_data = pd.DataFrame(index=None)
 
-AAL_data['FC'] = None
-AAL_data['ALFF'] = None
-AAL_data['REHO'] = None
-AAL_data['fALFF'] = None
-AAL_data['STATUS'] = None
+aal_data['FC'] = None
+aal_data['ALFF'] = None
+aal_data['REHO'] = None
+aal_data['fALFF'] = None
+aal_data['STATUS'] = None
 
 ReHo_RBD = []
 FC_RBD = []
@@ -50,12 +56,16 @@ mask_path_hc = '/Users/oj/Desktop/Yoo_Lab/mask_hc'
 
 
 ## 데이터프레임안의 요소들을 전부 지우는 함수이다. 혹시나 데이터프레임안의 데이터가 꼬이는 경우에 빠른 초기화를 위해 제작하였다.
+
 def delete():
-    AAL_data.iloc[:, :] = None
-    return AAL_data
+    aal_data.iloc[:, :] = None
+    return aal_data
 
 
-### reho를 계산해서 reho 디렉토리 안에 넣어주는 코드
+'''
+input_fc는 FC_extraction를 사용해서 추출한 Functional Connectivity를 PCA과정을 위해 벡터화 시켜주는 코드입니다.
+'''
+
 
 def input_fc(files_path: str, data: List):
     files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
@@ -65,16 +75,22 @@ def input_fc(files_path: str, data: List):
     for file in files:
         connectivity = FC_extraction(file)
 
-        connectivity = connectivity.tolist()
+        connectivity = np.array(connectivity)
 
-        ''' 
-        for j in range(len(connectivity)):
-            connectivity[j][:] = connectivity[j][:-(len(connectivity) - j)]
-        '''
+        connectivity = (connectivity + connectivity.T) / 2  # 대칭화
+        np.fill_diagonal(connectivity
+                         , 0)
 
-        data.append(connectivity)
+        vectorized_fc = connectivity[np.triu_indices(116, k=1)]
 
-    return
+        data.append(vectorized_fc)
+
+    return data
+
+
+'''
+input_features는 CPAC의 alff,reho등을 사용해서 주어진 file과 mask file을 사용해서 reho와 alff,falff를 추출한다.
+'''
 
 
 def input_features(files_path: str, mask_path: str, status: str):
@@ -103,7 +119,7 @@ def make_reho_aal(file_path: str, data: List):
 
     for file in reho_path:
         ##Classification_feature에서 불러온 atlas_path를 매개변수로 넣어준다.
-        aal_reho = aal_reho_average(file)
+        aal_reho = region_reho_average(file)
         data.append(aal_reho)
     return
 
@@ -116,47 +132,57 @@ def make_alff_aal(file_path: str, data: List):
 
     for file in alff_path:
         ##Classification_feature에서 불러온 atlas_path를 매개변수로 넣어준다.
-        aal_alff = aal_alff_average(file)
+        aal_alff = region_alff_average(file)
         data.append(aal_alff)
     return
 
 
 def make_falff_aal(file_path: str, data: List):
-    falff_path = glob.glob(os.path.join(file_path, 'sub-*/results/falff.nii.gz'))
+    alff_path = glob.glob(os.path.join(file_path, 'sub-*/results/falff.nii.gz'))
 
-    falff_path = sorted(falff_path)
+    alff_path = sorted(alff_path)
 
-    for file in falff_path:
+    for file in alff_path:
         ##Classification_feature에서 불러온 atlas_path를 매개변수로 넣어준다.
-        aal_falff = aal_alff_average(file)
+        aal_falff = region_alff_average(file)
         data.append(aal_falff)
     return
 
 
-'''
-input_features(root_rbd_dir, mask_path_rbd, "RBD")
-input_features(root_hc_dir, mask_path_hc, "HC")
-'''
+result_hc = input_fc(root_hc_dir, FC_HC)
+
+result_rbd = input_fc(root_rbd_dir, FC_RBD)
+
+result_pca = result_hc + result_rbd
+
+pca = PCA(n_components=89)
+result_pca = pca.fit_transform(result_pca)
+
+FC_PCA_RBD_zscored = zscore(result_pca[:50], axis=0).tolist()
+FC_PCA_HC_zscored = zscore(result_pca[50:], axis=0).tolist()
 
 make_reho_aal(CPAC_hc, ReHo_HC)
 make_alff_aal(CPAC_hc, ALFF_HC)
 make_falff_aal(CPAC_hc, fALFF_HC)
-input_fc(root_hc_dir, FC_HC)
 
 make_reho_aal(CPAC_rbd, ReHo_RBD)
 make_alff_aal(CPAC_rbd, ALFF_RBD)
 make_falff_aal(CPAC_rbd, fALFF_RBD)
-input_fc(root_rbd_dir, FC_RBD)
 
-len_hc = len(ReHo_HC)
-len_rbd = len(ReHo_RBD)
+ALFF_RBD = [k.tolist()[0] for k in ALFF_RBD]
+ALFF_HC = [k.tolist()[0] for k in ALFF_HC]
+fALFF_RBD = [k.tolist()[0] for k in fALFF_RBD]
+fALFF_HC = [k.tolist()[0] for k in fALFF_HC]
+ReHo_RBD = [k.tolist()[0] for k in ReHo_RBD]
+ReHo_HC = [k.tolist()[0] for k in ReHo_HC]
 
-for j in range(len_hc):
-    AAL_data.loc[j] = [FC_HC[j], ALFF_HC[j], ReHo_HC[j], fALFF_HC[j], 0]
+len_hc = len(FC_PCA_HC_zscored)
+len_rbd = len(FC_PCA_RBD_zscored)
 
-for k in range(len_rbd):
-    AAL_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[k], fALFF_RBD[k], 1]
+for j in range(len_rbd):
+    aal_data.loc[j] = [FC_PCA_RBD_zscored[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
 
-aal_data_path = os.path.join(feature_path, 'AAL/AAL_features.csv')
+for k in range(len_hc):
+    aal_data.loc[len_rbd + k] = [FC_PCA_HC_zscored[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-AAL_data.to_csv(aal_data_path, index=False)
+aal_data.to_pickle('aal_117_pkl')

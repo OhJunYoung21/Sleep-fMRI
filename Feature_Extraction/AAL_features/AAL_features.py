@@ -11,27 +11,28 @@ from nilearn import image
 from nilearn import input_data
 from nipype.interfaces import afni
 from scipy import stats
+from sklearn.decomposition import PCA
 
 file_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz'
 
-dataset = datasets.fetch_atlas_basc_multiscale_2015(version="sym", resolution=444)
-atlas_filename = dataset.maps
+schaefer_atlas = datasets.fetch_atlas_aal()
+atlas_filename = schaefer_atlas.maps
 
 data = image.load_img(file_path)
 
-AAL_atlas = input_data.NiftiLabelsMasker(labels_img=image.load_img(atlas_filename), standardize=True)
-
-sample = AAL_atlas.fit_transform(data)
-
-print(sample.shape)
+schafer_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True)
 
 
-def FC_extraction(path):
-    AAL_atlas = input_data.NiftiLabelsMasker(labels_img=image.load_img(atlas_filename), standardize=True)
+'''
+ConeectivityMeasure를 사용해서 functional Connectivity를 계산한다. 여기서는 Pearson's correlation coefficient를 사용한다.
+'''
 
-    data = image.load_img(path)
+def FC_extraction(file_path):
+    aal_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True)
 
-    time_series = AAL_atlas.fit_transform(data)
+    data = image.load_img(file_path)
+
+    time_series = aal_atlas.fit_transform(data)
 
     correlation_measure = ConnectivityMeasure(kind='correlation')
     correlation_matrix = correlation_measure.fit_transform([time_series])[0]
@@ -46,26 +47,29 @@ def FC_extraction(path):
 건강군과 질병군마다 분류기준을 추출한다. 경로를 헷갈리지 않게 하기 위해서 feature 추출하는 함수를 2개씩 작성하였다.
 '''
 
+'''
+ReHo를 계산한다.
+'''
+
 
 ## region_reho_average는 mask가 나눈 region안의 voxel 값들의 평균을 계산한다.
-def aal_reho_average(reho_file):
-    AAL_atlas = input_data.NiftiLabelsMasker(labels_img=image.load_img(atlas_filename), standardize=True,
-                                             strategy='mean')
+def region_reho_average(reho_file):
+    aal_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True, strategy='mean')
 
     reho_img = image.load_img(reho_file)
 
-    masked_data = AAL_atlas.fit_transform([reho_img])
+    masked_data = aal_atlas.fit_transform([reho_img])
 
     return masked_data
 
 
-def aal_alff_average(alff_path):
-    AAL_atlas = input_data.NiftiLabelsMasker(labels_img=image.load_img(atlas_filename), standardize=True,
-                                             strategy='mean',
-                                             resampling_target="labels")
+
+def region_alff_average(alff_path):
+    aal_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True, strategy='mean',
+                                                  resampling_target="labels")
 
     alff_img = image.load_img(alff_path)
 
-    masked_data = AAL_atlas.fit_transform([alff_img])
+    masked_data = aal_atlas.fit_transform([alff_img])
 
     return masked_data

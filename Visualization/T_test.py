@@ -13,9 +13,9 @@ from scipy.stats import mannwhitneyu
 from scipy.stats import ttest_ind
 from scipy.stats import levene
 
-Schaefer = datasets.fetch_atlas_schaefer_2018(n_rois=200)
-atlas_filename = Schaefer.maps
-labels = Schaefer.labels
+AAL = datasets.fetch_atlas_aal()
+atlas_filename = AAL.maps
+labels = AAL.labels
 
 Schaefer_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True, strategy='mean',
                                               resampling_target="labels")
@@ -46,7 +46,7 @@ def check_normality(features):
     mann_whitneyu = []
     t_test = []
 
-    for i in range(200):
+    for i in range(116):
         stat, p_val = shapiro(features[:, i])
 
         if p_val < 0.05:

@@ -14,10 +14,10 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold, cross_val_score
 from Visualization.T_test import check_normality, student_t_test, welch_t_test, mann_whitney_test, check_variance
 
-schaefer_pkl = pd.read_pickle('schaefer_200_pkl')
+aal_pkl = pd.read_pickle('aal_117_pkl')
 
-different_nodes_reho_200 = pd.DataFrame()
-different_nodes_reho_200['nodes'] = None
+different_nodes_reho_117 = pd.DataFrame()
+different_nodes_reho_117['nodes'] = None
 
 
 def avoid_duplication(nested_list):
@@ -48,53 +48,63 @@ def statistic(rbd_data, hc_data):
 accuracy_score_mean = []
 feature_difference = []
 
-for i in range(10):
-    feature_name = 'ALFF'
+feature_name = 'fALFF'
 
-    status_1_data = schaefer_pkl[schaefer_pkl['STATUS'] == 1]
-    status_0_data = schaefer_pkl[schaefer_pkl['STATUS'] == 0]
-    # Select only the REHO and STATUS columns
-    selected_data_1 = status_1_data[[feature_name, 'STATUS']]
-    selected_data_0 = status_0_data[[feature_name, 'STATUS']]
-    # Split 80% of the data for training
-    train_data_1 = selected_data_1.sample(frac=0.9, random_state=42 + i)
-    train_data_0 = selected_data_0.sample(frac=0.9, random_state=42 + i)
+status_1_data = aal_pkl[aal_pkl['STATUS'] == 1]
+status_0_data = aal_pkl[aal_pkl['STATUS'] == 0]
+# Select only the REHO and STATUS columns
+selected_data_1 = status_1_data[[feature_name, 'STATUS']]
+selected_data_0 = status_0_data[[feature_name, 'STATUS']]
 
-    test_data_1 = selected_data_1.drop(train_data_1.index)
-    test_data_0 = selected_data_0.drop(train_data_0.index)
+# Split 80% of the data for training
 
-    train_data = pd.concat([train_data_1, train_data_0])
-    test_data = pd.concat([test_data_1, test_data_0])
+# KFold 객체 생성
 
+kfold_1 = KFold(n_splits=10, random_state=42, shuffle=True)
+kfold_0 = KFold(n_splits=10, random_state=42, shuffle=True)
+
+for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(kfold_1.split(selected_data_1),
+                                                                kfold_0.split(selected_data_0)):
+    # 라벨 1 데이터의 훈련/테스트 분리
+    train_1 = selected_data_1.iloc[train_idx_1]
+    test_1 = selected_data_1.iloc[test_idx_1]
+
+    # 라벨 0 데이터의 훈련/테스트 분리
+    train_0 = selected_data_0.iloc[train_idx_0]
+    test_0 = selected_data_0.iloc[test_idx_0]
+
+    # 훈련 데이터와 테스트 데이터 결합
+    train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
+    test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
+
+    '''
     rbd_data = train_data[feature_name][train_data['STATUS'] == 1]
     hc_data = train_data[feature_name][train_data['STATUS'] == 0]
+    '''
 
     '''
     result = statistic(rbd_data, hc_data)
 
     feature_difference.append(result)
-    
+
     ### 통게적으로 유의미한 차이를 보이는 node들만 고려해서 training을 진행하는 코드### 
-    
-    
-    result = pd.read_pickle('different_nodes_alff_200.pkl')['nodes'].tolist()
+
+
+    result = pd.read_pickle('different_nodes_falff_aal.pkl')['nodes'].tolist()
 
     train_data[feature_name] = train_data[feature_name].apply(lambda x: [x[i] for i in result])
     test_data[feature_name] = test_data[feature_name].apply(lambda x: [x[i] for i in result])
     '''
-
     model = svm.SVC(kernel='rbf', C=1, probability=True)
     model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
 
     accuracy = model.score(np.array(test_data[feature_name].tolist()), test_data['STATUS'])
 
-    print(f"{i + 1}th accuracy : {accuracy:.2f}")
+    print(f"accuracy : {accuracy:.2f}")
 
     accuracy_score_mean.append(accuracy)
 
-print(np.round(np.mean(accuracy_score_mean), 2))
 
-'''
-different_nodes_reho_200['nodes'] = avoid_duplication(feature_difference)
-different_nodes_reho_200.to_pickle('different_nodes_reho_200.pkl')
-'''
+
+
+
