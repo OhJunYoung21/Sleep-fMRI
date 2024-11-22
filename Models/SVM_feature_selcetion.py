@@ -76,25 +76,22 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(kfold_1.split(se
     # 훈련 데이터와 테스트 데이터 결합
     train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
     test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
-
     '''
     rbd_data = train_data[feature_name][train_data['STATUS'] == 1]
     hc_data = train_data[feature_name][train_data['STATUS'] == 0]
-    '''
 
-    '''
     result = statistic(rbd_data, hc_data)
 
     feature_difference.append(result)
+    '''
 
-    ### 통게적으로 유의미한 차이를 보이는 node들만 고려해서 training을 진행하는 코드### 
-
+    ### 통게적으로 유의미한 차이를 보이는 node들만 고려해서 training을 진행하는 코드###
 
     result = pd.read_pickle('different_nodes_falff_aal.pkl')['nodes'].tolist()
 
     train_data[feature_name] = train_data[feature_name].apply(lambda x: [x[i] for i in result])
     test_data[feature_name] = test_data[feature_name].apply(lambda x: [x[i] for i in result])
-    '''
+
     model = svm.SVC(kernel='rbf', C=1, probability=True)
     model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
 
@@ -104,7 +101,8 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(kfold_1.split(se
 
     accuracy_score_mean.append(accuracy)
 
+'''
+different_nodes_reho_117['nodes'] = avoid_duplication(feature_difference)
 
-
-
-
+different_nodes_reho_117.to_pickle('different_nodes_falff_aal.pkl')
+'''
