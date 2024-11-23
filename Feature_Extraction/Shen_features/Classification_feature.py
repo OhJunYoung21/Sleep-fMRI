@@ -69,8 +69,8 @@ ReHo를 계산한다.
 
 
 ## region_reho_average는 mask가 나눈 region안의 voxel 값들의 평균을 계산한다.
-def region_reho_average(reho_file):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True, strategy='mean')
+def region_reho_average(reho_file, atlas):
+    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas, standardize=True, strategy='mean')
 
     reho_img = image.load_img(reho_file)
 
@@ -79,10 +79,9 @@ def region_reho_average(reho_file):
     return masked_data
 
 
-
-def region_alff_average(alff_path):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True, strategy='mean',
-                                                  resampling_target="labels")
+def region_alff_average(alff_path, atlas):
+    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas, standardize=True, strategy='mean',
+                                              resampling_target="labels")
 
     alff_img = image.load_img(alff_path)
 

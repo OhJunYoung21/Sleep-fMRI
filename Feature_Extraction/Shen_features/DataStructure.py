@@ -11,6 +11,8 @@ from sklearn.decomposition import PCA
 from scipy.stats import zscore
 from Comparison_features.rsfmri import static_measures
 
+atlas_path = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
+
 shen_data = pd.DataFrame(index=None)
 
 shen_data['FC'] = None
@@ -149,7 +151,7 @@ result_rbd = input_fc(root_rbd_dir, FC_RBD)
 
 result_pca = result_hc + result_rbd
 
-pca = PCA(n_components=89)
+pca = PCA(n_components=50)
 result_pca = pca.fit_transform(result_pca)
 
 FC_PCA_RBD_zscored = zscore(result_pca[:50], axis=0).tolist()
