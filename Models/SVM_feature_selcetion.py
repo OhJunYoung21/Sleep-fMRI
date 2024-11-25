@@ -48,7 +48,7 @@ def statistic(rbd_data, hc_data):
 accuracy_score_mean = []
 feature_difference = []
 
-feature_name = 'fALFF'
+feature_name = 'FC'
 
 status_1_data = shen_pkl[shen_pkl['STATUS'] == 1]
 status_0_data = shen_pkl[shen_pkl['STATUS'] == 0]
@@ -86,36 +86,31 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(kfold_1.split(se
     feature_difference.append(result)
     '''
 
-
-
     ### 통게적으로 유의미한 차이를 보이는 node들만 고려해서 training을 진행하는 코드###
-
-    result = pd.read_pickle('../Feature_Extraction/Shen_features/different_nodes_falff.pkl')['nodes'].tolist()
+    '''
+    result = pd.read_pickle('../Feature_Extraction/Shen_features/different_nodes_shen_reho.pkl')['nodes'].tolist()
 
     train_data[feature_name] = train_data[feature_name].apply(lambda x: [x[i] for i in result])
     test_data[feature_name] = test_data[feature_name].apply(lambda x: [x[i] for i in result])
+    '''
 
-
-
-
-    model = svm.SVC(kernel='rbf', C=1, probability=True)
+    model = svm.SVC(kernel='poly', C=1, probability=True)
     model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
 
     accuracy = model.score(np.array(test_data[feature_name].tolist()), test_data['STATUS'])
 
-    print(f"accuracy : {accuracy:.2f}")
+    y_pred = model.predict(np.array(test_data[feature_name].tolist()))
+
+    f1_score = f1_score(test_data['STATUS'], y_pred.tolist())
+
+    print(f"accuracy : {accuracy:.2f} \n f1_score : {f1_score:.2f}")
 
     accuracy_score_mean.append(accuracy)
 
 print(np.round(np.mean(accuracy_score_mean), 2))
-
-
-
 
 '''
 different_nodes['nodes'] = avoid_duplication(feature_difference)
 
 different_nodes.to_pickle('different_nodes_shen_falff.pkl')
 '''
-
-
