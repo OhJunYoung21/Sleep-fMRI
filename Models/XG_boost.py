@@ -9,12 +9,12 @@ import numpy as np
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.linear_model import SGDClassifier
-from sklearn.linear_model import LogisticRegression
+import xgboost as xgb
 from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold, cross_val_score
 from Visualization.T_test import check_normality, student_t_test, welch_t_test, mann_whitney_test, check_variance
 
-shen_pkl = pd.read_pickle('../Feature_Extraction/Shen_features/shen_268_non_PCA.pkl')
+shen_pkl = pd.read_pickle('../Feature_Extraction/Shen_features/shen_268_PCA.pkl')
 
 different_nodes = pd.DataFrame()
 different_nodes['nodes'] = None
@@ -48,7 +48,7 @@ def statistic(rbd_data, hc_data):
 accuracy_score_mean = []
 feature_difference = []
 
-feature_name = 'FC'
+feature_name = 'REHO'
 
 status_1_data = shen_pkl[shen_pkl['STATUS'] == 1]
 status_0_data = shen_pkl[shen_pkl['STATUS'] == 0]
@@ -88,13 +88,20 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(kfold_1.split(se
 
     ### 통게적으로 유의미한 차이를 보이는 node들만 고려해서 training을 진행하는 코드###
 
-    result = pd.read_pickle('../Feature_Extraction/Shen_features/different_nodes_shen_falff.pkl')['nodes'].tolist()
+    result = pd.read_pickle('../Feature_Extraction/Shen_features/different_nodes_shen_reho.pkl')['nodes'].tolist()
 
     train_data[feature_name] = train_data[feature_name].apply(lambda x: [x[i] for i in result])
     test_data[feature_name] = test_data[feature_name].apply(lambda x: [x[i] for i in result])
     '''
 
-    model = LogisticRegression(max_iter=1000, random_state=42)
+    model = xgb.XGBClassifier(
+        objective='binary:logistic',  # 이진 분류를 위한 목적 함수
+        max_depth=5,  # 트리의 최대 깊이
+        learning_rate=0.1,  # 학습률
+        n_estimators=100,  # 트리 개수
+        random_state=42
+    )
+
     model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
 
     accuracy = model.score(np.array(test_data[feature_name].tolist()), test_data['STATUS'])

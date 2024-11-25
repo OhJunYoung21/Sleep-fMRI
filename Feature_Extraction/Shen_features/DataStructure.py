@@ -151,8 +151,10 @@ result_rbd = input_fc(root_rbd_dir, FC_RBD)
 
 result_pca = result_hc + result_rbd
 
+'''
 pca = PCA(n_components=50)
 result_pca = pca.fit_transform(result_pca)
+'''
 
 FC_PCA_RBD_zscored = zscore(result_pca[:50], axis=0).tolist()
 FC_PCA_HC_zscored = zscore(result_pca[50:], axis=0).tolist()
@@ -181,4 +183,4 @@ for j in range(len_rbd):
 for k in range(len_hc):
     shen_data.loc[len_rbd + k] = [FC_PCA_HC_zscored[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-shen_data.to_pickle('shen_268_pkl')
+shen_data.to_pickle('shen_268_non_PCA.pkl')

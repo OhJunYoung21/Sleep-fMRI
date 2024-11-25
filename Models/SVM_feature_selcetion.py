@@ -14,7 +14,7 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold, cross_val_score
 from Visualization.T_test import check_normality, student_t_test, welch_t_test, mann_whitney_test, check_variance
 
-shen_pkl = pd.read_pickle('../Feature_Extraction/Shen_features/shen_268_pkl')
+shen_pkl = pd.read_pickle('../Feature_Extraction/Shen_features/shen_268_non_PCA.pkl')
 
 different_nodes = pd.DataFrame()
 different_nodes['nodes'] = None
@@ -94,16 +94,11 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(kfold_1.split(se
     test_data[feature_name] = test_data[feature_name].apply(lambda x: [x[i] for i in result])
     '''
 
-    model = svm.SVC(kernel='poly', C=1, probability=True)
+    model = svm.SVC(kernel='sigmoid', C=1, probability=True)
     model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
-
     accuracy = model.score(np.array(test_data[feature_name].tolist()), test_data['STATUS'])
 
-    y_pred = model.predict(np.array(test_data[feature_name].tolist()))
-
-    f1_score = f1_score(test_data['STATUS'], y_pred.tolist())
-
-    print(f"accuracy : {accuracy:.2f} \n f1_score : {f1_score:.2f}")
+    print(f"accuracy : {accuracy:.2f}")
 
     accuracy_score_mean.append(accuracy)
 
