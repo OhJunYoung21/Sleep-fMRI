@@ -40,23 +40,40 @@ np.fill_diagonal(correlation_matrix, 0)
 
 global_strength = np.round(np.sum(correlation_matrix) / (462 * (462 - 1)), 3)
 
-print(f"Global Strength: {global_strength}")
 
-
-def local_connectivity(atlas_path, file_path):
+def local_connectivity(file_path):
     shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True)
 
-    data = image.load_img(file_path)
+    shen = image.load_img(atlas_path)
+    img = image.load_img(file_path)
 
-    time_series = shen_atlas.fit_transform(data)
+    strength_list = []
 
-    return
+    for i in range(1, 269):
+        region_id = i
+        region_mask = math_img(f"img == {region_id}", img=shen)
+
+        resampled_mask = resample_to_img(source_img=region_mask, target_img=img, interpolation='nearest')
+
+        masker = input_data.NiftiMasker(mask_img=resampled_mask, standardize=True)
+        region_signal = masker.fit_transform(img)
+
+        correlation_measure = ConnectivityMeasure(kind='correlation')
+        correlation_matrix = correlation_measure.fit_transform([region_signal])[0]
+
+        np.fill_diagonal(correlation_matrix, 0)
+
+        global_strength = np.round(np.sum(correlation_matrix) / (462 * (462 - 1)), 3)
+
+        strength_list.append(global_strength)
+
+    return strength_list
 
 
-def FC_extraction(file_path, atlas_path):
+def FC_extraction(path):
     shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True)
 
-    data = image.load_img(file_path)
+    data = image.load_img(path)
 
     time_series = shen_atlas.fit_transform(data)
 
@@ -76,20 +93,6 @@ def FC_extraction(file_path, atlas_path):
 '''
 ReHo를 계산한다.
 '''
-
-
-def FC_extraction(file_path):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True)
-
-    data = image.load_img(file_path)
-
-    time_series = shen_atlas.fit_transform(data)
-
-    correlation_measure = ConnectivityMeasure(kind='correlation')
-    correlation_matrix = correlation_measure.fit_transform([time_series])[0]
-
-    return correlation_matrix
-
 
 ## calculate_3dReHo는 AFNI의 3dReHo를 사용해서 input으로는 4D image를 받고 output으로 3d image를 반환한다.
 

@@ -15,17 +15,17 @@ from sklearn.decomposition import PCA
 
 file_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz'
 
-schaefer_atlas = datasets.fetch_atlas_aal()
+schaefer_atlas = datasets.fetch_atlas_schaefer_2018(n_rois=200)
 atlas_filename = schaefer_atlas.maps
 
 data = image.load_img(file_path)
 
 schafer_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True)
 
-
 '''
 ConeectivityMeasure를 사용해서 functional Connectivity를 계산한다. 여기서는 Pearson's correlation coefficient를 사용한다.
 '''
+
 
 def FC_extraction(file_path):
     schaefer_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True)
@@ -61,7 +61,6 @@ def region_reho_average(reho_file):
     masked_data = schaefer_atlas.fit_transform([reho_img])
 
     return masked_data
-
 
 
 def region_alff_average(alff_path):

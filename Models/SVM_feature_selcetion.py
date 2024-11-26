@@ -14,7 +14,7 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold, cross_val_score
 from Visualization.T_test import check_normality, student_t_test, welch_t_test, mann_whitney_test, check_variance
 
-shen_pkl = pd.read_pickle('../Feature_Extraction/Shen_features/shen_268_non_PCA_max.pkl')
+shen_pkl = pd.read_pickle('../Feature_Extraction/Schaefer_features/non_PCA_features/schaefer_200_non_PCA.pkl')
 
 different_nodes = pd.DataFrame()
 different_nodes['nodes'] = None
@@ -48,7 +48,7 @@ def statistic(rbd_data, hc_data):
 accuracy_score_mean = []
 feature_difference = []
 
-feature_name = 'REHO'
+feature_name = 'FC'
 
 status_1_data = shen_pkl[shen_pkl['STATUS'] == 1]
 status_0_data = shen_pkl[shen_pkl['STATUS'] == 0]

@@ -4,7 +4,7 @@ import os
 import numpy as np
 import glob
 from Feature_Extraction.Shen_features.Classification_feature import region_reho_average, region_alff_average, \
-    atlas_path, FC_extraction
+    atlas_path, FC_extraction, local_connectivity
 from typing import List
 from CPAC import alff
 from sklearn.decomposition import PCA
@@ -82,6 +82,19 @@ def input_fc(files_path: str, data: List):
     return data
 
 
+def input_fc_local(files_path: str, data: List):
+    files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
+
+    files = sorted(files)
+
+    for file in files:
+        strength_list = local_connectivity(file)
+
+        data.append(strength_list)
+
+    return data
+
+
 ### input_alff()는 alff파일을 만들어서 로컬에 저장하는 함수입니다.
 
 def input_features(files_path: str, mask_path: str, status: str):
@@ -145,19 +158,21 @@ input_features(root_rbd_dir, mask_path_rbd, "RBD")
 input_features(root_hc_dir, mask_path_hc, "HC")
 '''
 
-result_hc = input_fc(root_hc_dir, FC_HC)
+result_hc = input_fc_local(root_hc_dir, FC_HC)
 
-result_rbd = input_fc(root_rbd_dir, FC_RBD)
+result_rbd = input_fc_local(root_rbd_dir, FC_RBD)
 
-result_pca = result_hc + result_rbd
+result_local = result_hc + result_rbd
 
 '''
 pca = PCA(n_components=50)
 result_pca = pca.fit_transform(result_pca)
 '''
 
+'''
 FC_PCA_RBD_zscored = zscore(result_pca[:50], axis=0).tolist()
 FC_PCA_HC_zscored = zscore(result_pca[50:], axis=0).tolist()
+'''
 
 make_reho_shen(CPAC_hc, ReHo_HC)
 make_alff_shen(CPAC_hc, ALFF_HC)
@@ -174,13 +189,13 @@ fALFF_HC = [k.tolist()[0] for k in fALFF_HC]
 ReHo_RBD = [k.tolist()[0] for k in ReHo_RBD]
 ReHo_HC = [k.tolist()[0] for k in ReHo_HC]
 
-len_hc = len(FC_PCA_HC_zscored)
-len_rbd = len(FC_PCA_RBD_zscored)
+len_hc = len(result_hc)
+len_rbd = len(result_rbd)
 
 for j in range(len_rbd):
-    shen_data.loc[j] = [FC_PCA_RBD_zscored[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
+    shen_data.loc[j] = [result_rbd[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
 
 for k in range(len_hc):
-    shen_data.loc[len_rbd + k] = [FC_PCA_HC_zscored[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
+    shen_data.loc[len_rbd + k] = [result_hc[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-shen_data.to_pickle('shen_268_non_PCA_max.pkl')
+shen_data.to_pickle('shen_268_local_max.pkl')

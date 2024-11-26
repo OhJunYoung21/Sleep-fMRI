@@ -82,7 +82,7 @@ def input_fc(files_path: str, data: List):
         np.fill_diagonal(connectivity
                          , 0)
 
-        vectorized_fc = connectivity[np.triu_indices(117, k=1)]
+        vectorized_fc = connectivity[np.triu_indices(200, k=1)]
 
         data.append(vectorized_fc)
 
@@ -155,12 +155,13 @@ result_hc = input_fc(root_hc_dir, FC_HC)
 result_rbd = input_fc(root_rbd_dir, FC_RBD)
 
 result_pca = result_hc + result_rbd
-
+'''
 pca = PCA(n_components=89)
 result_pca = pca.fit_transform(result_pca)
 
 FC_PCA_RBD_zscored = zscore(result_pca[:50], axis=0).tolist()
 FC_PCA_HC_zscored = zscore(result_pca[50:], axis=0).tolist()
+'''
 
 make_reho_schaefer(CPAC_hc, ReHo_HC)
 make_alff_schaefer(CPAC_hc, ALFF_HC)
@@ -177,13 +178,13 @@ fALFF_HC = [k.tolist()[0] for k in fALFF_HC]
 ReHo_RBD = [k.tolist()[0] for k in ReHo_RBD]
 ReHo_HC = [k.tolist()[0] for k in ReHo_HC]
 
-len_hc = len(FC_PCA_HC_zscored)
-len_rbd = len(FC_PCA_RBD_zscored)
+len_hc = len(result_hc)
+len_rbd = len(result_rbd)
 
 for j in range(len_rbd):
-    schaefer_data.loc[j] = [FC_PCA_RBD_zscored[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
+    schaefer_data.loc[j] = [result_rbd[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
 
 for k in range(len_hc):
-    schaefer_data.loc[len_rbd + k] = [FC_PCA_HC_zscored[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
+    schaefer_data.loc[len_rbd + k] = [result_hc[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-schaefer_data.to_pickle('schaefer_200_pkl')
+schaefer_data.to_pickle('schaefer_200_non_PCA.pkl')
