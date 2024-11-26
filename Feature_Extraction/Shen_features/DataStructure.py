@@ -183,4 +183,4 @@ for j in range(len_rbd):
 for k in range(len_hc):
     shen_data.loc[len_rbd + k] = [FC_PCA_HC_zscored[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-shen_data.to_pickle('shen_268_non_PCA.pkl')
+shen_data.to_pickle('shen_268_non_PCA_max.pkl')

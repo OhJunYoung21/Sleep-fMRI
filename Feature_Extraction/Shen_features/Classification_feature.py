@@ -11,11 +11,46 @@ from nilearn import image
 from nilearn import input_data
 from nipype.interfaces import afni
 from scipy import stats
+from nilearn.image import math_img
+from nilearn.input_data import NiftiMasker
+from nilearn.image import resample_to_img
 
 # Download the Shen atlas
 atlas_path = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
 
 file_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz'
+
+shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True)
+
+shen = image.load_img(atlas_path)
+img = image.load_img(file_path)
+
+region_id = 110
+region_mask = math_img(f"img == {region_id}", img=shen)
+
+resampled_mask = resample_to_img(source_img=region_mask, target_img=img, interpolation='nearest')
+
+masker = input_data.NiftiMasker(mask_img=resampled_mask, standardize=True)
+region_signal = masker.fit_transform(img)
+
+correlation_measure = ConnectivityMeasure(kind='correlation')
+correlation_matrix = correlation_measure.fit_transform([region_signal])[0]
+
+np.fill_diagonal(correlation_matrix, 0)
+
+global_strength = np.round(np.sum(correlation_matrix) / (462 * (462 - 1)), 3)
+
+print(f"Global Strength: {global_strength}")
+
+
+def local_connectivity(atlas_path, file_path):
+    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True)
+
+    data = image.load_img(file_path)
+
+    time_series = shen_atlas.fit_transform(data)
+
+    return
 
 
 def FC_extraction(file_path, atlas_path):
@@ -70,7 +105,7 @@ ReHo를 계산한다.
 
 ## region_reho_average는 mask가 나눈 region안의 voxel 값들의 평균을 계산한다.
 def region_reho_average(reho_file, atlas):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas, standardize=True, strategy='mean')
+    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas, standardize=True, strategy='maximum')
 
     reho_img = image.load_img(reho_file)
 
@@ -80,7 +115,7 @@ def region_reho_average(reho_file, atlas):
 
 
 def region_alff_average(alff_path, atlas):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas, standardize=True, strategy='mean',
+    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas, standardize=True, strategy='maximum',
                                               resampling_target="labels")
 
     alff_img = image.load_img(alff_path)
