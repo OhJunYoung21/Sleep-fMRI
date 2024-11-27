@@ -14,7 +14,7 @@ from scipy import stats
 
 file_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz'
 
-dataset = datasets.fetch_atlas_basc_multiscale_2015(version="sym", resolution=444)
+dataset = datasets.fetch_atlas_basc_multiscale_2015(version="sym", resolution=325)
 atlas_filename = dataset.maps
 
 
@@ -52,8 +52,9 @@ def basc_reho_average(reho_file):
 
 
 def basc_alff_average(alff_path):
-    BASC_atlas = input_data.NiftiLabelsMasker(labels_img=image.load_img(atlas_filename), standardize=True, strategy='mean',
-                                              resampling_target="labels")
+    BASC_atlas = input_data.NiftiLabelsMasker(labels_img=image.load_img(atlas_filename), standardize=True,
+                                              strategy='mean',
+                                              )
 
     alff_img = image.load_img(alff_path)
 

@@ -14,7 +14,7 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold, cross_val_score
 from Visualization.T_test import check_normality, student_t_test, welch_t_test, mann_whitney_test, check_variance
 
-shen_pkl = pd.read_pickle('../Feature_Extraction/Schaefer_features/non_PCA_features/schaefer_200_non_PCA.pkl')
+BASC_pkl = pd.read_pickle('../Feature_Extraction/BASC_features/non_PCA_features/basc_325_non_PCA.pkl')
 
 different_nodes = pd.DataFrame()
 different_nodes['nodes'] = None
@@ -48,10 +48,10 @@ def statistic(rbd_data, hc_data):
 accuracy_score_mean = []
 feature_difference = []
 
-feature_name = 'FC'
+feature_name = 'fALFF'
 
-status_1_data = shen_pkl[shen_pkl['STATUS'] == 1]
-status_0_data = shen_pkl[shen_pkl['STATUS'] == 0]
+status_1_data = BASC_pkl[BASC_pkl['STATUS'] == 1]
+status_0_data = BASC_pkl[BASC_pkl['STATUS'] == 0]
 # Select only the REHO and STATUS columns
 selected_data_1 = status_1_data[[feature_name, 'STATUS']]
 selected_data_0 = status_0_data[[feature_name, 'STATUS']]
@@ -93,6 +93,9 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(kfold_1.split(se
     train_data[feature_name] = train_data[feature_name].apply(lambda x: [x[i] for i in result])
     test_data[feature_name] = test_data[feature_name].apply(lambda x: [x[i] for i in result])
     '''
+
+    train_data[feature_name] = [item[0] for item in train_data[feature_name]]
+    test_data[feature_name] = [item[0] for item in test_data[feature_name]]
 
     model = svm.SVC(kernel='rbf', C=1, probability=True)
     model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])

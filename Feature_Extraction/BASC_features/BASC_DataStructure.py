@@ -3,7 +3,6 @@ import pandas as pd
 import os
 import numpy as np
 import glob
-from Feature_Extraction.Shen_features.Classification_feature import calculate_Bandpass
 from typing import List
 from CPAC import alff
 from Comparison_features.rsfmri import static_measures
@@ -65,16 +64,17 @@ def input_fc(files_path: str, data: List):
     for file in files:
         connectivity = FC_extraction(file)
 
-        connectivity = connectivity.tolist()
+        connectivity = np.array(connectivity)
 
-        ''' 
-        for j in range(len(connectivity)):
-            connectivity[j][:] = connectivity[j][:-(len(connectivity) - j)]
-        '''
+        connectivity = (connectivity + connectivity.T) / 2  # 대칭화
+        np.fill_diagonal(connectivity
+                         , 0)
 
-        data.append(connectivity)
+        vectorized_fc = connectivity[np.triu_indices(325, k=1)]
 
-    return
+        data.append(vectorized_fc)
+
+    return data
 
 
 def input_features(files_path: str, mask_path: str, status: str):
@@ -137,19 +137,20 @@ def make_falff_basc(file_path: str, data: List):
 input_features(root_rbd_dir, mask_path_rbd, "RBD")
 input_features(root_hc_dir, mask_path_hc, "HC")
 '''
+'''
+input_fc(root_hc_dir, FC_HC)
+input_fc(root_rbd_dir, FC_RBD)
 
 make_reho_basc(CPAC_hc, ReHo_HC)
 make_alff_basc(CPAC_hc, ALFF_HC)
 make_falff_basc(CPAC_hc, fALFF_HC)
-input_fc(root_hc_dir, FC_HC)
 
 make_reho_basc(CPAC_rbd, ReHo_RBD)
 make_alff_basc(CPAC_rbd, ALFF_RBD)
 make_falff_basc(CPAC_rbd, fALFF_RBD)
-input_fc(root_rbd_dir, FC_RBD)
 
-len_hc = len(ReHo_HC)
-len_rbd = len(ReHo_RBD)
+len_hc = len(FC_HC)
+len_rbd = len(FC_RBD)
 
 for j in range(len_hc):
     BASC_data.loc[j] = [FC_HC[j], ALFF_HC[j], ReHo_HC[j], fALFF_HC[j], 0]
@@ -157,6 +158,5 @@ for j in range(len_hc):
 for k in range(len_rbd):
     BASC_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[k], fALFF_RBD[k], 1]
 
-basc_data_path = os.path.join(feature_path, 'BASC/BASC_features.csv')
-
-BASC_data.to_csv(basc_data_path, index=False)
+BASC_data.to_pickle('basc_325_non_PCA.pkl')
+'''

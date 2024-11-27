@@ -10,9 +10,8 @@ from nilearn import image
 from nilearn import datasets
 from scipy.stats import ttest_ind
 
-AAL = datasets.fetch_atlas_aal()
+AAL = datasets.fetch_atlas_basc_multiscale_2015(version="sym", resolution=325)
 atlas_filename = AAL.maps
-labels = AAL.labels
 
 AAL_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True, strategy='mean',
                                          resampling_target="labels")
@@ -37,7 +36,7 @@ mean_hc_data = AAL_atlas.fit_transform(mean_hc_img)
 
 mean_rbd_masked = AAL_atlas.inverse_transform(mean_rbd_data)
 mean_hc_masked = AAL_atlas.inverse_transform(mean_hc_data)
-plotting.plot_stat_map(mean_rbd_masked, title="RBD_mean")
+plotting.plot_stat_map(mean_rbd_masked, title="RBD_mean", vmax=0.35, vmin=0.0)
 plotting.show()
-plotting.plot_stat_map(mean_hc_masked, title="HC_mean")
+plotting.plot_stat_map(mean_hc_masked, title="HC_mean", vmax=0.35, vmin=0.0)
 plotting.show()
