@@ -13,8 +13,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold, cross_val_score
 from Visualization.T_test import check_normality, student_t_test, welch_t_test, mann_whitney_test, check_variance
+from sklearn.model_selection import ShuffleSplit
 
-BASC_pkl = pd.read_pickle('../Feature_Extraction/BASC_features/non_PCA_features/basc_325_non_PCA.pkl')
+BASC_pkl = pd.read_pickle('../Feature_Extraction/Schaefer_features/non_PCA_features/schaefer_200_non_PCA.pkl')
 
 different_nodes = pd.DataFrame()
 different_nodes['nodes'] = None
@@ -48,7 +49,7 @@ def statistic(rbd_data, hc_data):
 accuracy_score_mean = []
 feature_difference = []
 
-feature_name = 'fALFF'
+feature_name = 'FC'
 
 status_1_data = BASC_pkl[BASC_pkl['STATUS'] == 1]
 status_0_data = BASC_pkl[BASC_pkl['STATUS'] == 0]
@@ -56,15 +57,15 @@ status_0_data = BASC_pkl[BASC_pkl['STATUS'] == 0]
 selected_data_1 = status_1_data[[feature_name, 'STATUS']]
 selected_data_0 = status_0_data[[feature_name, 'STATUS']]
 
-# Split 80% of the data for training
+shuffle_split_1 = ShuffleSplit(n_splits=100, test_size=0.1, random_state=42)
+shuffle_split_0 = ShuffleSplit(n_splits=100, test_size=0.1, random_state=42)
 
-# KFold 객체 생성
+print(selected_data_1[feature_name])
 
-kfold_1 = KFold(n_splits=10, random_state=42, shuffle=True)
-kfold_0 = KFold(n_splits=10, random_state=42, shuffle=True)
-
-for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(kfold_1.split(selected_data_1),
-                                                                kfold_0.split(selected_data_0)):
+'''
+for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
+        shuffle_split_1.split(selected_data_1),
+        shuffle_split_0.split(selected_data_0)):
     # 라벨 1 데이터의 훈련/테스트 분리
     train_1 = selected_data_1.iloc[train_idx_1]
     test_1 = selected_data_1.iloc[test_idx_1]
@@ -77,35 +78,40 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(kfold_1.split(se
     train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
     test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
 
-    '''
-    rbd_data = train_data[feature_name][train_data['STATUS'] == 1]
-    hc_data = train_data[feature_name][train_data['STATUS'] == 0]
-
-    result = statistic(rbd_data, hc_data)
-
-    feature_difference.append(result)
-    '''
-
-    ### 통게적으로 유의미한 차이를 보이는 node들만 고려해서 training을 진행하는 코드###
-    '''
-    result = pd.read_pickle('../Feature_Extraction/Shen_features/different_nodes_shen_reho.pkl')['nodes'].tolist()
-
-    train_data[feature_name] = train_data[feature_name].apply(lambda x: [x[i] for i in result])
-    test_data[feature_name] = test_data[feature_name].apply(lambda x: [x[i] for i in result])
-    '''
-
     train_data[feature_name] = [item[0] for item in train_data[feature_name]]
     test_data[feature_name] = [item[0] for item in test_data[feature_name]]
 
+    print(train_data[feature_name])
+
+
+    
     model = svm.SVC(kernel='rbf', C=1, probability=True)
-    model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
+    model.fit(np.array(train_data[feature_name]), train_data['STATUS'])
     accuracy = model.score(np.array(test_data[feature_name].tolist()), test_data['STATUS'])
 
     print(f"accuracy : {accuracy:.2f}")
 
-    accuracy_score_mean.append(accuracy)
+accuracy_score_mean.append(accuracy)
 
 print(np.round(np.mean(accuracy_score_mean), 2))
+'''
+
+'''
+rbd_data = train_data[feature_name][train_data['STATUS'] == 1]
+hc_data = train_data[feature_name][train_data['STATUS'] == 0]
+
+result = statistic(rbd_data, hc_data)
+
+feature_difference.append(result)
+'''
+
+### 통게적으로 유의미한 차이를 보이는 node들만 고려해서 training을 진행하는 코드###
+'''
+result = pd.read_pickle('../Feature_Extraction/Shen_features/different_nodes_shen_reho.pkl')['nodes'].tolist()
+
+train_data[feature_name] = train_data[feature_name].apply(lambda x: [x[i] for i in result])
+test_data[feature_name] = test_data[feature_name].apply(lambda x: [x[i] for i in result])
+'''
 
 '''
 different_nodes['nodes'] = avoid_duplication(feature_difference)
