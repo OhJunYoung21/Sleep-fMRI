@@ -60,9 +60,6 @@ selected_data_0 = status_0_data[[feature_name, 'STATUS']]
 shuffle_split_1 = ShuffleSplit(n_splits=100, test_size=0.1, random_state=42)
 shuffle_split_0 = ShuffleSplit(n_splits=100, test_size=0.1, random_state=42)
 
-print(selected_data_1[feature_name])
-
-'''
 for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
         shuffle_split_1.split(selected_data_1),
         shuffle_split_0.split(selected_data_0)):
@@ -78,15 +75,13 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
     train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
     test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
 
+    '''
     train_data[feature_name] = [item[0] for item in train_data[feature_name]]
     test_data[feature_name] = [item[0] for item in test_data[feature_name]]
+    '''
 
-    print(train_data[feature_name])
-
-
-    
     model = svm.SVC(kernel='rbf', C=1, probability=True)
-    model.fit(np.array(train_data[feature_name]), train_data['STATUS'])
+    model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
     accuracy = model.score(np.array(test_data[feature_name].tolist()), test_data['STATUS'])
 
     print(f"accuracy : {accuracy:.2f}")
@@ -94,7 +89,6 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
 accuracy_score_mean.append(accuracy)
 
 print(np.round(np.mean(accuracy_score_mean), 2))
-'''
 
 '''
 rbd_data = train_data[feature_name][train_data['STATUS'] == 1]
