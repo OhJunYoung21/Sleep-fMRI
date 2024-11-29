@@ -13,9 +13,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold, cross_val_score
 from Visualization.T_test import check_normality, student_t_test, welch_t_test, mann_whitney_test, check_variance
-from sklearn.model_selection import ShuffleSplit
+from sklearn.model_selection import RepeatedKFold
 
-BASC_pkl = pd.read_pickle('../Feature_Extraction/Schaefer_features/non_PCA_features/schaefer_200_non_PCA.pkl')
+BASC_pkl = pd.read_pickle('../Feature_Extraction/BASC_features/non_PCA_features/basc_325_non_PCA.pkl')
 
 different_nodes = pd.DataFrame()
 different_nodes['nodes'] = None
@@ -49,7 +49,7 @@ def statistic(rbd_data, hc_data):
 accuracy_score_mean = []
 feature_difference = []
 
-feature_name = 'FC'
+feature_name = 'REHO'
 
 status_1_data = BASC_pkl[BASC_pkl['STATUS'] == 1]
 status_0_data = BASC_pkl[BASC_pkl['STATUS'] == 0]
@@ -57,12 +57,14 @@ status_0_data = BASC_pkl[BASC_pkl['STATUS'] == 0]
 selected_data_1 = status_1_data[[feature_name, 'STATUS']]
 selected_data_0 = status_0_data[[feature_name, 'STATUS']]
 
-shuffle_split_1 = ShuffleSplit(n_splits=100, test_size=0.1, random_state=42)
-shuffle_split_0 = ShuffleSplit(n_splits=100, test_size=0.1, random_state=42)
+rkf_split_1 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
+rkf_split_0 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
+
+i = 0
 
 for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
-        shuffle_split_1.split(selected_data_1),
-        shuffle_split_0.split(selected_data_0)):
+        rkf_split_1.split(selected_data_1),
+        rkf_split_0.split(selected_data_0)):
     # 라벨 1 데이터의 훈련/테스트 분리
     train_1 = selected_data_1.iloc[train_idx_1]
     test_1 = selected_data_1.iloc[test_idx_1]
@@ -75,16 +77,16 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
     train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
     test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
 
-    '''
     train_data[feature_name] = [item[0] for item in train_data[feature_name]]
     test_data[feature_name] = [item[0] for item in test_data[feature_name]]
-    '''
 
     model = svm.SVC(kernel='rbf', C=1, probability=True)
     model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
     accuracy = model.score(np.array(test_data[feature_name].tolist()), test_data['STATUS'])
 
-    print(f"accuracy : {accuracy:.2f}")
+    i += 1
+
+    print(f"{i}th accuracy : {accuracy:.2f}")
 
 accuracy_score_mean.append(accuracy)
 
