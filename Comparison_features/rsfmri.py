@@ -18,7 +18,7 @@ __email__ = 'kevin3.nguyen@utsouthwestern.edu'
 
 
 def dynamic_measures(strFunc, strMask, strDir,
-                     nWindowSizeTR=50,
+                     nWindowSizeTR=10,
                      nStrideTR=2,
                      fFilterHP=0.01, fFilterLP=0.1, nClusterSize=27, nJobs=1):
     '''
@@ -78,7 +78,7 @@ def dynamic_measures(strFunc, strMask, strDir,
     workflow.connect(windowExtract, 'roi_file', alffWf, 'inputspec.rest_res')
 
     # Compute ReHo with CPAC's workflow
-    rehoWf = reho.create_reho()
+    rehoWf = reho.create_reho('dynamic')
     rehoWf.inputs.inputspec.cluster_size = nClusterSize
     rehoWf.inputs.inputspec.rest_mask = strMask
     workflow.connect(windowExtract, 'roi_file', rehoWf, 'inputspec.rest_res_filt')
@@ -162,5 +162,3 @@ def static_measures(strFunc, strMask, strDir,
         workflow.run(plugin='MultiProc', plugin_args={'n_procs': nJobs})
     else:
         workflow.run()
-
-

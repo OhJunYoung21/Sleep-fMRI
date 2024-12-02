@@ -16,6 +16,11 @@ atlas_filename = BASC_atlas.maps
 
 AAL_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True, strategy='mean',
                                          resampling_target="labels")
+
+dynamic_data = image.load_img('/Users/oj/Desktop/Yoo_Lab/CPAC/dynamic/RBD/sub-01/results/alff_merged.nii.gz')
+
+print(dynamic_data.get_fdata[80, 10, 40,:])
+
 '''
 rbd_imgs = glob.glob(os.path.join('/Users/oj/Desktop/Yoo_Lab/CPAC_features/RBD/fALFF', 'falff_*.nii.gz'))
 rbd = []
@@ -31,6 +36,7 @@ for k in hc_imgs:
     hc.append(img)
 '''
 
+'''
 matrix_RBD = FC_extraction(
     '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz')
 plotting.plot_matrix(matrix_RBD, title='RBD_connectivity')
@@ -38,6 +44,7 @@ matrix_HC = FC_extraction(
     '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_HC/sub-01_confounds_regressed.nii.gz')
 plotting.plot_matrix(matrix_HC, title='HC_connectivity')
 plotting.show()
+'''
 
 '''
 mean_rbd_img = image.mean_img(rbd)

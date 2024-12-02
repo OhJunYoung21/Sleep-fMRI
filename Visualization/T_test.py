@@ -46,7 +46,7 @@ def check_normality(features):
     mann_whitneyu = []
     t_test = []
 
-    for i in range(116):
+    for i in range(325):
         stat, p_val = shapiro(features[:, i])
 
         if p_val < 0.05:

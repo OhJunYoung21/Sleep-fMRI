@@ -5,7 +5,7 @@ import numpy as np
 import glob
 from typing import List
 from CPAC import alff
-from Comparison_features.rsfmri import static_measures
+from Comparison_features.rsfmri import static_measures, dynamic_measures
 from Feature_Extraction.BASC_features.BASC_features import FC_extraction, basc_alff_average, basc_reho_average
 
 BASC_data = pd.DataFrame(index=None)
@@ -43,6 +43,9 @@ feature_path = '/Users/oj/Desktop/Yoo_Lab/Classification_Features'
 CPAC_rbd = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD'
 
 CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/HC'
+
+CPAC_hc_dynamic = 'Users/oj/Desktop/Yoo_Lab/CPAC/dynamic/HC'
+CPAC_rbd_dynamic = 'Users/oj/Desktop/Yoo_Lab/CPAC/dynamic/RBD'
 
 mask_path_rbd = '/Users/oj/Desktop/Yoo_Lab/mask_rbd'
 mask_path_hc = '/Users/oj/Desktop/Yoo_Lab/mask_hc'
@@ -98,6 +101,27 @@ def input_features(files_path: str, mask_path: str, status: str):
     return
 
 
+def input_dynamic_features(files_path: str, mask_path: str, status: str):
+    fmri_files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
+    mask_files = glob.glob(os.path.join(mask_path, 'sub-*_desc-brain_mask.nii.gz'))
+
+    fmri_files = sorted(fmri_files)
+    mask_files = sorted(mask_files)
+
+    for idx in range(len(fmri_files)):
+        match = re.search(r'sub-(.*)_confounds_regressed.nii.gz', fmri_files[idx])
+
+        if match:
+            extracted_part = match.group(1)
+
+        output_path = os.path.join(f'/Users/oj/Desktop/Yoo_Lab/CPAC/dynamic/{status}/sub-{extracted_part}')
+
+        dynamic_measures(fmri_files[idx], mask_files[idx], output_path,
+                         nClusterSize=27, nJobs=1)
+
+    return
+
+
 def make_reho_basc(file_path: str, data: List):
     reho_path = glob.glob(os.path.join(file_path, 'sub-*/results/ReHo.nii.gz'))
 
@@ -133,10 +157,9 @@ def make_falff_basc(file_path: str, data: List):
     return
 
 
-'''
-input_features(root_rbd_dir, mask_path_rbd, "RBD")
-input_features(root_hc_dir, mask_path_hc, "HC")
-'''
+input_dynamic_features(root_rbd_dir, mask_path_rbd, "RBD")
+input_dynamic_features(root_hc_dir, mask_path_hc, "HC")
+
 '''
 input_fc(root_hc_dir, FC_HC)
 input_fc(root_rbd_dir, FC_RBD)

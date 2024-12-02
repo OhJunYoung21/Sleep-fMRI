@@ -17,6 +17,8 @@ from sklearn.model_selection import RepeatedKFold
 
 BASC_pkl = pd.read_pickle('../Feature_Extraction/BASC_features/non_PCA_features/basc_325_non_PCA.pkl')
 
+
+
 different_nodes = pd.DataFrame()
 different_nodes['nodes'] = None
 
@@ -60,8 +62,12 @@ selected_data_0 = status_0_data[[feature_name, 'STATUS']]
 rkf_split_1 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
 rkf_split_0 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
 
+kfold_1 = KFold(n_splits=10, random_state=42, shuffle=True)
+kfold_0 = KFold(n_splits=10, random_state=42, shuffle=True)
+
 i = 0
 
+'''
 for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
         rkf_split_1.split(selected_data_1),
         rkf_split_0.split(selected_data_0)):
@@ -77,9 +83,10 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
     train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
     test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
 
+    
     train_data[feature_name] = [item[0] for item in train_data[feature_name]]
     test_data[feature_name] = [item[0] for item in test_data[feature_name]]
-
+    
     model = svm.SVC(kernel='rbf', C=1, probability=True)
     model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
     accuracy = model.score(np.array(test_data[feature_name].tolist()), test_data['STATUS'])
@@ -87,18 +94,37 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
     i += 1
 
     print(f"{i}th accuracy : {accuracy:.2f}")
+'''
 
+for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
+        kfold_1.split(selected_data_1),
+        kfold_0.split(selected_data_0)):
+    # 라벨 1 데이터의 훈련/테스트 분리
+    train_1 = selected_data_1.iloc[train_idx_1]
+    test_1 = selected_data_1.iloc[test_idx_1]
+
+    # 라벨 0 데이터의 훈련/테스트 분리
+    train_0 = selected_data_0.iloc[train_idx_0]
+    test_0 = selected_data_0.iloc[test_idx_0]
+
+    # 훈련 데이터와 테스트 데이터 결합
+    train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
+    test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
+
+    train_data[feature_name] = [item[0] for item in train_data[feature_name]]
+    test_data[feature_name] = [item[0] for item in test_data[feature_name]]
+
+    rbd_data = train_data[feature_name][train_data['STATUS'] == 1]
+    hc_data = train_data[feature_name][train_data['STATUS'] == 0]
+
+    result = statistic(rbd_data, hc_data)
+
+    feature_difference.append(result)
+
+'''
 accuracy_score_mean.append(accuracy)
 
 print(np.round(np.mean(accuracy_score_mean), 2))
-
-'''
-rbd_data = train_data[feature_name][train_data['STATUS'] == 1]
-hc_data = train_data[feature_name][train_data['STATUS'] == 0]
-
-result = statistic(rbd_data, hc_data)
-
-feature_difference.append(result)
 '''
 
 ### 통게적으로 유의미한 차이를 보이는 node들만 고려해서 training을 진행하는 코드###
@@ -109,8 +135,9 @@ train_data[feature_name] = train_data[feature_name].apply(lambda x: [x[i] for i 
 test_data[feature_name] = test_data[feature_name].apply(lambda x: [x[i] for i in result])
 '''
 
+
 '''
 different_nodes['nodes'] = avoid_duplication(feature_difference)
 
-different_nodes.to_pickle('different_nodes_shen_falff.pkl')
+different_nodes.to_pickle('different_nodes_basc_reho.pkl')
 '''
