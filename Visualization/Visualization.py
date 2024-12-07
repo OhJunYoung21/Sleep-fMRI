@@ -9,7 +9,7 @@ import numpy as np
 from nilearn import image
 from nilearn import datasets
 from scipy.stats import ttest_ind
-from Feature_Extraction.BASC_features.BASC_features import FC_extraction
+from Static_Feature_Extraction.BASC_features.BASC_features import FC_extraction
 
 BASC_atlas = datasets.fetch_atlas_basc_multiscale_2015(version="sym", resolution=325)
 atlas_filename = BASC_atlas.maps

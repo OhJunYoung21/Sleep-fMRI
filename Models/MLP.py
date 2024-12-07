@@ -19,7 +19,7 @@ from optuna.samplers import TPESampler
 
 from Visualization.T_test import check_normality, student_t_test, welch_t_test, mann_whitney_test, check_variance
 
-shen_pkl = pd.read_pickle('../Feature_Extraction/Shen_features/shen_268_non_PCA.pkl')
+shen_pkl = pd.read_pickle('../Static_Feature_Extraction/Shen_features/shen_268_non_PCA.pkl')
 
 different_nodes = pd.DataFrame()
 different_nodes['nodes'] = None
@@ -95,7 +95,7 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(kfold_1.split(se
 
     ### 통게적으로 유의미한 차이를 보이는 node들만 고려해서 training을 진행하는 코드###
 
-    result = pd.read_pickle('../Feature_Extraction/Shen_features/different_nodes_shen_falff.pkl')['nodes'].tolist()
+    result = pd.read_pickle('../Static_Feature_Extraction/Shen_features/different_nodes_shen_falff.pkl')['nodes'].tolist()
 
     train_data[feature_name] = train_data[feature_name].apply(lambda x: [x[i] for i in result])
     test_data[feature_name] = test_data[feature_name].apply(lambda x: [x[i] for i in result])
