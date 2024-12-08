@@ -19,16 +19,29 @@ atlas_filename = dataset.maps
 
 
 def FC_extraction(path):
+    dynamic_FC = []
+
     basc_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_filename, standardize=True)
 
     data = image.load_img(path)
 
     time_series = basc_atlas.fit_transform(data)
 
-    correlation_measure = ConnectivityMeasure(kind='correlation')
-    correlation_matrix = correlation_measure.fit_transform([time_series])[0]
+    window_size = 10
+    step_size = 2
+    window_number = ((time_series.shape)[0] - window_size) // step_size + 1
 
-    return correlation_matrix
+    for i in range(window_number):
+        start = i * step_size
+        end = start + window_size
+        window_data = time_series[start:end]
+
+        correlation_measure = ConnectivityMeasure(kind='correlation')
+        correlation_matrix = correlation_measure.fit_transform([window_data])
+
+        dynamic_FC.append(correlation_matrix)
+
+    return dynamic_FC
 
 
 ## calculate_3dReHo는 AFNI의 3dReHo를 사용해서 input으로는 4D image를 받고 output으로 3d image를 반환한다.
@@ -40,13 +53,24 @@ def FC_extraction(path):
 
 
 ## region_reho_average는 mask가 나눈 region안의 voxel 값들의 평균을 계산한다.
-def basc_reho_average(reho_file):
+def basc_reho_average(reho_path):
+    ## 4D 데이터를 3D 데이터로 만들어준다.
+
+    data = image.get_data(reho_path)
+
+    variance = np.var(data, axis=3)
+
+    alff_img = image.load_img(reho_path)
+
+    variance_img = nib.Nifti2Image(variance, alff_img.affine)
+
+    ## 3D 데이터에 BASC atlas를 씌워준다.
+
     BASC_atlas = input_data.NiftiLabelsMasker(labels_img=image.load_img(atlas_filename), standardize=True,
-                                              strategy='mean')
+                                              strategy='mean',
+                                              )
 
-    reho_img = image.load_img(reho_file)
-
-    masked_data = BASC_atlas.fit_transform([reho_img])
+    masked_data = BASC_atlas.fit_transform([variance_img])
 
     return masked_data
 
@@ -62,6 +86,8 @@ def basc_alff_average(alff_path):
 
     variance_img = nib.Nifti2Image(variance, alff_img.affine)
 
+    ## 3D데이터에 BASC atlas를 씌워준다.
+
     BASC_atlas = input_data.NiftiLabelsMasker(labels_img=image.load_img(atlas_filename), standardize=True,
                                               strategy='mean',
                                               )
@@ -71,6 +97,26 @@ def basc_alff_average(alff_path):
     return masked_data
 
 
-result = basc_alff_average("/Users/oj/Desktop/Yoo_Lab/CPAC/dynamic/RBD/sub-01/results/alff_merged.nii.gz")
+def basc_falff_average(falff_path):
+    ## 4D 데이터를 3D 데이터로 만들어준다.
 
-print(result)
+    data = image.get_data(falff_path)
+
+    variance = np.var(data, axis=3)
+
+    alff_img = image.load_img(falff_path)
+
+    variance_img = nib.Nifti2Image(variance, alff_img.affine)
+
+    ## 3D데이터에 BASC atlas를 씌워준다.
+
+    BASC_atlas = input_data.NiftiLabelsMasker(labels_img=image.load_img(atlas_filename), standardize=True,
+                                              strategy='mean',
+                                              )
+
+    masked_data = BASC_atlas.fit_transform([variance_img])
+
+    return masked_data
+
+
+print(np.array(FC_extraction(file_path)[45]).shape)
