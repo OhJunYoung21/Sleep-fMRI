@@ -36,12 +36,14 @@ def FC_extraction(path):
         end = start + window_size
         window_data = time_series[start:end]
 
-        correlation_measure = ConnectivityMeasure(kind='correlation')
-        correlation_matrix = correlation_measure.fit_transform([window_data])
+        correlation_measure = ConnectivityMeasure(kind='correlation', standardize="zscore_sample")
+        correlation_matrix = np.round(correlation_measure.fit_transform([window_data]), decimals=3)
 
         dynamic_FC.append(correlation_matrix)
 
-    return dynamic_FC
+    variance_matrix = np.round(np.var(dynamic_FC, axis=0), decimals=3)
+
+    return variance_matrix
 
 
 ## calculate_3dReHo는 AFNI의 3dReHo를 사용해서 input으로는 4D image를 받고 output으로 3d image를 반환한다.
@@ -104,9 +106,9 @@ def basc_falff_average(falff_path):
 
     variance = np.var(data, axis=3)
 
-    alff_img = image.load_img(falff_path)
+    falff_img = image.load_img(falff_path)
 
-    variance_img = nib.Nifti2Image(variance, alff_img.affine)
+    variance_img = nib.Nifti2Image(variance, falff_img.affine)
 
     ## 3D데이터에 BASC atlas를 씌워준다.
 
@@ -117,6 +119,3 @@ def basc_falff_average(falff_path):
     masked_data = BASC_atlas.fit_transform([variance_img])
 
     return masked_data
-
-
-print(np.array(FC_extraction(file_path)[45]).shape)

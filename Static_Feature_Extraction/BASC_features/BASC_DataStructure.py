@@ -157,9 +157,6 @@ def make_falff_basc(file_path: str, data: List):
     return
 
 
-input_dynamic_features(root_rbd_dir, mask_path_rbd, "RBD")
-input_dynamic_features(root_hc_dir, mask_path_hc, "HC")
-
 '''
 input_fc(root_hc_dir, FC_HC)
 input_fc(root_rbd_dir, FC_RBD)

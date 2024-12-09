@@ -6,7 +6,8 @@ import glob
 from typing import List
 from CPAC import alff
 from Comparison_features.rsfmri import static_measures, dynamic_measures
-from Static_Feature_Extraction.BASC_features.BASC_features import FC_extraction, basc_alff_average, basc_reho_average
+from Dynamic_Feature_Extraction.BASC_features.BASC_features import FC_extraction, basc_alff_average, basc_reho_average, \
+    basc_falff_average
 
 BASC_data = pd.DataFrame(index=None)
 
@@ -40,9 +41,9 @@ alff_hc_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_HC/alff'
 
 feature_path = '/Users/oj/Desktop/Yoo_Lab/Classification_Features'
 
-CPAC_rbd = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD'
+CPAC_rbd = '/Users/oj/Desktop/Yoo_Lab/CPAC/dynamic/RBD'
 
-CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/HC'
+CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/dynamic/HC'
 
 CPAC_hc_dynamic = 'Users/oj/Desktop/Yoo_Lab/CPAC/dynamic/HC'
 CPAC_rbd_dynamic = 'Users/oj/Desktop/Yoo_Lab/CPAC/dynamic/RBD'
@@ -123,7 +124,7 @@ def input_dynamic_features(files_path: str, mask_path: str, status: str):
 
 
 def make_reho_basc(file_path: str, data: List):
-    reho_path = glob.glob(os.path.join(file_path, 'sub-*/results/ReHo.nii.gz'))
+    reho_path = glob.glob(os.path.join(file_path, 'sub-*/results/ReHo_merged.nii.gz'))
 
     for file in reho_path:
         ##Classification_feature에서 불러온 atlas_path를 매개변수로 넣어준다.
@@ -134,7 +135,7 @@ def make_reho_basc(file_path: str, data: List):
 
 ### 로컬의 alff폴더에서 파일을 읽어온 후, shen_atlas를 적용하고 ALFF 리스트에 넣어준다.
 def make_alff_basc(file_path: str, data: List):
-    alff_path = glob.glob(os.path.join(file_path, 'sub-*/results/alff.nii.gz'))
+    alff_path = glob.glob(os.path.join(file_path, 'sub-*/results/alff_merged.nii.gz'))
 
     alff_path = sorted(alff_path)
 
@@ -146,20 +147,17 @@ def make_alff_basc(file_path: str, data: List):
 
 
 def make_falff_basc(file_path: str, data: List):
-    falff_path = glob.glob(os.path.join(file_path, 'sub-*/results/falff.nii.gz'))
+    falff_path = glob.glob(os.path.join(file_path, 'sub-*/results/falff_merged.nii.gz'))
 
     falff_path = sorted(falff_path)
 
     for file in falff_path:
         ##Classification_feature에서 불러온 atlas_path를 매개변수로 넣어준다.
-        basc_falff = basc_alff_average(file)
+        basc_falff = basc_falff_average(file)
         data.append(basc_falff)
     return
 
 
-input_dynamic_features(root_hc_dir, mask_path_hc, "HC")
-
-'''
 input_fc(root_hc_dir, FC_HC)
 input_fc(root_rbd_dir, FC_RBD)
 
@@ -174,11 +172,12 @@ make_falff_basc(CPAC_rbd, fALFF_RBD)
 len_hc = len(FC_HC)
 len_rbd = len(FC_RBD)
 
+
 for j in range(len_hc):
     BASC_data.loc[j] = [FC_HC[j], ALFF_HC[j], ReHo_HC[j], fALFF_HC[j], 0]
 
 for k in range(len_rbd):
     BASC_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[k], fALFF_RBD[k], 1]
 
-BASC_data.to_pickle('basc_325_non_PCA.pkl')
-'''
+BASC_data.to_pickle('basc_325_dynamic.pkl')
+
