@@ -16,7 +16,7 @@ from Visualization.T_test import check_normality, student_t_test, welch_t_test, 
 from sklearn.model_selection import RepeatedKFold
 from sklearn.linear_model import LassoCV
 
-BASC_pkl = pd.read_pickle('../Static_Feature_Extraction/BASC_features/non_PCA_features/basc_325_non_PCA.pkl')
+shen_pkl = pd.read_pickle('../Dynamic_Feature_Extraction/Shen_features/Shen_dynamic_final.pkl')
 
 different_nodes = pd.DataFrame()
 different_nodes['nodes'] = None
@@ -54,19 +54,22 @@ auc_mean = []
 f1_score_mean = []
 feature_difference = []
 
-feature_name = 'FC'
+feature_name = "REHO"
 
-status_1_data = BASC_pkl[BASC_pkl['STATUS'] == 1]
-status_0_data = BASC_pkl[BASC_pkl['STATUS'] == 0]
+status_1_data = shen_pkl[shen_pkl['STATUS'] == 1]
+status_0_data = shen_pkl[shen_pkl['STATUS'] == 0]
 # Select only the REHO and STATUS columns
 selected_data_1 = status_1_data[[feature_name, 'STATUS']]
 selected_data_0 = status_0_data[[feature_name, 'STATUS']]
 
 rkf_split_1 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
 rkf_split_0 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
-
+'''
 kfold_1 = KFold(n_splits=10, random_state=42, shuffle=True)
 kfold_0 = KFold(n_splits=10, random_state=42, shuffle=True)
+'''
+
+print(selected_data_1)
 
 i = 0
 
@@ -132,7 +135,6 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
 '''
 
 print(np.round(np.mean(accuracy_score_mean), 2))
-
 
 ### 통게적으로 유의미한 차이를 보이는 node들만 고려해서 training을 진행하는 코드###
 

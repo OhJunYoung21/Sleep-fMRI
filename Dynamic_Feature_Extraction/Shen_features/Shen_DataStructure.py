@@ -27,7 +27,7 @@ FC_HC = []
 ALFF_HC = []
 fALFF_HC = []
 
-root_rbd_dir = '/Users/oj/Desktop/sample_run'
+root_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD'
 
 root_hc_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_HC'
 
@@ -158,8 +158,9 @@ def make_falff_shen(file_path: str, data: List):
     return
 
 
-input_fc(root_hc_dir, FC_HC)
 input_fc(root_rbd_dir, FC_RBD)
+input_fc(root_hc_dir, FC_HC)
+
 
 make_reho_shen(CPAC_hc, ReHo_HC)
 make_alff_shen(CPAC_hc, ALFF_HC)
@@ -172,6 +173,7 @@ make_falff_shen(CPAC_rbd, fALFF_RBD)
 len_hc = len(FC_HC)
 len_rbd = len(FC_RBD)
 
+
 for j in range(len_hc):
     shen_data.loc[j] = [FC_HC[j], ALFF_HC[j], ReHo_HC[j], fALFF_HC[j], 0]
 
@@ -179,3 +181,4 @@ for k in range(len_rbd):
     shen_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[k], fALFF_RBD[k], 1]
 
 shen_data.to_pickle('shen_dynamic.pkl')
+
