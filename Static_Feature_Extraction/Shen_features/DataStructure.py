@@ -71,13 +71,15 @@ def input_fc(files_path: str, data: List):
 
         connectivity = np.array(connectivity)
 
+        '''
         connectivity = (connectivity + connectivity.T) / 2  # 대칭화
         np.fill_diagonal(connectivity
                          , 0)
 
         vectorized_fc = connectivity[np.triu_indices(268, k=1)]
+        '''
 
-        data.append(vectorized_fc)
+        data.append(connectivity)
 
     return data
 
@@ -158,11 +160,9 @@ input_features(root_rbd_dir, mask_path_rbd, "RBD")
 input_features(root_hc_dir, mask_path_hc, "HC")
 '''
 
-result_hc = input_fc_local(root_hc_dir, FC_HC)
+result_hc = input_fc(root_hc_dir, FC_HC)
 
-result_rbd = input_fc_local(root_rbd_dir, FC_RBD)
-
-result_local = result_hc + result_rbd
+result_rbd = input_fc(root_rbd_dir, FC_RBD)
 
 '''
 pca = PCA(n_components=50)
@@ -198,4 +198,4 @@ for j in range(len_rbd):
 for k in range(len_hc):
     shen_data.loc[len_rbd + k] = [result_hc[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-shen_data.to_pickle('shen_268_local_max.pkl')
+shen_data.to_pickle('shen_268_CNN.pkl')
