@@ -54,7 +54,7 @@ auc_mean = []
 f1_score_mean = []
 feature_difference = []
 
-feature_name = "FC"
+feature_name = "ALFF"
 
 status_1_data = shen_pkl[shen_pkl['STATUS'] == 1]
 status_0_data = shen_pkl[shen_pkl['STATUS'] == 0]

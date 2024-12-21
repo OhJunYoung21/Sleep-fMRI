@@ -1,5 +1,5 @@
 import pandas as pd
 
-BASC_pkl = pd.read_pickle('../Static_Feature_Extraction/BASC_features/non_PCA_features/basc_325_non_PCA.pkl')
+shen_pkl = pd.read_pickle('../Dynamic_Feature_Extraction/Shen_features/Shen_dynamic_final.pkl')
 
-print(len(BASC_pkl['REHO'][0][0]))
+print(shen_pkl.head())
