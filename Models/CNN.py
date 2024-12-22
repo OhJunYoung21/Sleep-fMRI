@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import random
 import os
 import pandas as pd
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, RepeatedKFold
 from tensorflow.keras import Model, layers
 
 
@@ -47,26 +47,45 @@ status_0_data = shen_pkl[shen_pkl['STATUS'] == 0]
 selected_data_1 = status_1_data[[feature_name, 'STATUS']]
 selected_data_0 = status_0_data[[feature_name, 'STATUS']]
 
-X_train, X_test, y_train, y_test = train_test_split(shen_pkl[feature_name], shen_pkl['STATUS'], test_size=0.2,
-                                                    random_state=42)
+rkf_split_1 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
+rkf_split_0 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
 
-X_train = np.array([item[0] for item in X_train])
-X_test = np.array([item[0] for item in X_test])
+i = 0
 
-X_train = np.expand_dims(X_train, axis=-1)
-X_test = np.expand_dims(X_test, axis=-1)
+for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
+        rkf_split_1.split(selected_data_1),
+        rkf_split_0.split(selected_data_0)):
+    # 라벨 1 데이터의 훈련/테스트 분리
+    train_1 = selected_data_1.iloc[train_idx_1]
+    test_1 = selected_data_1.iloc[test_idx_1]
 
-X_train = X_train / 255.0
-X_test = X_test / 255.0
+    # 라벨 0 데이터의 훈련/테스트 분리
+    train_0 = selected_data_0.iloc[train_idx_0]
+    test_0 = selected_data_0.iloc[test_idx_0]
 
-model = CNN()
+    # 훈련 데이터와 테스트 데이터 결합
 
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
+    test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
 
-# 모델 학습
-history = model.fit(X_train, y_train, epochs=5, batch_size=16, validation_split=0.2)
+    X_train = np.array([item[0] for item in train_data[feature_name]])
+    X_test = np.array([item[0] for item in test_data[feature_name]])
 
-# 테스트 데이터 평가
-test_loss, test_acc = model.evaluate(X_test, y_test)
-print(f"Test Loss: {test_loss:.3f}")
-print(f"Test Accuracy: {test_acc:.3f}")
+    X_train = np.expand_dims(X_train, axis=-1)
+    X_test = np.expand_dims(X_test, axis=-1)
+
+    X_train = X_train / 255.0
+    X_test = X_test / 255.0
+
+    model = CNN()
+
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+    # 모델 학습
+    history = model.fit(X_train, train_data['STATUS'], epochs=5, batch_size=16,
+                        validation_split=0.2)
+
+    # 테스트 데이터 평가
+    test_loss, test_acc = model.evaluate(X_test, test_data['STATUS'])
+    print(f"Test Loss: {test_loss:.3f}")
+    print(f"Test Accuracy: {test_acc:.3f}")
