@@ -19,7 +19,11 @@ class CNN(Model):
 
         self.flatten = layers.Flatten()
         self.fc1 = layers.Dense(128, activation='relu')
-        self.fc2 = layers.Dense(2, activation='softmax')
+        self.fc2 = layers.Dense(1, activation='sigmoid')
+
+    def build(self, input_shape):
+        # 여기서 입력 크기에 따라 레이어를 명시적으로 초기화 가능
+        super(CNN, self).build(input_shape)
 
     def call(self, x):
         x = self.conv1(x)
@@ -43,10 +47,26 @@ status_0_data = shen_pkl[shen_pkl['STATUS'] == 0]
 selected_data_1 = status_1_data[[feature_name, 'STATUS']]
 selected_data_0 = status_0_data[[feature_name, 'STATUS']]
 
-x_train, y_train, x_test, y_test = train_test_split(shen_pkl[feature_name], shen_pkl['STATUS'], test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(shen_pkl[feature_name], shen_pkl['STATUS'], test_size=0.2,
+                                                    random_state=42)
+
+X_train = np.array([item[0] for item in X_train])
+X_test = np.array([item[0] for item in X_test])
+
+X_train = np.expand_dims(X_train, axis=-1)
+X_test = np.expand_dims(X_test, axis=-1)
+
+X_train = X_train / 255.0
+X_test = X_test / 255.0
 
 model = CNN()
 
-model.build(input_shape=(None, 268, 268, 1))
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-model.summary()
+# 모델 학습
+history = model.fit(X_train, y_train, epochs=5, batch_size=16, validation_split=0.2)
+
+# 테스트 데이터 평가
+test_loss, test_acc = model.evaluate(X_test, y_test)
+print(f"Test Loss: {test_loss:.3f}")
+print(f"Test Accuracy: {test_acc:.3f}")
