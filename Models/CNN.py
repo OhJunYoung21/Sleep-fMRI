@@ -37,7 +37,7 @@ class CNN(Model):
         return x
 
 
-shen_pkl = pd.read_pickle("../Dynamic_Feature_Extraction/Shen_features/shen_dynamic_CNN.pkl")
+shen_pkl = pd.read_pickle("../Static_Feature_Extraction/Shen_features/shen_268_CNN.pkl")
 
 feature_name = "FC"
 
@@ -51,6 +51,8 @@ rkf_split_1 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
 rkf_split_0 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
 
 i = 0
+
+accuracy = []
 
 for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
         rkf_split_1.split(selected_data_1),
@@ -68,24 +70,32 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
     train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
     test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
 
-    X_train = np.array([item[0] for item in train_data[feature_name]])
-    X_test = np.array([item[0] for item in test_data[feature_name]])
+    train_data[feature_name] = [item[0] for item in train_data[feature_name]]
+    test_data[feature_name] = [item[0] for item in test_data[feature_name]]
 
-    X_train = np.expand_dims(X_train, axis=-1)
-    X_test = np.expand_dims(X_test, axis=-1)
+    train_data[feature_name] = train_data[feature_name] / 255.0
+    test_data[feature_name] = test_data[feature_name] / 255.0
 
-    X_train = X_train / 255.0
-    X_test = X_test / 255.0
+    print(train_data[feature_name][0].shape)
+
+    '''
 
     model = CNN()
 
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
     # 모델 학습
-    history = model.fit(X_train, train_data['STATUS'], epochs=5, batch_size=16,
+    history = model.fit(train_data[feature_name], train_data['STATUS'], epochs=5, batch_size=16,
                         validation_split=0.2)
 
     # 테스트 데이터 평가
-    test_loss, test_acc = model.evaluate(X_test, test_data['STATUS'])
+    test_loss, test_acc = model.evaluate(test_data[feature_name], test_data['STATUS'])
+
+    accuracy.append(test_acc)
+
     print(f"Test Loss: {test_loss:.3f}")
     print(f"Test Accuracy: {test_acc:.3f}")
+    
+    '''
+
+print(np.mean(accuracy))

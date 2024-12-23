@@ -20,6 +20,12 @@ atlas_path = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
 
 file_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz'
 
+shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True, strategy='mean')
+
+masked_data = shen_atlas.fit_transform(image.load_img(file_path))
+
+print(masked_data[0])
+
 
 def FC_extraction(path):
     dynamic_FC = []
