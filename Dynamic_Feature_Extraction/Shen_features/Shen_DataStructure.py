@@ -6,8 +6,8 @@ import glob
 from typing import List
 from CPAC import alff
 from Comparison_features.rsfmri import static_measures, dynamic_measures
-from Dynamic_Feature_Extraction.Shen_features.Shen_features import FC_extraction, shen_alff_average, shen_reho_average, \
-    shen_falff_average
+from Static_Feature_Extraction.Shen_features.Classification_feature import FC_extraction, region_alff_average, \
+    region_reho_average
 
 shen_data = pd.DataFrame(index=None)
 
@@ -130,7 +130,7 @@ def make_reho_shen(file_path: str, data: List):
 
     for file in reho_path:
         ##Classification_feature에서 불러온 atlas_path를 매개변수로 넣어준다.
-        shen_reho = shen_reho_average(file)
+        shen_reho = region_reho_average(file)
         data.append(shen_reho)
     return
 
@@ -143,7 +143,7 @@ def make_alff_shen(file_path: str, data: List):
 
     for file in alff_path:
         ##Classification_feature에서 불러온 atlas_path를 매개변수로 넣어준다.
-        shen_alff = shen_alff_average(file)
+        shen_alff = region_alff_average(file)
         data.append(shen_alff)
     return
 
@@ -155,7 +155,7 @@ def make_falff_shen(file_path: str, data: List):
 
     for file in falff_path:
         ##Classification_feature에서 불러온 atlas_path를 매개변수로 넣어준다.
-        shen_falff = shen_falff_average(file)
+        shen_falff = region_alff_average(file)
         data.append(shen_falff)
     return
 
@@ -180,4 +180,4 @@ for j in range(len_hc):
 for k in range(len_rbd):
     shen_data.loc[len_hc + k] = [FC_RBD[k], ALFF_RBD[k], ReHo_RBD[k], fALFF_RBD[k], 1]
 
-shen_data.to_pickle('shen_dynamic_CNN.pkl')
+shen_data.to_pickle('shen_268_CNN.pkl')

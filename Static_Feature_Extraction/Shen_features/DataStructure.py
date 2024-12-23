@@ -164,16 +164,6 @@ result_hc = input_fc(root_hc_dir, FC_HC)
 
 result_rbd = input_fc(root_rbd_dir, FC_RBD)
 
-'''
-pca = PCA(n_components=50)
-result_pca = pca.fit_transform(result_pca)
-'''
-
-'''
-FC_PCA_RBD_zscored = zscore(result_pca[:50], axis=0).tolist()
-FC_PCA_HC_zscored = zscore(result_pca[50:], axis=0).tolist()
-'''
-
 make_reho_shen(CPAC_hc, ReHo_HC)
 make_alff_shen(CPAC_hc, ALFF_HC)
 make_falff_shen(CPAC_hc, fALFF_HC)

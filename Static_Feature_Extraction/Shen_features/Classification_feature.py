@@ -78,7 +78,7 @@ def FC_extraction(path):
     time_series = shen_atlas.fit_transform(data)
 
     correlation_measure = ConnectivityMeasure(kind='correlation')
-    correlation_matrix = correlation_measure.fit_transform([time_series])[0]
+    correlation_matrix = correlation_measure.fit_transform([time_series])
 
     return correlation_matrix
 

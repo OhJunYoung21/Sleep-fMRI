@@ -70,32 +70,29 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
     train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
     test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
 
-    train_data[feature_name] = [item[0] for item in train_data[feature_name]]
-    test_data[feature_name] = [item[0] for item in test_data[feature_name]]
+    X_train = np.array([item[0] for item in train_data[feature_name]])
+    X_test = np.array([item[0] for item in test_data[feature_name]])
 
-    train_data[feature_name] = train_data[feature_name] / 255.0
-    test_data[feature_name] = test_data[feature_name] / 255.0
+    X_train = np.expand_dims(X_train, axis=-1)
+    X_test = np.expand_dims(X_test, axis=-1)
 
-    print(train_data[feature_name][0].shape)
-
-    '''
+    X_train = X_train / 255.0
+    X_test = X_test / 255.0
 
     model = CNN()
 
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
     # 모델 학습
-    history = model.fit(train_data[feature_name], train_data['STATUS'], epochs=5, batch_size=16,
+    history = model.fit(X_train, train_data['STATUS'], epochs=5, batch_size=8,
                         validation_split=0.2)
 
     # 테스트 데이터 평가
-    test_loss, test_acc = model.evaluate(test_data[feature_name], test_data['STATUS'])
+    test_loss, test_acc = model.evaluate(X_test, test_data['STATUS'])
 
     accuracy.append(test_acc)
 
     print(f"Test Loss: {test_loss:.3f}")
     print(f"Test Accuracy: {test_acc:.3f}")
-    
-    '''
 
 print(np.mean(accuracy))
