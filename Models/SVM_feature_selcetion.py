@@ -16,10 +16,133 @@ from Visualization.T_test import check_normality, student_t_test, welch_t_test, 
 from sklearn.model_selection import RepeatedKFold
 from sklearn.linear_model import LassoCV
 
-shen_pkl = pd.read_pickle('../Dynamic_Feature_Extraction/Shen_features/Shen_dynamic_final.pkl')
+shen_pkl = pd.read_pickle('../Static_Feature_Extraction/Shen_features/Shen_268_CNN.pkl')
 
 different_nodes = pd.DataFrame()
 different_nodes['nodes'] = None
+
+'''
+shen_pkl["prior_REHO"] = shen_pkl["REHO"].apply(lambda x: [x[0][i - 1] for i in
+                                                           [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
+                                                            43, 47, 48,
+                                                            49, 50, 55, 56, 67, 69, 70, 71, 73, 74, 85, 86, 90, 96,
+                                                            111, 112, 115
+                                                               , 116
+                                                               , 134
+                                                               , 138
+                                                               , 139
+                                                               , 141
+                                                               , 142
+                                                               , 143
+                                                               , 147
+                                                               , 154
+                                                               , 157
+                                                               , 164
+                                                               , 175
+                                                               , 177
+                                                               , 182
+                                                               , 184
+                                                               , 193
+                                                               , 196
+                                                               , 199
+                                                               , 200
+                                                               , 201
+                                                               , 203
+                                                               , 204
+                                                               , 206
+                                                               , 209
+                                                               , 210
+                                                               , 222
+                                                               , 223
+                                                               , 225
+                                                               , 227
+                                                               , 239
+                                                               , 240
+                                                               , 242
+                                                               , 246
+                                                               , 247]])
+
+shen_pkl["prior_ALFF"] = shen_pkl["ALFF"].apply(lambda x: [x[0][i - 1] for i in
+                                                           [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
+                                                            43, 47, 48,
+                                                            49, 50, 55, 56, 67, 69, 70, 71, 73, 74, 85, 86, 90, 96,
+                                                            111, 112, 115
+                                                               , 116
+                                                               , 134
+                                                               , 138
+                                                               , 139
+                                                               , 141
+                                                               , 142
+                                                               , 143
+                                                               , 147
+                                                               , 154
+                                                               , 157
+                                                               , 164
+                                                               , 175
+                                                               , 177
+                                                               , 182
+                                                               , 184
+                                                               , 193
+                                                               , 196
+                                                               , 199
+                                                               , 200
+                                                               , 201
+                                                               , 203
+                                                               , 204
+                                                               , 206
+                                                               , 209
+                                                               , 210
+                                                               , 222
+                                                               , 223
+                                                               , 225
+                                                               , 227
+                                                               , 239
+                                                               , 240
+                                                               , 242
+                                                               , 246
+                                                               , 247]])
+
+shen_pkl["prior_fALFF"] = shen_pkl["fALFF"].apply(lambda x: [x[0][i - 1] for i in
+                                                             [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31,
+                                                              41,
+                                                              43, 47, 48,
+                                                              49, 50, 55, 56, 67, 69, 70, 71, 73, 74, 85, 86, 90, 96,
+                                                              111, 112, 115
+                                                                 , 116
+                                                                 , 134
+                                                                 , 138
+                                                                 , 139
+                                                                 , 141
+                                                                 , 142
+                                                                 , 143
+                                                                 , 147
+                                                                 , 154
+                                                                 , 157
+                                                                 , 164
+                                                                 , 175
+                                                                 , 177
+                                                                 , 182
+                                                                 , 184
+                                                                 , 193
+                                                                 , 196
+                                                                 , 199
+                                                                 , 200
+                                                                 , 201
+                                                                 , 203
+                                                                 , 204
+                                                                 , 206
+                                                                 , 209
+                                                                 , 210
+                                                                 , 222
+                                                                 , 223
+                                                                 , 225
+                                                                 , 227
+                                                                 , 239
+                                                                 , 240
+                                                                 , 242
+                                                                 , 246
+                                                                 , 247]])
+'''
 
 
 def avoid_duplication(nested_list):
@@ -54,7 +177,7 @@ auc_mean = []
 f1_score_mean = []
 feature_difference = []
 
-feature_name = "ALFF"
+feature_name = "FC"
 
 status_1_data = shen_pkl[shen_pkl['STATUS'] == 1]
 status_0_data = shen_pkl[shen_pkl['STATUS'] == 0]
@@ -64,12 +187,6 @@ selected_data_0 = status_0_data[[feature_name, 'STATUS']]
 
 rkf_split_1 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
 rkf_split_0 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
-'''
-kfold_1 = KFold(n_splits=10, random_state=42, shuffle=True)
-kfold_0 = KFold(n_splits=10, random_state=42, shuffle=True)
-'''
-
-print(selected_data_1)
 
 i = 0
 
@@ -109,30 +226,7 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
 
     accuracy_score_mean.append(accuracy)
 
-'''
-for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
-        kfold_1.split(selected_data_1),
-        kfold_0.split(selected_data_0)):
-    # 라벨 1 데이터의 훈련/테스트 분리
-    train_1 = selected_data_1.iloc[train_idx_1]
-    test_1 = selected_data_1.iloc[test_idx_1]
 
-    # 라벨 0 데이터의 훈련/테스트 분리
-    train_0 = selected_data_0.iloc[train_idx_0]
-    test_0 = selected_data_0.iloc[test_idx_0]
-
-    # 훈련 데이터와 테스트 데이터 결합
-    train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
-    test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
-
-    train_data[feature_name] = [item[0] for item in train_data[feature_name]]
-    test_data[feature_name] = [item[0] for item in test_data[feature_name]]
-
-    rbd_data = train_data[feature_name][train_data['STATUS'] == 1]
-    hc_data = train_data[feature_name][train_data['STATUS'] == 0]
-
-    result = statistic(rbd_data, hc_data)
-'''
 
 print(np.round(np.mean(accuracy_score_mean), 2))
 
