@@ -20,14 +20,17 @@ shen_data['ALFF'] = None
 shen_data['REHO'] = None
 shen_data['fALFF'] = None
 shen_data['STATUS'] = None
+shen_data['selected_FC'] = None
 
 ReHo_RBD = []
 FC_RBD = []
+FC_prior_RBD = []
 ALFF_RBD = []
 fALFF_RBD = []
 
 ReHo_HC = []
 FC_HC = []
+FC_prior_HC = []
 ALFF_HC = []
 fALFF_HC = []
 
@@ -84,15 +87,61 @@ def input_fc(files_path: str, data: List):
     return data
 
 
-def input_fc_local(files_path: str, data: List):
+def input_fc_selected(files_path: str, data: List):
     files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
 
     files = sorted(files)
 
     for file in files:
-        strength_list = local_connectivity(file)
+        connectivity = FC_extraction(file)
 
-        data.append(strength_list)
+        connectivity = np.array(connectivity)
+
+        selected_regions = [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
+                            43, 47, 48,
+                            49, 50, 55, 56, 67, 69, 70, 71, 73, 74, 85, 86, 90, 96,
+                            111, 112, 115, 116, 134, 138
+            , 139
+            , 141
+            , 142
+            , 143
+            , 147
+            , 154
+            , 157
+            , 164
+            , 175
+            , 177
+            , 182
+            , 184
+            , 193
+            , 196
+            , 199
+            , 200
+            , 201
+            , 203
+            , 204
+            , 206
+            , 209
+            , 210
+            , 222
+            , 223
+            , 225
+            , 227
+            , 239
+            , 240
+            , 242
+            , 246
+            , 247]
+
+        connectivity = connectivity[0][np.ix_(selected_regions, selected_regions)]
+
+        connectivity = (connectivity + connectivity.T) / 2  # 대칭화
+        np.fill_diagonal(connectivity
+                         , 0)
+
+        vectorized_fc = connectivity[np.triu_indices(len(selected_regions), k=1)]
+
+        data.append(vectorized_fc)
 
     return data
 
@@ -164,6 +213,10 @@ result_hc = input_fc(root_hc_dir, FC_HC)
 
 result_rbd = input_fc(root_rbd_dir, FC_RBD)
 
+result_hc_prior = input_fc_selected(root_hc_dir, FC_prior_HC)
+
+result_rbd_prior = input_fc_selected(root_rbd_dir, FC_prior_RBD)
+
 make_reho_shen(CPAC_hc, ReHo_HC)
 make_alff_shen(CPAC_hc, ALFF_HC)
 make_falff_shen(CPAC_hc, fALFF_HC)
@@ -183,9 +236,11 @@ len_hc = len(result_hc)
 len_rbd = len(result_rbd)
 
 for j in range(len_rbd):
-    shen_data.loc[j] = [result_rbd[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
+    shen_data.loc[j] = [result_rbd[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], result_rbd_prior[j], 1]
 
 for k in range(len_hc):
-    shen_data.loc[len_rbd + k] = [result_hc[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
+    shen_data.loc[len_rbd + k] = [result_hc[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], result_hc_prior[k], 0]
 
-shen_data.to_pickle('shen_268_CNN.pkl')
+### 268*268크기의 행렬에서 관심있는 부분끼리의 연결성만을 추출한 데이터프레임 ###
+
+shen_data.to_pickle('shen_268_prior_FC.pkl')

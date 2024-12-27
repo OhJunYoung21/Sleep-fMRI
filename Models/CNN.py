@@ -11,14 +11,14 @@ from tensorflow.keras import Model, layers
 class CNN(Model):
     def __init__(self):
         super(CNN, self).__init__()
-        self.conv1 = layers.Conv2D(32, (3, 3), strides=1, padding="same", activation='relu', input_shape=(268, 268, 1))
-        self.maxpool1 = layers.MaxPool2D((3, 3), strides=2, padding='same')
+        self.conv1 = layers.Conv2D(32, (4, 4), strides=1, padding="same", activation='relu', input_shape=(268, 268, 1))
+        self.maxpool1 = layers.MaxPool2D((4, 4), strides=2, padding='same')
 
-        self.conv2 = layers.Conv2D(64, (3, 3), strides=1, padding='same', activation='relu')
-        self.maxpool2 = layers.MaxPool2D((3, 3), strides=2, padding='same')
+        self.conv2 = layers.Conv2D(64, (4, 4), strides=1, padding='same', activation='relu')
+        self.maxpool2 = layers.MaxPool2D((4, 4), strides=2, padding='same')
 
         self.flatten = layers.Flatten()
-        self.fc1 = layers.Dense(128, activation='relu')
+        self.fc1 = layers.Dense(256, activation='relu')
         self.fc2 = layers.Dense(1, activation='sigmoid')
 
     def build(self, input_shape):
