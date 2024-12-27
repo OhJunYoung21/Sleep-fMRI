@@ -16,7 +16,7 @@ from Visualization.T_test import check_normality, student_t_test, welch_t_test, 
 from sklearn.model_selection import RepeatedKFold
 from sklearn.linear_model import LassoCV
 
-shen_pkl = pd.read_pickle('../Static_Feature_Extraction/Shen_features/Shen_268_prior_FC.pkl')
+shen_pkl = pd.read_pickle('../Dynamic_Feature_Extraction/Shen_features/shen_268_dynamic.pkl')
 
 feature_nodes = [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
                  43, 47, 48,
@@ -55,6 +55,25 @@ feature_nodes = [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
     , 247]
 
 
+def process_connectivity(matrix, selected_regions):
+    # 특정 region 간의 연결성 추출
+    connectivity = matrix[0][np.ix_(selected_regions, selected_regions)]
+
+    # 대칭화
+    connectivity = (connectivity + connectivity.T) / 2
+
+    # 대각선 0 설정
+    np.fill_diagonal(connectivity, 0)
+
+    # 상삼각 행렬 벡터화
+    vectorized_fc = connectivity[np.triu_indices(len(selected_regions), k=1)]
+
+    return vectorized_fc
+
+
+shen_pkl['prior_FC'] = shen_pkl['FC'].apply(lambda x: process_connectivity(x, feature_nodes))
+
+
 def avoid_duplication(nested_list):
     unique_elements = set()
     for sublist in nested_list:
@@ -87,7 +106,7 @@ auc_mean = []
 f1_score_mean = []
 feature_difference = []
 
-feature_name = "selected_FC"
+feature_name = "prior_FC"
 
 status_1_data = shen_pkl[shen_pkl['STATUS'] == 1]
 status_0_data = shen_pkl[shen_pkl['STATUS'] == 0]
