@@ -19,8 +19,8 @@ shen_data['FC'] = None
 shen_data['ALFF'] = None
 shen_data['REHO'] = None
 shen_data['fALFF'] = None
-shen_data['STATUS'] = None
 shen_data['selected_FC'] = None
+shen_data['STATUS'] = None
 
 ReHo_RBD = []
 FC_RBD = []
