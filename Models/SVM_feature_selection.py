@@ -5,12 +5,12 @@ from nilearn import plotting
 from sklearn.model_selection import train_test_split
 from sklearn import svm
 from sklearn.metrics import accuracy_score, roc_auc_score
+from sklearn.metrics import precision_score, recall_score, f1_score
 import numpy as np
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.linear_model import SGDClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold, cross_val_score
 from Visualization.T_test import check_normality, student_t_test, welch_t_test, mann_whitney_test, check_variance
 from sklearn.model_selection import RepeatedKFold
@@ -73,10 +73,9 @@ def statistic(rbd_data, hc_data):
 
 
 accuracy_score_mean = []
-spe_mean = []
-sen_mean = []
-auc_mean = []
 f1_score_mean = []
+precision_mean = []
+recall_mean = []
 feature_difference = []
 
 feature_name = "prior_ALFF"
@@ -119,21 +118,26 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
     '''
 
     model = svm.SVC(kernel='rbf', C=1, probability=True)
+
     model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
-    accuracy = model.score(np.array(test_data[feature_name].tolist()), test_data['STATUS'])
+
+    y_pred = model.predict(np.array(test_data[feature_name].tolist()))
+
+    accuracy = accuracy_score(y_pred.tolist(), test_data['STATUS'])
+    precision = precision_score(y_pred.tolist(), test_data['STATUS'])
+    recall = recall_score(y_pred.tolist(), test_data['STATUS'])
+    f1 = f1_score(y_pred.tolist(), test_data['STATUS'])
 
     i += 1
 
     print(f"{i}th accuracy : {accuracy:.2f}")
 
     accuracy_score_mean.append(accuracy)
+    f1_score_mean.append(f1)
+    precision_mean.append(precision)
+    recall_mean.append(recall)
 
-print(np.round(np.mean(accuracy_score_mean), 2))
-
-### 통게적으로 유의미한 차이를 보이는 node들만 고려해서 training을 진행하는 코드###
-
-'''
-different_nodes['nodes'] = avoid_duplication(feature_difference)
-
-different_nodes.to_pickle('different_nodes_basc_falff.pkl')
-'''
+print(f"average of accuracy : {np.round(np.mean(accuracy_score_mean), 2)}")
+print(f"average of f1-score : {np.round(np.mean(f1_score_mean), 2)}")
+print(f"average of recall : {np.round(np.mean(recall_mean), 2)}")
+print(f"average of precision : {np.round(np.mean(precision_mean), 2)}")
