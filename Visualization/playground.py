@@ -5,9 +5,11 @@ from nilearn import input_data
 from nilearn import image
 from nilearn.connectome import ConnectivityMeasure
 
-atlas_path = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
 file_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz'
 import numpy as np
+
+atlas_path = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
+
 
 feature_nodes = [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
                  43, 47, 48,
@@ -45,6 +47,7 @@ feature_nodes = [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
     , 246
     , 247]
 
+shen_pkl = pd.read_pickle('../Static_Feature_Extraction/Shen_features/shen_268_prior_FC.pkl')
 
 def FC_extraction(path):
     shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True)
@@ -67,5 +70,7 @@ def FC_extraction(path):
 
     return vectorized_fc
 
+print(shen_pkl.columns)
 
-print(len(FC_extraction(file_path)))
+
+

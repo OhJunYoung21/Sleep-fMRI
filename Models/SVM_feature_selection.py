@@ -19,40 +19,10 @@ from sklearn.linear_model import LassoCV
 shen_pkl = pd.read_pickle('../Dynamic_Feature_Extraction/Shen_features/shen_268_dynamic.pkl')
 
 feature_nodes = [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
-                 43, 47, 48,
-                 49, 50, 55, 56, 67, 69, 70, 71, 73, 74, 85, 86, 90, 96,
-                 111, 112, 115, 116, 134, 138
-    , 139
-    , 141
-    , 142
-    , 143
-    , 147
-    , 154
-    , 157
-    , 164
-    , 175
-    , 177
-    , 182
-    , 184
-    , 193
-    , 196
-    , 199
-    , 200
-    , 201
-    , 203
-    , 204
-    , 206
-    , 209
-    , 210
-    , 222
-    , 223
-    , 225
-    , 227
-    , 239
-    , 240
-    , 242
-    , 246
-    , 247]
+                 43, 47, 48, 49, 50, 55, 56, 67, 69, 70, 71, 73, 74, 85, 86, 90, 96,
+                 111, 112, 115, 116, 134, 138, 139, 141, 142, 143, 147, 154, 157,
+                 164, 175, 177, 182, 184, 193, 196, 199, 200, 201, 203, 204, 206,
+                 209, 210, 222, 223, 225, 227, 239, 240, 242, 246, 247]
 
 
 def process_connectivity(matrix, selected_regions):
@@ -72,6 +42,9 @@ def process_connectivity(matrix, selected_regions):
 
 
 shen_pkl['prior_FC'] = shen_pkl['FC'].apply(lambda x: process_connectivity(x, feature_nodes))
+shen_pkl['prior_REHO'] = shen_pkl['REHO'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
+shen_pkl['prior_ALFF'] = shen_pkl['ALFF'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
+shen_pkl['prior_fALFF'] = shen_pkl['fALFF'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
 
 
 def avoid_duplication(nested_list):
@@ -106,7 +79,7 @@ auc_mean = []
 f1_score_mean = []
 feature_difference = []
 
-feature_name = "prior_FC"
+feature_name = "prior_ALFF"
 
 status_1_data = shen_pkl[shen_pkl['STATUS'] == 1]
 status_0_data = shen_pkl[shen_pkl['STATUS'] == 0]
