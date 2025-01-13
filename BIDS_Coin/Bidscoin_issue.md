@@ -31,7 +31,13 @@ export PATH="/Users/oj/Library/Python/3.9/bin":$PATH
 zsh:command not found : bidscoin 이라는 오류메세지가 뜨면 지정된 경로에서 명령어를 못찾았다는 의미이니, 경로에 명령어를 설정해주면 된다.
 
 
+### bidsmap.yaml 파일 문제
 
+~~~linux
+bash bidscoiner.sh 
+~~~
+
+위 명령어를 실행할때, No bidsmap file is found라는 에러가 종종발생한다. 해당 파일은 code > bidscoin안에 들어있어야 하는데, bidsmapper결과 생성된 파일을 수동으로 넣어주면 문제가 해결된다.
 
 
 
