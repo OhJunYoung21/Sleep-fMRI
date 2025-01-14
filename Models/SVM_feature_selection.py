@@ -25,7 +25,7 @@ feature_nodes = [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
                  209, 210, 222, 223, 225, 227, 239, 240, 242, 246, 247]
 
 
-def process_connectivity(matrix, selected_regions):
+def prior_extraction_connectivity(matrix, selected_regions):
     # 특정 region 간의 연결성 추출
     connectivity = matrix[0][np.ix_(selected_regions, selected_regions)]
 
@@ -41,7 +41,24 @@ def process_connectivity(matrix, selected_regions):
     return vectorized_fc
 
 
-shen_pkl['prior_FC'] = shen_pkl['FC'].apply(lambda x: process_connectivity(x, feature_nodes))
+def vectorize_connectivity(matrix, selected_regions):
+    # 특정 region 간의 연결성 추출
+    connectivity = matrix[0]
+
+    # 대칭화
+    connectivity = (connectivity + connectivity.T) / 2
+
+    # 대각선 0 설정
+    np.fill_diagonal(connectivity, 0)
+
+    # 상삼각 행렬 벡터화
+    vectorized_fc = connectivity[np.triu_indices(len(selected_regions), k=1)]
+
+    return vectorized_fc
+
+
+shen_pkl['prior_FC'] = shen_pkl['FC'].apply(lambda x: prior_extraction_connectivity(x, feature_nodes))
+shen_pkl['normal_FC'] = shen_pkl['FC'].apply(lambda x: vectorize_connectivity(x, feature_nodes))
 shen_pkl['prior_REHO'] = shen_pkl['REHO'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
 shen_pkl['prior_ALFF'] = shen_pkl['ALFF'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
 shen_pkl['prior_fALFF'] = shen_pkl['fALFF'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
@@ -78,13 +95,10 @@ precision_mean = []
 recall_mean = []
 feature_difference = []
 
-feature_name = "prior_ALFF"
+feature_name = "prior_FC"
 
-status_1_data = shen_pkl[shen_pkl['STATUS'] == 1]
-status_0_data = shen_pkl[shen_pkl['STATUS'] == 0]
-# Select only the REHO and STATUS columns
-selected_data_1 = status_1_data[[feature_name, 'STATUS']]
-selected_data_0 = status_0_data[[feature_name, 'STATUS']]
+selected_data_1 = shen_pkl.loc[shen_pkl['STATUS'] == 1, [feature_name, 'STATUS']]
+selected_data_0 = shen_pkl.loc[shen_pkl['STATUS'] == 0, [feature_name, 'STATUS']]
 
 rkf_split_1 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
 rkf_split_0 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)

@@ -52,6 +52,32 @@ def FC_extraction(path):
 
     return variance_matrix
 
+## variance를 사용하지 않은 dynamic functional connectivity, 즉, timepoint별로 각 region간의 연결성이 담겨있다.
+def FC_extraction_time(path):
+    dynamic_FC = []
+
+    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True)
+
+    data = image.load_img(path)
+
+    time_series = shen_atlas.fit_transform(data)
+
+    window_size = 10
+    step_size = 2
+    window_number = ((time_series.shape)[0] - window_size) // step_size + 1
+
+    for i in range(window_number):
+        start = i * step_size
+        end = start + window_size
+        window_data = time_series[start:end]
+
+        correlation_measure = ConnectivityMeasure(kind='correlation', standardize="zscore_sample")
+        correlation_matrix = np.round(correlation_measure.fit_transform([window_data]), decimals=3)
+
+        dynamic_FC.append(correlation_matrix)
+
+    return dynamic_FC
+
 
 ## calculate_3dReHo는 AFNI의 3dReHo를 사용해서 input으로는 4D image를 받고 output으로 3d image를 반환한다.
 

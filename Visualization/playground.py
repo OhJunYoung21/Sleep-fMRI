@@ -4,12 +4,11 @@ import os
 from nilearn import input_data
 from nilearn import image
 from nilearn.connectome import ConnectivityMeasure
+from Dynamic_Feature_Extraction.Shen_features.Shen_features import FC_extraction_time
 
 file_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz'
-import numpy as np
 
 atlas_path = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
-
 
 feature_nodes = [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
                  43, 47, 48,
@@ -47,30 +46,6 @@ feature_nodes = [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
     , 246
     , 247]
 
-shen_pkl = pd.read_pickle('../Static_Feature_Extraction/Shen_features/shen_268_prior_FC.pkl')
+shen_pkl = pd.read_pickle('../Dynamic_Feature_Extraction/Shen_features/shen_268_dynamic.pkl')
 
-def FC_extraction(path):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True)
-
-    data = image.load_img(path)
-
-    time_series = shen_atlas.fit_transform(data)
-
-    correlation_measure = ConnectivityMeasure(kind='correlation')
-    correlation_matrix = correlation_measure.fit_transform([time_series])
-
-    matrix = correlation_matrix[0][np.ix_(feature_nodes, feature_nodes)]
-
-    connectivity = (matrix + matrix.T) / 2  # 대칭화
-
-    np.fill_diagonal(connectivity
-                     , 0)
-
-    vectorized_fc = connectivity[np.triu_indices(len(feature_nodes), k=1)]
-
-    return vectorized_fc
-
-print(shen_pkl.columns)
-
-
-
+print(shen_pkl['FC'][0].shape)
