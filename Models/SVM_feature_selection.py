@@ -5,7 +5,7 @@ from nilearn import plotting
 from sklearn.model_selection import train_test_split
 from sklearn import svm
 from sklearn.metrics import accuracy_score, roc_auc_score
-from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
 import numpy as np
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import GridSearchCV, train_test_split
@@ -27,8 +27,11 @@ feature_nodes = [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
 
 def prior_extraction_connectivity(matrix, selected_regions):
     # 특정 region 간의 연결성 추출
-    connectivity = matrix[0][np.ix_(selected_regions, selected_regions)]
+    connectivity = matrix[0]
 
+    connectivity = connectivity[selected_regions]
+
+    '''
     # 대칭화
     connectivity = (connectivity + connectivity.T) / 2
 
@@ -37,8 +40,9 @@ def prior_extraction_connectivity(matrix, selected_regions):
 
     # 상삼각 행렬 벡터화
     vectorized_fc = connectivity[np.triu_indices(len(selected_regions), k=1)]
+    '''
 
-    return vectorized_fc
+    return connectivity
 
 
 def vectorize_connectivity(matrix, selected_regions):
@@ -58,7 +62,7 @@ def vectorize_connectivity(matrix, selected_regions):
 
 
 shen_pkl['prior_FC'] = shen_pkl['FC'].apply(lambda x: prior_extraction_connectivity(x, feature_nodes))
-shen_pkl['normal_FC'] = shen_pkl['FC'].apply(lambda x: vectorize_connectivity(x, feature_nodes))
+shen_pkl['FC'] = shen_pkl['FC'].apply(lambda x: x[0])
 shen_pkl['prior_REHO'] = shen_pkl['REHO'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
 shen_pkl['prior_ALFF'] = shen_pkl['ALFF'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
 shen_pkl['prior_fALFF'] = shen_pkl['fALFF'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
@@ -121,15 +125,8 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
     train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
     test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
 
-    '''
     train_data[feature_name] = [item[0] for item in train_data[feature_name]]
     test_data[feature_name] = [item[0] for item in test_data[feature_name]]
-    '''
-
-    '''
-    train_data[feature_name] = train_data[feature_name].apply(lambda x: [x[i] for i in result])
-    test_data[feature_name] = test_data[feature_name].apply(lambda x: [x[i] for i in result])
-    '''
 
     model = svm.SVC(kernel='rbf', C=1, probability=True)
 
@@ -141,6 +138,7 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
     precision = precision_score(y_pred.tolist(), test_data['STATUS'])
     recall = recall_score(y_pred.tolist(), test_data['STATUS'])
     f1 = f1_score(y_pred.tolist(), test_data['STATUS'])
+
 
     i += 1
 
