@@ -1,9 +1,11 @@
 import pandas as pd
 import glob
 import os
+import re
 from nilearn import input_data
 from nilearn import image
 from nilearn.connectome import ConnectivityMeasure
+from nilearn.image import concat_imgs
 from Dynamic_Feature_Extraction.Shen_features.Shen_features import FC_extraction_time
 
 file_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz'
@@ -55,22 +57,18 @@ feature_nodes = [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
                  209, 210, 222, 223, 225, 227, 239, 240, 242, 246, 247]
 
 
-def prior_extraction_connectivity(matrix, selected_regions):
-    # 특정 region 간의 연결성 추출
-    connectivity = matrix[0]
+### bidsify결과 오류로 인해 생긴 여러개의 .nii.gz파일을 하나의 .nii로 합쳐주는 코드
 
-    connectivity = connectivity[selected_regions]
+file_name = glob.glob(
+    '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_BIDS_negative/sub-16/func/sub-16_task-BRAINMRINONCONTRAST_acq-WIPfMRIRESTCLEAR*_bold.nii.gz')
 
-    '''
-    # 대칭화
-    connectivity = (connectivity + connectivity.T) / 2
+def extract_t_number(file):
+    match = re.search(r't(\d+)_bold', file)  # Find the number after 't'
+    return int(match.group(1)) if match else int(0)
 
-    # 대각선 0 설정
-    np.fill_diagonal(connectivity, 0)
 
-    # 상삼각 행렬 벡터화
-    vectorized_fc = connectivity[np.triu_indices(len(selected_regions), k=1)]
-    '''
+sorted_file = sorted(file_name, key=extract_t_number)
 
-    return connectivity
+data = concat_imgs(sorted_file)
 
+print(data.shape)
