@@ -45,7 +45,7 @@ def prior_extraction_connectivity(matrix, selected_regions):
     return connectivity
 
 
-def vectorize_connectivity(matrix, selected_regions):
+def vectorize_connectivity(matrix):
     # 특정 region 간의 연결성 추출
     connectivity = matrix[0]
 
@@ -56,13 +56,28 @@ def vectorize_connectivity(matrix, selected_regions):
     np.fill_diagonal(connectivity, 0)
 
     # 상삼각 행렬 벡터화
-    vectorized_fc = connectivity[np.triu_indices(len(selected_regions), k=1)]
+    vectorized_fc = connectivity[np.triu_indices(len(connectivity), k=1)]
 
     return vectorized_fc
 
 
-shen_pkl['prior_FC'] = shen_pkl['FC'].apply(lambda x: prior_extraction_connectivity(x, feature_nodes))
-shen_pkl['FC'] = shen_pkl['FC'].apply(lambda x: x[0])
+def connectivity_between_certain_nodes(matrix, selected_regions):
+    connectivity = matrix[0][np.ix_(selected_regions, selected_regions)]
+
+    # 대칭화
+    connectivity = (connectivity + connectivity.T) / 2
+
+    # 대각선 0 설정
+    np.fill_diagonal(connectivity, 0)
+
+    # 상삼각 행렬 벡터화
+    vectorized_fc = connectivity[np.triu_indices(len(connectivity), k=1)]
+
+    return vectorized_fc
+
+
+shen_pkl['prior_FC'] = shen_pkl['FC'].apply(lambda x: connectivity_between_certain_nodes(x, feature_nodes))
+shen_pkl['FC'] = shen_pkl['FC'].apply(lambda x: vectorize_connectivity(x))
 shen_pkl['prior_REHO'] = shen_pkl['REHO'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
 shen_pkl['prior_ALFF'] = shen_pkl['ALFF'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
 shen_pkl['prior_fALFF'] = shen_pkl['fALFF'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
@@ -125,8 +140,10 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
     train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
     test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
 
+    '''
     train_data[feature_name] = [item[0] for item in train_data[feature_name]]
     test_data[feature_name] = [item[0] for item in test_data[feature_name]]
+    '''
 
     model = svm.SVC(kernel='rbf', C=1, probability=True)
 
@@ -138,7 +155,6 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
     precision = precision_score(y_pred.tolist(), test_data['STATUS'])
     recall = recall_score(y_pred.tolist(), test_data['STATUS'])
     f1 = f1_score(y_pred.tolist(), test_data['STATUS'])
-
 
     i += 1
 

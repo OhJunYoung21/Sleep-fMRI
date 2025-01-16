@@ -19,7 +19,6 @@ shen_data['FC'] = None
 shen_data['ALFF'] = None
 shen_data['REHO'] = None
 shen_data['fALFF'] = None
-shen_data['selected_FC'] = None
 shen_data['STATUS'] = None
 
 ReHo_RBD = []
@@ -213,10 +212,6 @@ result_hc = input_fc(root_hc_dir, FC_HC)
 
 result_rbd = input_fc(root_rbd_dir, FC_RBD)
 
-result_hc_prior = input_fc_selected(root_hc_dir, FC_prior_HC)
-
-result_rbd_prior = input_fc_selected(root_rbd_dir, FC_prior_RBD)
-
 make_reho_shen(CPAC_hc, ReHo_HC)
 make_alff_shen(CPAC_hc, ALFF_HC)
 make_falff_shen(CPAC_hc, fALFF_HC)
@@ -236,11 +231,11 @@ len_hc = len(result_hc)
 len_rbd = len(result_rbd)
 
 for j in range(len_rbd):
-    shen_data.loc[j] = [result_rbd[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], result_rbd_prior[j], 1]
+    shen_data.loc[j] = [result_rbd[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
 
 for k in range(len_hc):
-    shen_data.loc[len_rbd + k] = [result_hc[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], result_hc_prior[k], 0]
+    shen_data.loc[len_rbd + k] = [result_hc[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
 ### 268*268크기의 행렬에서 관심있는 부분끼리의 연결성만을 추출한 데이터프레임 ###
 
-shen_data.to_pickle('shen_268_prior_FC.pkl')
+shen_data.to_pickle('shen_268_static.pkl')
