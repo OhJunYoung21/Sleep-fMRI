@@ -2,6 +2,7 @@ import pandas as pd
 import glob
 import os
 import re
+import numpy as np
 from nilearn import input_data
 from nilearn import image
 from nilearn.connectome import ConnectivityMeasure
@@ -48,7 +49,7 @@ feature_nodes = [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
     , 246
     , 247]
 
-shen_pkl = pd.read_pickle('../Dynamic_Feature_Extraction/Shen_features/shen_268_dynamic.pkl')
+shen_pkl = pd.read_pickle('../Static_Feature_Extraction/Shen_features/shen_268_static.pkl')
 
 feature_nodes = [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
                  43, 47, 48, 49, 50, 55, 56, 67, 69, 70, 71, 73, 74, 85, 86, 90, 96,
@@ -56,6 +57,26 @@ feature_nodes = [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
                  164, 175, 177, 182, 184, 193, 196, 199, 200, 201, 203, 204, 206,
                  209, 210, 222, 223, 225, 227, 239, 240, 242, 246, 247]
 
-### bidsify결과 오류로 인해 생긴 여러개의 .nii.gz파일을 하나의 .nii로 합쳐주는 코드
+
+def seed_based_connectivity(matrix, selected_regions):
+    # 특정 region 간의 연결성 추출
+    connectivity = matrix[0]
+
+    connectivity = connectivity[selected_regions]
+    '''
+    # 대칭화
+    connectivity = (connectivity + connectivity.T) / 2
+
+    # 대각선 0 설정
+    np.fill_diagonal(connectivity, 0)
+
+    # 상삼각 행렬 벡터화
+    vectorized_fc = connectivity[np.triu_indices(len(connectivity), k=1)]
+    '''
+
+    return connectivity
 
 
+shen_pkl['FC'] = shen_pkl['FC'].apply(lambda x: seed_based_connectivity(x, feature_nodes))
+
+print(shen_pkl['FC'][0])

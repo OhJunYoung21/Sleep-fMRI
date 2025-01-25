@@ -25,22 +25,13 @@ feature_nodes = [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
                  209, 210, 222, 223, 225, 227, 239, 240, 242, 246, 247]
 
 
-def prior_extraction_connectivity(matrix, selected_regions):
+def seed_based_connectivity(matrix, selected_regions):
     # 특정 region 간의 연결성 추출
     connectivity = matrix[0]
 
     connectivity = connectivity[selected_regions]
 
-    '''
-    # 대칭화
-    connectivity = (connectivity + connectivity.T) / 2
-
-    # 대각선 0 설정
-    np.fill_diagonal(connectivity, 0)
-
-    # 상삼각 행렬 벡터화
-    vectorized_fc = connectivity[np.triu_indices(len(selected_regions), k=1)]
-    '''
+    connectivity = connectivity.flatten()
 
     return connectivity
 
@@ -76,7 +67,7 @@ def connectivity_between_certain_nodes(matrix, selected_regions):
     return vectorized_fc
 
 
-shen_pkl['prior_FC'] = shen_pkl['FC'].apply(lambda x: connectivity_between_certain_nodes(x, feature_nodes))
+shen_pkl['prior_FC'] = shen_pkl['FC'].apply(lambda x: seed_based_connectivity(x, feature_nodes))
 shen_pkl['FC'] = shen_pkl['FC'].apply(lambda x: vectorize_connectivity(x))
 shen_pkl['prior_REHO'] = shen_pkl['REHO'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
 shen_pkl['prior_ALFF'] = shen_pkl['ALFF'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
