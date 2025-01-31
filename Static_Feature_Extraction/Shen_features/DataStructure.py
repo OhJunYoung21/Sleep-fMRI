@@ -61,8 +61,6 @@ def delete():
     return shen_data
 
 
-### reho를 계산해서 reho 디렉토리 안에 넣어주는 코드
-
 def input_fc(files_path: str, data: List):
     files = glob.glob(os.path.join(files_path, 'sub-*_confounds_regressed.nii.gz'))
 
@@ -185,7 +183,7 @@ def make_alff_shen(file_path: str, data: List):
     alff_path = sorted(alff_path)
 
     for file in alff_path:
-        ##Classification_feature에서 불러온 atlas_path를 매개변수로 넣어준다.
+        ## region_alff_average는 268개의 alff값들을 반환한다.
         shen_alff = region_alff_average(file, atlas_path)
         data.append(shen_alff)
     return
@@ -203,13 +201,7 @@ def make_falff_shen(file_path: str, data: List):
     return
 
 
-'''
-input_features(root_rbd_dir, mask_path_rbd, "RBD")
-input_features(root_hc_dir, mask_path_hc, "HC")
-'''
-
 result_hc = input_fc(root_hc_dir, FC_HC)
-
 result_rbd = input_fc(root_rbd_dir, FC_RBD)
 
 make_reho_shen(CPAC_hc, ReHo_HC)
@@ -236,6 +228,6 @@ for j in range(len_rbd):
 for k in range(len_hc):
     shen_data.loc[len_rbd + k] = [result_hc[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-### 268*268크기의 행렬에서 관심있는 부분끼리의 연결성만을 추출한 데이터프레임 ###
+### shen_data에서 각행의 alff,falff,reho값은 268 size의 리스트 혹은 numpy 로 구성되어 있다.
 
 shen_data.to_pickle('shen_268_static.pkl')
