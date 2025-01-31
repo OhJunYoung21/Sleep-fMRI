@@ -51,14 +51,10 @@ CPAC_rbd = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD'
 
 CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/HC'
 
+### CPAC에서는 mask파일이 있어야 alff,falff 그리고 reho와 같은 feature들을 추출해낼 수 있다.
+
 mask_path_rbd = '/Users/oj/Desktop/Yoo_Lab/mask_rbd'
 mask_path_hc = '/Users/oj/Desktop/Yoo_Lab/mask_hc'
-
-
-## 데이터프레임안의 요소들을 전부 지우는 함수이다. 혹시나 데이터프레임안의 데이터가 꼬이는 경우에 빠른 초기화를 위해 제작하였다.
-def delete():
-    shen_data.iloc[:, :] = None
-    return shen_data
 
 
 def input_fc(files_path: str, data: List):
