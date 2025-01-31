@@ -25,22 +25,28 @@ shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=Tru
 shen = image.load_img(atlas_path)
 img = image.load_img(file_path)
 
-region_id = 110
-region_mask = math_img(f"img == {region_id}", img=shen)
 
-resampled_mask = resample_to_img(source_img=region_mask, target_img=img, interpolation='nearest')
+## 특정 지역과 다른 모든 지역간의 상관계수를 계산하여 더한다. 이는 해당 특정 지역이 다른 지역들과 얼마나 유사한 변화양상(BOLD signal)을 띄는지 측정할 수 있다.
 
-masker = input_data.NiftiMasker(mask_img=resampled_mask, standardize=True)
-region_signal = masker.fit_transform(img)
+def global_strength(region_id):
+    region_mask = math_img(f"img == {region_id}", img=shen)
 
-correlation_measure = ConnectivityMeasure(kind='correlation')
-correlation_matrix = correlation_measure.fit_transform([region_signal])[0]
+    resampled_mask = resample_to_img(source_img=region_mask, target_img=img, interpolation='nearest')
 
-np.fill_diagonal(correlation_matrix, 0)
+    masker = input_data.NiftiMasker(mask_img=resampled_mask, standardize=True)
+    region_signal = masker.fit_transform(img)
 
-global_strength = np.round(np.sum(correlation_matrix) / (462 * (462 - 1)), 3)
+    correlation_measure = ConnectivityMeasure(kind='correlation')
+    correlation_matrix = correlation_measure.fit_transform([region_signal])[0]
+
+    np.fill_diagonal(correlation_matrix, 0)
+
+    strength = np.round(np.sum(correlation_matrix) / (462 * (462 - 1)), 3)
+
+    return strength
 
 
+'''
 def local_connectivity(file_path):
     shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True)
 
@@ -63,11 +69,12 @@ def local_connectivity(file_path):
 
         np.fill_diagonal(correlation_matrix, 0)
 
-        global_strength = np.round(np.sum(correlation_matrix) / (462 * (462 - 1)), 3)
+        strength = np.round(np.sum(correlation_matrix) / (462 * (462 - 1)), 3)
 
-        strength_list.append(global_strength)
+        strength_list.append(strength)
 
     return strength_list
+'''
 
 
 def FC_extraction(path):
@@ -83,32 +90,9 @@ def FC_extraction(path):
     return correlation_matrix
 
 
-## calculate_3dReHo는 AFNI의 3dReHo를 사용해서 input으로는 4D image를 받고 output으로 3d image를 반환한다.
-
-
-'''
-건강군과 질병군마다 분류기준을 추출한다. 경로를 헷갈리지 않게 하기 위해서 feature 추출하는 함수를 2개씩 작성하였다.
-'''
-
-'''
-ReHo를 계산한다.
-'''
-
-## calculate_3dReHo는 AFNI의 3dReHo를 사용해서 input으로는 4D image를 받고 output으로 3d image를 반환한다.
-
-
-'''
-건강군과 질병군마다 분류기준을 추출한다. 경로를 헷갈리지 않게 하기 위해서 feature 추출하는 함수를 2개씩 작성하였다.
-'''
-
-'''
-ReHo를 계산한다.
-'''
-
-
 ## region_reho_average는 mask가 나눈 region안의 voxel 값들의 평균을 계산한다.
 def region_reho_average(reho_file, atlas):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas, standardize=True, strategy='maximum')
+    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas, standardize=True, strategy='mean')
 
     reho_img = image.load_img(reho_file)
 
@@ -118,7 +102,7 @@ def region_reho_average(reho_file, atlas):
 
 
 def region_alff_average(alff_path, atlas):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas, standardize=True, strategy='maximum',
+    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas, standardize=True, strategy='mean',
                                               resampling_target="labels")
 
     alff_img = image.load_img(alff_path)
