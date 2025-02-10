@@ -9,7 +9,7 @@ from nilearn.interfaces.fmriprep import load_confounds
 from nilearn import plotting
 import re
 
-root_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/post_prep_HC'
+root_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_positive'
 
 # 전처리가 끝난 fMRI 파일과 fMRIprep이 제공한 confound파일을 읽어온다.
 

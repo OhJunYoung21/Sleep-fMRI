@@ -15,10 +15,10 @@ from nilearn.image import concat_imgs
 
 
 nifti_files = glob.glob(
-    '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_BIDS_negative/sub-16/func/sub-16_task-BRAINMRINONCONTRAST_acq-WIPfMRIRESTCLEAR*_bold.nii.gz')
+    '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_post_BIDS/sub-50/func/sub-50_task-RESEARCHMRI_acq-AxialfMRIrest*_bold.nii.gz')
 
 json_files = glob.glob(
-    '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_BIDS_negative/sub-16/func/sub-16_task-BRAINMRINONCONTRAST_acq-WIPfMRIRESTCLEAR*_bold.json')
+    '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_post_BIDS/sub-50/func/sub-50_task-RESEARCHMRI_acq-AxialfMRIrest*_bold.json')
 
 
 def extract_t_number(file):
@@ -42,6 +42,6 @@ for file in json_files:
     except:
         print("error")
 
-output_path = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_BIDS_negative/sub-16/func/sub-16_task-BRAINMRINONCONTRAST_acq-WIPfMRIRESTCLEAR_bold.nii.gz'
+output_path = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_post_BIDS/sub-50/func/sub-50_task-RESEARCHMRI_acq-AxialfMRIrest_bold.nii.gz'
 
 data.to_filename(output_path)

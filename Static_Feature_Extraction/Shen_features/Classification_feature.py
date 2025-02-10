@@ -46,37 +46,6 @@ def global_strength(region_id):
     return strength
 
 
-'''
-def local_connectivity(file_path):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True)
-
-    shen = image.load_img(atlas_path)
-    img = image.load_img(file_path)
-
-    strength_list = []
-
-    for i in range(1, 269):
-        region_id = i
-        region_mask = math_img(f"img == {region_id}", img=shen)
-
-        resampled_mask = resample_to_img(source_img=region_mask, target_img=img, interpolation='nearest')
-
-        masker = input_data.NiftiMasker(mask_img=resampled_mask, standardize=True)
-        region_signal = masker.fit_transform(img)
-
-        correlation_measure = ConnectivityMeasure(kind='correlation')
-        correlation_matrix = correlation_measure.fit_transform([region_signal])[0]
-
-        np.fill_diagonal(correlation_matrix, 0)
-
-        strength = np.round(np.sum(correlation_matrix) / (462 * (462 - 1)), 3)
-
-        strength_list.append(strength)
-
-    return strength_list
-'''
-
-
 def FC_extraction(path):
     shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True)
 
