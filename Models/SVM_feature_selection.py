@@ -7,12 +7,12 @@ from sklearn import svm
 from sklearn.metrics import accuracy_score, roc_auc_score
 from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
 import numpy as np
+from sklearn.inspection import permutation_importance
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.linear_model import SGDClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import KFold, cross_val_score
-from Visualization.T_test import check_normality, student_t_test, welch_t_test, mann_whitney_test, check_variance
 from sklearn.model_selection import RepeatedKFold
 from sklearn.linear_model import LassoCV
 

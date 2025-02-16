@@ -1,0 +1,167 @@
+%YAML 1.1
+---
+# CPAC Pipeline Configuration YAML file
+# Version 1.8.7.dev1
+#
+# http://fcp-indi.github.io for more info.
+#
+# Tip: This file can be edited manually with a text editor for quick modifications.
+FROM: default
+
+pipeline_setup:
+
+  # Name for this pipeline configuration - useful for identification.
+  # This string will be sanitized and used in filepaths
+  pipeline_name: cpac_anat
+  system_config:
+
+    # Select Off if you intend to run CPAC on a single machine.
+    # If set to On, CPAC will attempt to submit jobs through the job scheduler / resource manager selected below.
+    on_grid:
+      SGE:
+
+        # SGE Parallel Environment to use when running CPAC.
+        # Only applies when you are running on a grid or compute cluster using SGE.
+        parallel_environment: cpac
+
+    # The maximum amount of memory each participant's workflow can allocate.
+    # Use this to place an upper bound of memory usage.
+    # - Warning: 'Memory Per Participant' multiplied by 'Number of Participants to Run Simultaneously'
+    #   must not be more than the total amount of RAM.
+    # - Conversely, using too little RAM can impede the speed of a pipeline run.
+    # - It is recommended that you set this to a value that when multiplied by
+    #   'Number of Participants to Run Simultaneously' is as much RAM you can safely allocate.
+    maximum_memory_per_participant: 3
+
+  working_directory:
+
+    # Deletes the contents of the Working Directory after running.
+    # This saves disk space, but any additional preprocessing or analysis will have to be completely re-run.
+    remove_working_dir: Off
+
+  Amazon-AWS:
+
+    # Enable server-side 256-AES encryption on data to the S3 bucket
+    s3_encryption: On
+
+anatomical_preproc:
+
+  # N4 bias field correction via ANTs
+  n4_bias_field_correction:
+
+    # this is a fork option
+    run: [On]
+
+segmentation:
+  tissue_segmentation:
+    Template_Based:
+
+      # These masks should be in the same space of your registration template, e.g. if
+      # you choose 'EPI Template' , below tissue masks should also be EPI template tissue masks.
+      #
+      # Options: ['T1_Template', 'EPI_Template']
+      template_for_segmentation: []
+
+registration_workflows:
+  anatomical_registration:
+
+    # Register skull-on anatomical image to a template.
+    reg_with_skull: Off
+
+  functional_registration:
+    coregistration:
+
+      # functional (BOLD/EPI) registration to anatomical (structural/T1)
+      run: Off
+      boundary_based_registration:
+
+        # this is a fork point
+        #   run: [On, Off] - this will run both and fork the pipeline
+        run: [Off]
+
+    func_registration_to_template:
+
+      # these options modify the application (to the functional data), not the calculation, of the
+      # T1-to-template and EPI-to-template transforms calculated earlier during registration
+      # apply the functional-to-template (T1 template) registration transform to the functional data
+      run: Off
+
+    EPI_registration:
+      ANTs:
+
+        # EPI registration configuration - synonymous with T1_registration
+        # parameters under anatomical registration above
+        parameters:
+
+functional_preproc:
+  run: Off
+  distortion_correction:
+
+    # using: ['PhaseDiff', 'Blip', 'Blip-FSL-TOPUP']
+    #   PhaseDiff - Perform field map correction using a single phase difference image, a subtraction of the two phase images from each echo. Default scanner for this method is SIEMENS.
+    #   Blip - Uses AFNI 3dQWarp to calculate the distortion unwarp for EPI field maps of opposite/same phase encoding direction.
+    #   Blip-FSL-TOPUP - Uses FSL TOPUP to calculate the distortion unwarp for EPI field maps of opposite/same phase encoding direction.
+    using: []
+
+nuisance_corrections:
+  2-nuisance_regression:
+
+    # this is a fork point
+    #   run: [On, Off] - this will run both and fork the pipeline
+    run: [Off]
+
+    # Select which nuisance signal corrections to apply
+    Regressors:
+
+timeseries_extraction:
+  run: Off
+
+amplitude_low_frequency_fluctuation:
+
+  # ALFF & f/ALFF
+  # Calculate Amplitude of Low Frequency Fluctuations (ALFF) and fractional ALFF (f/ALFF) for all voxels.
+  run: Off
+
+regional_homogeneity:
+
+  # ReHo
+  # Calculate Regional Homogeneity (ReHo) for all voxels.
+  run: Off
+
+voxel_mirrored_homotopic_connectivity:
+
+  # VMHC
+  # Calculate Voxel-mirrored Homotopic Connectivity (VMHC) for all voxels.
+  run: Off
+
+network_centrality:
+
+  # Calculate Degree, Eigenvector Centrality, or Functional Connectivity Density.
+  run: Off
+
+  # Maximum amount of RAM (in GB) to be used when calculating Degree Centrality.
+  # Calculating Eigenvector Centrality will require additional memory based on the size of the mask or number of ROI nodes.
+  memory_allocation: 3.0
+
+  # Full path to a NIFTI file describing the mask. Centrality will be calculated for all voxels within the mask.
+  template_specification_file: s3://fcp-indi/resources/cpac/resources/mask-thr50-3mm.nii.gz
+  eigenvector_centrality:
+
+    # Enable/Disable eigenvector centrality by selecting the connectivity weights
+    #   weight_options: ['Binarized', 'Weighted']
+    # disable this type of centrality with:
+    #   weight_options: []
+    weight_options: [Binarized, Weighted]
+
+  local_functional_connectivity_density:
+
+    # Select the type of threshold used when creating the lFCD adjacency matrix.
+    # options:
+    #   'Significance threshold', 'Correlation threshold'
+    correlation_threshold_option: Significance threshold
+
+    # Based on the Threshold Type selected above, enter a Threshold Value.
+    # P-value for Significance Threshold
+    # Sparsity value for Sparsity Threshold
+    # Pearson's r value for Correlation Threshold
+    correlation_threshold: 0.001

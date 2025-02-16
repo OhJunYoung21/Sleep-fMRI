@@ -1,0 +1,142 @@
+%YAML 1.1
+---
+# CPAC Pipeline Configuration YAML file
+# Version 1.8.7.dev1
+#
+# http://fcp-indi.github.io for more info.
+#
+# Tip: This file can be edited manually with a text editor for quick modifications.
+FROM: default
+
+pipeline_setup:
+
+  # Name for this pipeline configuration - useful for identification.
+  # This string will be sanitized and used in filepaths
+  pipeline_name: cpac_preproc
+  system_config:
+
+    # Select Off if you intend to run CPAC on a single machine.
+    # If set to On, CPAC will attempt to submit jobs through the job scheduler / resource manager selected below.
+    on_grid:
+      SGE:
+
+        # SGE Parallel Environment to use when running CPAC.
+        # Only applies when you are running on a grid or compute cluster using SGE.
+        parallel_environment: cpac
+
+    # The maximum amount of memory each participant's workflow can allocate.
+    # Use this to place an upper bound of memory usage.
+    # - Warning: 'Memory Per Participant' multiplied by 'Number of Participants to Run Simultaneously'
+    #   must not be more than the total amount of RAM.
+    # - Conversely, using too little RAM can impede the speed of a pipeline run.
+    # - It is recommended that you set this to a value that when multiplied by
+    #   'Number of Participants to Run Simultaneously' is as much RAM you can safely allocate.
+    maximum_memory_per_participant: 3
+
+  working_directory:
+
+    # Deletes the contents of the Working Directory after running.
+    # This saves disk space, but any additional preprocessing or analysis will have to be completely re-run.
+    remove_working_dir: Off
+
+  Amazon-AWS:
+
+    # Enable server-side 256-AES encryption on data to the S3 bucket
+    s3_encryption: On
+
+segmentation:
+  tissue_segmentation:
+    Template_Based:
+
+      # These masks should be in the same space of your registration template, e.g. if
+      # you choose 'EPI Template' , below tissue masks should also be EPI template tissue masks.
+      #
+      # Options: ['T1_Template', 'EPI_Template']
+      template_for_segmentation: []
+
+registration_workflows:
+  functional_registration:
+    EPI_registration:
+      ANTs:
+
+        # EPI registration configuration - synonymous with T1_registration
+        # parameters under anatomical registration above
+        parameters:
+
+nuisance_corrections:
+  2-nuisance_regression:
+
+    # Select which nuisance signal corrections to apply
+    Regressors:
+      - Name: Regressor_1
+        Bandpass:
+          bottom_frequency: 0.01
+          top_frequency: 0.1
+        CerebrospinalFluid:
+          erode_mask: On
+          extraction_resolution: 2
+          summary: Mean
+        GlobalSignal:
+          summary: Mean
+        Motion:
+          include_delayed: On
+          include_delayed_squared: On
+          include_squared: On
+        PolyOrt:
+          degree: 2
+        aCompCor:
+          extraction_resolution: 2
+          summary:
+            components: 5
+            method: DetrendPC
+          tissues:
+          - WhiteMatter
+          - CerebrospinalFluid
+      - Name: Regressor_2
+        Bandpass:
+          bottom_frequency: 0.01
+          top_frequency: 0.1
+        CerebrospinalFluid:
+          erode_mask: On
+          extraction_resolution: 2
+          summary: Mean
+        Motion:
+          include_delayed: On
+          include_delayed_squared: On
+          include_squared: On
+        PolyOrt:
+          degree: 2
+        aCompCor:
+          extraction_resolution: 2
+          summary:
+            components: 5
+            method: DetrendPC
+          tissues:
+          - WhiteMatter
+          - CerebrospinalFluid
+
+timeseries_extraction:
+  run: Off
+
+amplitude_low_frequency_fluctuation:
+
+  # ALFF & f/ALFF
+  # Calculate Amplitude of Low Frequency Fluctuations (ALFF) and fractional ALFF (f/ALFF) for all voxels.
+  run: Off
+
+regional_homogeneity:
+
+  # ReHo
+  # Calculate Regional Homogeneity (ReHo) for all voxels.
+  run: Off
+
+voxel_mirrored_homotopic_connectivity:
+
+  # VMHC
+  # Calculate Voxel-mirrored Homotopic Connectivity (VMHC) for all voxels.
+  run: Off
+
+network_centrality:
+
+  # Calculate Degree, Eigenvector Centrality, or Functional Connectivity Density.
+  run: Off
