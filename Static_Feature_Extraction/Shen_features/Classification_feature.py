@@ -23,25 +23,7 @@ shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=Tru
 shen = image.load_img(atlas_path)
 
 
-
 ## 특정 지역과 다른 모든 지역간의 상관계수를 계산하여 더한다. 이는 해당 특정 지역이 다른 지역들과 얼마나 유사한 변화양상(BOLD signal)을 띄는지 측정할 수 있다.
-
-def global_strength(region_id):
-    region_mask = math_img(f"img == {region_id}", img=shen)
-
-    resampled_mask = resample_to_img(source_img=region_mask, target_img=img, interpolation='nearest')
-
-    masker = input_data.NiftiMasker(mask_img=resampled_mask, standardize=True)
-    region_signal = masker.fit_transform(img)
-
-    correlation_measure = ConnectivityMeasure(kind='correlation')
-    correlation_matrix = correlation_measure.fit_transform([region_signal])[0]
-
-    np.fill_diagonal(correlation_matrix, 0)
-
-    strength = np.round(np.sum(correlation_matrix) / (462 * (462 - 1)), 3)
-
-    return strength
 
 
 def FC_extraction(path):
@@ -77,3 +59,9 @@ def region_alff_average(alff_path, atlas):
     masked_data = shen_atlas.fit_transform([alff_img])
 
     return masked_data
+
+
+if __name__ == "__main__":
+    FC_extraction(path=None)
+    region_reho_average(reho_file=None, atlas=None)
+    region_alff_average(alff_path=None, atlas=None)

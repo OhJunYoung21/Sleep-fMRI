@@ -16,13 +16,7 @@ from sklearn.model_selection import KFold, cross_val_score
 from sklearn.model_selection import RepeatedKFold
 from sklearn.linear_model import LassoCV
 
-shen_pkl = pd.read_pickle('../Dynamic_Feature_Extraction/Shen_features/shen_268_dynamic.pkl')
-
-feature_nodes = [1, 3, 4, 5, 6, 7, 8, 9, 13, 14, 17, 19, 21, 22, 30, 31, 41,
-                 43, 47, 48, 49, 50, 55, 56, 67, 69, 70, 71, 73, 74, 85, 86, 90, 96,
-                 111, 112, 115, 116, 134, 138, 139, 141, 142, 143, 147, 154, 157,
-                 164, 175, 177, 182, 184, 193, 196, 199, 200, 201, 203, 204, 206,
-                 209, 210, 222, 223, 225, 227, 239, 240, 242, 246, 247]
+PET_pkl = pd.read_pickle('/Users/oj/PycharmProjects/Sleep-fMRI/PET_classification/PET_shen_static.pkl')
 
 
 def seed_based_connectivity(matrix, selected_regions):
@@ -67,13 +61,6 @@ def connectivity_between_certain_nodes(matrix, selected_regions):
     return vectorized_fc
 
 
-shen_pkl['prior_FC'] = shen_pkl['FC'].apply(lambda x: seed_based_connectivity(x, feature_nodes))
-shen_pkl['FC'] = shen_pkl['FC'].apply(lambda x: vectorize_connectivity(x))
-shen_pkl['prior_REHO'] = shen_pkl['REHO'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
-shen_pkl['prior_ALFF'] = shen_pkl['ALFF'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
-shen_pkl['prior_fALFF'] = shen_pkl['fALFF'].apply(lambda x: [x[0][i - 1] for i in feature_nodes])
-
-
 def avoid_duplication(nested_list):
     unique_elements = set()
     for sublist in nested_list:
@@ -85,30 +72,16 @@ def avoid_duplication(nested_list):
     return result
 
 
-def statistic(rbd_data, hc_data):
-    mann_whitneyu, welch, student = check_variance(np.array(rbd_data.tolist()),
-                                                   np.array(hc_data.tolist()))
-
-    student_test = student_t_test(student, np.array(rbd_data.tolist()),
-                                  np.array(hc_data.tolist()))
-    welch_test = welch_t_test(welch, np.array(rbd_data.tolist()),
-                              np.array(hc_data.tolist()))
-    mann_test = mann_whitney_test(mann_whitneyu, np.array(rbd_data.tolist()),
-                                  np.array(hc_data.tolist()))
-
-    return np.unique(mann_test + student_test + welch_test).tolist()
-
-
 accuracy_score_mean = []
 f1_score_mean = []
 precision_mean = []
 recall_mean = []
 feature_difference = []
 
-feature_name = "prior_FC"
+feature_name = "fALFF"
 
-selected_data_1 = shen_pkl.loc[shen_pkl['STATUS'] == 1, [feature_name, 'STATUS']]
-selected_data_0 = shen_pkl.loc[shen_pkl['STATUS'] == 0, [feature_name, 'STATUS']]
+selected_data_1 = PET_pkl.loc[PET_pkl['STATUS'] == 1, [feature_name, 'STATUS']]
+selected_data_0 = PET_pkl.loc[PET_pkl['STATUS'] == 0, [feature_name, 'STATUS']]
 
 rkf_split_1 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
 rkf_split_0 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
