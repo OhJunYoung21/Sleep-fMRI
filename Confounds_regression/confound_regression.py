@@ -9,7 +9,7 @@ from nilearn.interfaces.fmriprep import load_confounds
 from nilearn import plotting
 import re
 
-root_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_positive'
+root_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_classification/RBD_PET_negative'
 
 # 전처리가 끝난 fMRI 파일과 fMRIprep이 제공한 confound파일을 읽어온다.
 
@@ -50,14 +50,13 @@ for index in range(len(fMRI_img)):
     fmri_img = fMRI_img[index]
     confounds = pd.read_csv(raw_confounds[index], sep='\t')
 
-    confounds_of_interest = confounds[
-        ['trans_x', 'trans_y', 'trans_z', 'rot_x', 'rot_y', 'rot_z',
-         'global_signal', 'white_matter', 'csf']
-    ]
+    confounds = confounds.fillna(0)  # NaN 값 채우기
+    confounds = confounds.replace([np.inf, -np.inf], 0)
+
     # 정규표현식을 사용해서 subject_number를 얻어온다. index+1로 얻어오는 경우, subject가 7,9인 경우 9를 8로 적어버리는 오류가 발생한다.
     subject_number = re.search(r'sub-(\d+)', fMRI_img[index]).group(1)
 
-    cleaned_image = clean_img(fmri_img, confounds=confounds_of_interest)
+    cleaned_image = clean_img(fmri_img, confounds=confounds)
 
     cleaned_image.to_filename(
-        f"/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_HC/sub-{subject_number}_confounds_regressed.nii.gz")
+        f"/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_classification/RBD_PET_negative_regressed/sub-{subject_number}_confounds_regressed.nii.gz")
