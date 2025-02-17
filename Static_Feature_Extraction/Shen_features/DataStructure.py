@@ -4,7 +4,7 @@ import os
 import numpy as np
 import glob
 from Static_Feature_Extraction.Shen_features.Classification_feature import region_reho_average, region_alff_average, \
-    atlas_path, FC_extraction, local_connectivity
+    atlas_path, FC_extraction
 from typing import List
 from CPAC import alff
 from sklearn.decomposition import PCA
@@ -13,13 +13,13 @@ from Comparison_features.rsfmri import static_measures
 
 atlas_path = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
 
-shen_data = pd.DataFrame(index=None)
+PET_shen_data = pd.DataFrame(index=None)
 
-shen_data['FC'] = None
-shen_data['ALFF'] = None
-shen_data['REHO'] = None
-shen_data['fALFF'] = None
-shen_data['STATUS'] = None
+PET_shen_data['FC'] = None
+PET_shen_data['ALFF'] = None
+PET_shen_data['REHO'] = None
+PET_shen_data['fALFF'] = None
+PET_shen_data['STATUS'] = None
 
 ReHo_RBD = []
 FC_RBD = []
@@ -33,28 +33,16 @@ FC_prior_HC = []
 ALFF_HC = []
 fALFF_HC = []
 
-root_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD'
+root_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_classification/RBD_PET_positive_regressed'
 
-root_hc_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_HC'
+root_hc_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_classification/RBD_PET_negative_regressed'
 
-reho_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/reho'
+CPAC_rbd = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_classification/CPAC/PET_positive'
 
-alff_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/alff'
+CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_classification/CPAC/PET_negative'
 
-reho_hc_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_HC/reho'
-
-alff_hc_dir = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_HC/alff'
-
-feature_path = '/Users/oj/Desktop/Yoo_Lab/Classification_Features'
-
-CPAC_rbd = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD'
-
-CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/HC'
 
 ### CPAC에서는 mask파일이 있어야 alff,falff 그리고 reho와 같은 feature들을 추출해낼 수 있다.
-
-mask_path_rbd = '/Users/oj/Desktop/Yoo_Lab/mask_rbd'
-mask_path_hc = '/Users/oj/Desktop/Yoo_Lab/mask_hc'
 
 
 def input_fc(files_path: str, data: List):
@@ -219,11 +207,11 @@ len_hc = len(result_hc)
 len_rbd = len(result_rbd)
 
 for j in range(len_rbd):
-    shen_data.loc[j] = [result_rbd[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
+    PET_shen_data.loc[j] = [result_rbd[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
 
 for k in range(len_hc):
-    shen_data.loc[len_rbd + k] = [result_hc[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
+    PET_shen_data.loc[len_rbd + k] = [result_hc[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
 ### shen_data에서 각행의 alff,falff,reho값은 268 size의 리스트 혹은 numpy 로 구성되어 있다.
 
-shen_data.to_pickle('shen_268_static.pkl')
+PET_shen_data.to_pickle('PET_shen_268_static.pkl')

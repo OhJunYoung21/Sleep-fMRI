@@ -18,12 +18,10 @@ from nilearn.image import resample_to_img
 # Download the Shen atlas
 atlas_path = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
 
-file_path = '/Users/oj/Desktop/Yoo_Lab/post_fMRI/confounds_regressed_RBD/sub-01_confounds_regressed.nii.gz'
-
 shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True)
 
 shen = image.load_img(atlas_path)
-img = image.load_img(file_path)
+
 
 
 ## 특정 지역과 다른 모든 지역간의 상관계수를 계산하여 더한다. 이는 해당 특정 지역이 다른 지역들과 얼마나 유사한 변화양상(BOLD signal)을 띄는지 측정할 수 있다.
