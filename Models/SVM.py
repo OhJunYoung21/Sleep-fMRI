@@ -15,6 +15,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import KFold, cross_val_score
 from sklearn.model_selection import RepeatedKFold
 from sklearn.linear_model import LassoCV
+import shap
 
 PET_pkl = pd.read_pickle('/Users/oj/PycharmProjects/Sleep-fMRI/PET_classification/PET_shen_static.pkl')
 
@@ -78,7 +79,7 @@ precision_mean = []
 recall_mean = []
 feature_difference = []
 
-feature_name = "fALFF"
+feature_name = "REHO"
 
 selected_data_1 = PET_pkl.loc[PET_pkl['STATUS'] == 1, [feature_name, 'STATUS']]
 selected_data_0 = PET_pkl.loc[PET_pkl['STATUS'] == 0, [feature_name, 'STATUS']]
@@ -112,6 +113,16 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
     model = svm.SVC(kernel='rbf', C=1, probability=True)
 
     model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
+
+    perm_importance = permutation_importance(model, test_data[feature_name].tolist(), test_data['STATUS'].tolist(), n_repeats=10,
+                                             random_state=42)
+
+    feature_importance = pd.DataFrame({
+        'Feature Index': np.arange(268),
+        'Importance': perm_importance.importances_mean
+    }).sort_values(by="Importance", ascending=False)
+
+    print(feature_importance.head())
 
     y_pred = model.predict(np.array(test_data[feature_name].tolist()))
 

@@ -10,4 +10,6 @@ from sklearn.preprocessing import MinMaxScaler
 
 PET_data = pd.read_pickle('PET_shen_static.pkl')
 
-print(PET_data.shape)
+PET_data['FC'] = PET_data['FC'].apply(lambda x: x[0][np.triu_indices(268, k=1)])
+
+print(len(PET_data['FC'][0]))
