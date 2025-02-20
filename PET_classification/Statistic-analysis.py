@@ -4,7 +4,7 @@ import pandas as pd
 
 pet_data = pd.read_pickle('PET_shen_static.pkl')
 
-feature_name = 'REHO'
+feature_name = 'FC'
 
 ttest_data = pet_data[[feature_name, 'STATUS']]
 
@@ -48,7 +48,4 @@ for i in range(268):
 
 t_test_result = pd.DataFrame(ttest_result)
 
-filtered_df = t_test_result[t_test_result['P-Value'].fillna(1) <= 0.05]  # NaN을 1로 대체 후 비교
 
-
-print(filtered_df)
