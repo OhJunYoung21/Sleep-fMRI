@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.stats import ttest_ind, shapiro, levene
 import pandas as pd
+from scipy.stats import mannwhitneyu
+from scipy.stats import brunnermunzel
 
 pet_data = pd.read_pickle('PET_shen_static.pkl')
 
@@ -33,9 +35,21 @@ for i in range(268):
         if p_levene > 0.05:
             t_stat, p_value = ttest_ind(positive_feature, negative_feature, equal_var=True)
         else:
-            t_stat, p_value = np.nan, np.nan
+            t_stat, p_value = ttest_ind(positive_feature, negative_feature, equal_var=False)
+    elif p_norm_0 < 0.05 and p_norm_1 < 0.05:
+
+        p_levene = levene(positive_feature, negative_feature).pvalue
+
+        # Equally varianced
+
+        if p_levene > 0.05:
+            t_stat, p_value = mannwhitneyu(positive_feature, negative_feature, alternative='two-sided')
+
+        # Un-equally varianced
+        else:
+            t_stat, p_value = brunnermunzel(positive_feature, negative_feature)
     else:
-        t_stat, p_value, p_levene = np.nan, np.nan, np.nan
+        continue
 
     ttest_result.append({
         'Feature_Index': i,
@@ -48,4 +62,4 @@ for i in range(268):
 
 t_test_result = pd.DataFrame(ttest_result)
 
-
+print(t_test_result)
