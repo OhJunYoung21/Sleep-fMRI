@@ -11,4 +11,4 @@ from sklearn.preprocessing import MinMaxScaler
 
 data = pd.read_pickle('PET_shen_static.pkl')
 
-print(data['fALFF'][0])
+
