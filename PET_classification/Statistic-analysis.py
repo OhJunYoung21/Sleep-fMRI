@@ -13,10 +13,10 @@ ttest_data = pet_data[[feature_name, 'STATUS']]
 ttest_positive = ttest_data[ttest_data['STATUS'] == 1]
 ttest_negative = ttest_data[ttest_data['STATUS'] == 0]
 
-ttest_result = []
-
 group_positive = np.array(ttest_positive[feature_name].tolist())
 group_negative = np.array(ttest_negative[feature_name].tolist())
+
+statistic_result = []
 
 for i in range(35778):
     positive_feature = group_positive[:, i]
@@ -30,18 +30,17 @@ for i in range(35778):
     p_levene = levene(positive_feature, negative_feature).pvalue
     equal_var = p_levene > 0.05  # 등분산 여부 확인
 
+    u_stat, p_value = mannwhitneyu(positive_feature, negative_feature, alternative='two-sided')
+    test_used = "Mann-Whitney U test"
+
+    """
     # t-test 수행
     t_stat, p_value = ttest_ind(positive_feature, negative_feature, equal_var=equal_var)
     test_used = "t-test (equal_var={})".format(equal_var)
+    """
 
-    ttest_result.append({"Region": i, "Test": test_used, "p-value": p_value})
+    statistic_result.append({"Region": i, "Test": test_used, "p-value": p_value})
 
-    '''
-    else:  # 하나라도 정규성을 따르지 않으면 비모수 검정 수행
-        u_stat, p_value = mannwhitneyu(positive_feature, negative_feature, alternative='two-sided')
-        test_used = "Mann-Whitney U test"
-    '''
+statistic_result = pd.DataFrame(statistic_result)
 
-t_test_result = pd.DataFrame(ttest_result)
-
-t_test_result.to_pickle('t_test_result.pkl')
+statistic_result.to_pickle('t_test_ALFF.pkl')
