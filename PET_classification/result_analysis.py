@@ -3,7 +3,7 @@ import numpy as np
 import os
 from collections import Counter
 
-t_test_result = pd.read_pickle('statistic_results/mann_whitney_FC.pkl')
+t_test_result = pd.read_pickle('~/PycharmProjects/Sleep-fMRI/PET_classification/statistic_results/t_test_FC.pkl')
 
 result = (t_test_result["Region"][t_test_result['p-value'] < 0.05]).tolist()
 
@@ -59,4 +59,7 @@ def count_occurrences(lst):
 
 
 count_result = count_occurrences(functional_connectivity)
-print(count_result)
+
+count_edges = count_result.keys()
+
+print(list(count_edges))

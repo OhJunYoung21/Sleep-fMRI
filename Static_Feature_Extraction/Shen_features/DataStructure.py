@@ -214,4 +214,4 @@ for k in range(len_hc):
 
 ### shen_data에서 각행의 alff,falff,reho값은 268 size의 리스트 혹은 numpy 로 구성되어 있다.
 
-PET_shen_data.to_pickle('PET_shen_268_static.pkl')
+PET_shen_data.to_pickle('~/PycharmProjects/Sleep-fMRI/PET_classification/PET_shen_data.pkl')
