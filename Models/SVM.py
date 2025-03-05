@@ -114,15 +114,18 @@ for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
 
     model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
 
-    perm_importance = permutation_importance(model, test_data[feature_name].tolist(), test_data['STATUS'].tolist(), n_repeats=10,
+    perm_importance = permutation_importance(model, test_data[feature_name].tolist(), test_data['STATUS'].tolist(),
+                                             n_repeats=10,
                                              random_state=42)
 
+    '''
     feature_importance = pd.DataFrame({
         'Feature Index': np.arange(268),
         'Importance': perm_importance.importances_mean
     }).sort_values(by="Importance", ascending=False)
 
     print(feature_importance.head())
+    '''
 
     y_pred = model.predict(np.array(test_data[feature_name].tolist()))
 
