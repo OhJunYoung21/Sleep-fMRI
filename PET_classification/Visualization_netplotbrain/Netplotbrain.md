@@ -11,3 +11,9 @@ for brain network visualization.
 
 
 ### Basic workflow and Input of data
+
+### Discuss how figures can be customized, including high-level interfaces
+
+### Show examples of how NetPlotBrain intergrate with ohter software.
+
+### Installation and dependencies
