@@ -15,9 +15,14 @@ shen_label_path = '~/Desktop/Node_Network_Shen.xlsx'
 shen_label = pd.read_excel(shen_label_path)
 
 t_test_result = pd.read_pickle(
+    '/Users/oj/PycharmProjects/Sleep-fMRI/PET_classification/statistic_results/t_test_fALFF.pkl')
+
+mann_whitney_result = pd.read_pickle(
     '/Users/oj/PycharmProjects/Sleep-fMRI/PET_classification/statistic_results/mann_whitney_fALFF.pkl')
 
-result = (t_test_result["Region"][t_test_result['p-value'] < 0.05]).tolist()
+concat_result = pd.concat([t_test_result, mann_whitney_result], axis=1)
+
+result = (concat_result["Region"][concat_result['p-value'] < 0.05]).tolist()
 
 node_networks = shen_label
 
