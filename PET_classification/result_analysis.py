@@ -3,7 +3,7 @@ import numpy as np
 import os
 from collections import Counter
 
-t_test_result = pd.read_pickle('~/PycharmProjects/Sleep-fMRI/PET_classification/statistic_results/t_test_FC.pkl')
+t_test_result = pd.read_pickle('./statistic_results/t_test_REHO.pkl')
 
 result = (t_test_result["Region"][t_test_result['p-value'] < 0.05]).tolist()
 
@@ -14,7 +14,9 @@ def upper_triangular_index(n, vector_index):
     return row + 1, col + 1
 
 
+'''
 results = [upper_triangular_index(268, idx) for idx in result]
+'''
 
 shen_node_path = "/Users/oj/Desktop/Node_Network_Shen.xlsx"
 node_networks = pd.read_excel(shen_node_path)
@@ -43,23 +45,28 @@ def find_network_connection(node1, node2, df):
     return network1[0], network2[0]
 
 
+def find_region(node, df):
+    region = df.loc[df["Node"] == (node + 1), "Network"].values
+
+    return region
+
+
+'''
 for i, j in results:
     connection = find_network_connection(i, j, node_networks)
 
     functional_connectivity.append(sorted(connection))
+'''
 
 
 def count_occurrences(lst):
-    tuple_list = [tuple(sublist) for sublist in lst]
+    networks = []
 
-    # 요소의 등장 횟수 계산
-    counts = Counter(tuple_list)
+    for j in lst:
+        network = find_region(j, node_networks)
+        networks.append(network.item())
 
-    return counts
+    return Counter(networks)
 
 
-count_result = count_occurrences(functional_connectivity)
-
-count_edges = count_result.keys()
-
-print(list(count_edges))
+print(count_occurrences(result))
