@@ -3,10 +3,6 @@ import numpy as np
 import os
 from collections import Counter
 
-t_test_result = pd.read_pickle('./statistic_results/t_test_REHO.pkl')
-
-result = (t_test_result["Region"][t_test_result['p-value'] < 0.05]).tolist()
-
 
 def upper_triangular_index(n, vector_index):
     row = int(np.floor((2 * n - 1 - np.sqrt((2 * n - 1) ** 2 - 8 * vector_index)) / 2))
@@ -66,7 +62,4 @@ def count_occurrences(lst):
         network = find_region(j, node_networks)
         networks.append(network.item())
 
-    return Counter(networks)
-
-
-print(count_occurrences(result))
+    return networks
