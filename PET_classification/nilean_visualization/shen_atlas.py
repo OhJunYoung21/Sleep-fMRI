@@ -14,13 +14,15 @@ shen_label_path = '~/Desktop/Node_Network_Shen.xlsx'
 
 shen_label = pd.read_excel(shen_label_path)
 
+feature_name = "REHO"
+
 t_test_result = pd.read_pickle(
-    '/Users/oj/PycharmProjects/Sleep-fMRI/PET_classification/statistic_results/t_test_fALFF.pkl')
+    f'/Users/oj/PycharmProjects/Sleep-fMRI/PET_classification/statistic_results/t_test_{feature_name}.pkl')
 
 mann_whitney_result = pd.read_pickle(
-    '/Users/oj/PycharmProjects/Sleep-fMRI/PET_classification/statistic_results/mann_whitney_fALFF.pkl')
+    f'/Users/oj/PycharmProjects/Sleep-fMRI/PET_classification/statistic_results/mann_whitney_{feature_name}.pkl')
 
-concat_result = pd.concat([t_test_result, mann_whitney_result], axis=1)
+concat_result = pd.concat([t_test_result, mann_whitney_result], axis=0)
 
 result = (concat_result["Region"][concat_result['p-value'] < 0.05]).tolist()
 
@@ -38,5 +40,5 @@ selected_node = image.math_img("img * np.isin(img, {})".format(shen_nodes_list),
                                img=shen_img)
 
 plotting.plot_roi(selected_node, bg_img=load_mni152_template(),
-                  title="Shen Atlas - Network 4 Nodes", display_mode="ortho", cut_coords=(0, 0, 0), cmap="autumn")
+                  title=f"Shen Atlas - {feature_name}_Nodes", display_mode="ortho", cut_coords=(0, 0, 0), cmap="autumn")
 plotting.show()

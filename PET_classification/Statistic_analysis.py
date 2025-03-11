@@ -4,9 +4,9 @@ import pandas as pd
 from scipy.stats import mannwhitneyu
 from scipy.stats import brunnermunzel
 
-pet_data = pd.read_pickle('PET_shen_data.pkl')
+pet_data = pd.read_pickle('preprocessed_shen_data.pkl')
 
-feature_name = 'REHO'
+feature_name = 'tril_FC'
 
 ttest_data = pet_data[[feature_name, 'STATUS']]
 
@@ -18,7 +18,7 @@ group_negative = np.array(ttest_negative[feature_name].tolist())
 
 statistic_result = []
 
-for i in range(268):
+for i in range(35778):
     ### i번째 열에 해당하는 모든 행의 값을 positive,negative_feature에 저장한다.
 
     positive_feature = group_positive[:, i]
@@ -40,7 +40,6 @@ for i in range(268):
     t_stat, p_value = ttest_ind(positive_feature, negative_feature, equal_var=equal_var)
     test_used = "t-test (equal_var={})".format(equal_var)
     '''
-
     statistic_result.append({"Region": i, "Test": test_used, "p-value": p_value})
 
 statistic_result = pd.DataFrame(statistic_result)

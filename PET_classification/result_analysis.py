@@ -3,21 +3,8 @@ import numpy as np
 import os
 from collections import Counter
 
-
-def upper_triangular_index(n, vector_index):
-    row = int(np.floor((2 * n - 1 - np.sqrt((2 * n - 1) ** 2 - 8 * vector_index)) / 2))
-    col = vector_index + row + 1 - (row * (2 * n - row - 1)) // 2
-    return row + 1, col + 1
-
-
-'''
-results = [upper_triangular_index(268, idx) for idx in result]
-'''
-
-shen_node_path = "/Users/oj/Desktop/Node_Network_Shen.xlsx"
+shen_node_path = "/Users/oj/Desktop/Yoo_Lab/atlas/Shen268_10network.xlsx"
 node_networks = pd.read_excel(shen_node_path)
-
-functional_connectivity = []
 
 
 def find_network_connection(node1, node2, df):
@@ -32,8 +19,8 @@ def find_network_connection(node1, node2, df):
     Returns:
         tuple: (node1의 네트워크, node2의 네트워크)
     """
-    network1 = df.loc[df["Node"] == node1, "Network"].values
-    network2 = df.loc[df["Node"] == node2, "Network"].values
+    network1 = df.loc[df["node"] == node1, "network"].values
+    network2 = df.loc[df["node"] == node2, "network"].values
 
     if len(network1) == 0 or len(network2) == 0:
         return "Invalid node number(s)"
