@@ -10,35 +10,23 @@ from PET_classification.result_analysis import count_occurrences, find_region
 
 shen_atlas = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
 
-shen_label_path = '~/Desktop/Node_Network_Shen.xlsx'
+shen_label_path = '/Users/oj/Desktop/Yoo_Lab/atlas/Shen268_10network.xlsx'
 
 shen_label = pd.read_excel(shen_label_path)
 
-feature_name = "REHO"
+shen_nodes_label = shen_label["node"]
 
-t_test_result = pd.read_pickle(
-    f'/Users/oj/PycharmProjects/Sleep-fMRI/PET_classification/statistic_results/t_test_{feature_name}.pkl')
+shen_atlas_img = image.load_img(shen_atlas)
 
-mann_whitney_result = pd.read_pickle(
-    f'/Users/oj/PycharmProjects/Sleep-fMRI/PET_classification/statistic_results/mann_whitney_{feature_name}.pkl')
+# coord에는 268의 region의 중심좌표(3차원으로 표현)을 담고 있는 numpy 배열이다.
 
-concat_result = pd.concat([t_test_result, mann_whitney_result], axis=0)
+coord = plotting.find_parcellation_cut_coords(shen_atlas_img, background_label=0)
 
-result = (concat_result["Region"][concat_result['p-value'] < 0.05]).tolist()
+sorted_coord = np.array([coord[np.where(shen_nodes_label == i)[0][0]] for i in shen_nodes_label])
 
-node_networks = shen_label
-
-nodes = count_occurrences(result)
-
-shen_img = image.load_img(shen_atlas)
-
-shen_nodes = np.array(nodes)
-
-shen_nodes_list = list(shen_nodes)
-
-selected_node = image.math_img("img * np.isin(img, {})".format(shen_nodes_list),
-                               img=shen_img)
-
-plotting.plot_roi(selected_node, bg_img=load_mni152_template(),
-                  title=f"Shen Atlas - {feature_name}_Nodes", display_mode="ortho", cut_coords=(0, 0, 0), cmap="autumn")
+plotting.plot_markers(
+    node_values=[1, 1, 1],
+    node_coords=[sorted_coord[0], sorted_coord[1], sorted_coord[2]],
+    node_size='auto'
+)
 plotting.show()
