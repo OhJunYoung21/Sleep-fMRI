@@ -29,7 +29,7 @@ def find_network_connection(node1, node2, df):
 
 
 def find_region(node, df):
-    region = df.loc[df["Node"] == (node + 1), "Network"].values
+    region = df.loc[df["node"] == (node + 1), "network"].values
 
     return region
 

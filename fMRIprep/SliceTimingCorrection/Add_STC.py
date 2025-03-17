@@ -5,10 +5,30 @@ import os
 
 slice_time = 3 / 35
 
-json_slice = (np.array(
+json_slice_36 = (np.array(
     [1, 7, 13, 19, 25, 31, 2, 8, 14, 20, 26, 32, 3, 9, 15, 21, 27, 33, 4, 10, 16, 22, 28, 34, 5, 11, 17, 23, 29,
-     35, 6, 12, 18, 24, 30]) - 1) * slice_time
+     35, 6, 12, 18, 24, 30, 36]) - 1) * slice_time
 
+json_slice_35 = (np.array(
+    [1, 7, 13, 19, 25, 31, 2, 8, 14, 20, 26, 32, 3, 9, 15, 21, 27, 33, 4, 10, 16, 22, 28, 34, 5, 11, 17, 23, 29,
+     35, 6, 12, 18, 24, 30, ]) - 1) * slice_time
+
+json_slice_37 = (np.array(
+    [1, 7, 13, 19, 25, 31, 37, 2, 8, 14, 20, 26, 32, 3, 9, 15, 21, 27, 33, 4, 10, 16, 22, 28, 34, 5, 11, 17, 23, 29,
+     35, 6, 12, 18, 24, 30, 36]) - 1) * slice_time
+
+json_slice_41 = (np.array(
+    [1, 7, 13, 19, 25, 31, 37, 2, 8, 14, 20, 26, 32, 38, 3, 9, 15, 21, 27, 33, 39, 4, 10, 16, 22, 28, 34, 40, 5, 11, 17,
+     23,
+     29,
+     35, 41, 6, 12, 18, 24, 30, 36]) - 1) * slice_time
+
+print(np.round(json_slice_36, 4).tolist())
+print(np.round(json_slice_37, 4).tolist())
+print(np.round(json_slice_41, 4).tolist())
+print(np.round(json_slice_35, 4).tolist())
+
+'''
 
 def add_info_to_json(file_path, key, value):
     """
@@ -56,3 +76,6 @@ json_path = glob.glob(os.path.join(root_dir, 'sub-*', 'func',
 
 for json_file in json_path:
     add_info_to_json(json_file, "SliceTiming", str(json_slice))
+
+
+'''
