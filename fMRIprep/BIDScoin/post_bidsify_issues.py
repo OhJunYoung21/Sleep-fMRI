@@ -11,14 +11,16 @@ from nilearn.image import concat_imgs
 
 ### 해당 과정은 nilearn이 제공하는 concat_image를 써서 해결하도록 한다.
 
-### file_name에는 여러개의 3D .nii.gz파일들이 들어있는 폴더를 지정한다.
+### 1. subject의 func 들을 순회한다.
+### 2. subject내의 func 파일에 여러개의 .nii.gz,json파일이 들어있는 경우를 if문으로 처리한다.
+### 3. .json파일 하나를
 
 
 nifti_files = glob.glob(
-    '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_post_BIDS/sub-50/func/sub-50_task-RESEARCHMRI_acq-AxialfMRIrest*_bold.nii.gz')
+    '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_post_BIDS/sub-04/func/sub-04_task-RESEARCHMRI_acq-AxialfMRIrest*_bold.nii.gz')
 
 json_files = glob.glob(
-    '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_post_BIDS/sub-50/func/sub-50_task-RESEARCHMRI_acq-AxialfMRIrest*_bold.json')
+    '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_post_BIDS/sub-04/func/sub-04_task-RESEARCHMRI_acq-AxialfMRIrest*_bold.json')
 
 
 def extract_t_number(file):
@@ -38,10 +40,13 @@ for file in nifti_files:
 
 for file in json_files:
     try:
-        os.remove(file)
+        if file.endswith('rest_bold.json'):
+            continue
+        else:
+            os.remove(file)
     except:
         print("error")
 
-output_path = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_post_BIDS/sub-50/func/sub-50_task-RESEARCHMRI_acq-AxialfMRIrest_bold.nii.gz'
+output_path = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_post_BIDS/sub-04/func/sub-04_task-RESEARCHMRI_acq-AxialfMRIrest_bold.nii.gz'
 
 data.to_filename(output_path)
