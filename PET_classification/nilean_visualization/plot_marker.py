@@ -20,7 +20,7 @@ shen_atlas_img = image.load_img(shen_atlas)
 
 ## bring statistic data
 
-feature_name = "fALFF"
+feature_name = "Reho"
 
 t_test_result = pd.read_pickle(
     f'/Users/oj/PycharmProjects/Sleep-fMRI/PET_classification/statistic_results/t_test_{feature_name}.pkl')
@@ -47,6 +47,7 @@ def find_network(node, df):
 networks = [find_network(j, shen_label) for j in result]
 
 plotting.plot_markers(
+    title = "Reho nodes showing difference between RBD and NML",
     node_values=[1 for j in range(len(networks))],
     node_coords=[coord[k] for k in result],
     node_size='auto'

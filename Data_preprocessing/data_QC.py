@@ -6,7 +6,7 @@ import re
 import numpy as np
 import json
 
-root_dir = "/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_post_BIDS"
+root_dir = "/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_post_BIDS_test"
 
 slice_time = 3 / 35
 
@@ -100,5 +100,7 @@ for number, json_file in zip(sorted(test_file_nifti), sorted(test_file_json)):
     elif test_img.shape[2] == 41:
         add_info_to_json(json_file, "SliceTiming", np.round(json_slice_41, 4).tolist())
 
+    '''
     match = re.search(r'sub-(\d+)', number)
     subject_slice_number[match.group(1)] = image.load_img(number).shape[2]
+    '''
