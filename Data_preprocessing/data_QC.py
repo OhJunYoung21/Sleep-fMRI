@@ -6,27 +6,45 @@ import re
 import numpy as np
 import json
 
-root_dir = "/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_post_BIDS_test"
+root_dir = "/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_post_BIDS"
 
-slice_time = 3 / 35
 
-json_slice_36 = (np.array(
-    [1, 7, 13, 19, 25, 31, 2, 8, 14, 20, 26, 32, 3, 9, 15, 21, 27, 33, 4, 10, 16, 22, 28, 34, 5, 11, 17, 23, 29,
-     35, 6, 12, 18, 24, 30, 36]) - 1) * slice_time
+def generate_slice_timing(n_slices, tr):
+    """
+    Generate SliceTiming array based on interleaved descending slice acquisition order.
 
-json_slice_35 = (np.array(
-    [1, 7, 13, 19, 25, 31, 2, 8, 14, 20, 26, 32, 3, 9, 15, 21, 27, 33, 4, 10, 16, 22, 28, 34, 5, 11, 17, 23, 29,
-     35, 6, 12, 18, 24, 30]) - 1) * slice_time
+    Parameters:
+        n_slices (int): Number of slices.
+        tr (float): Repetition Time (in seconds).
 
-json_slice_37 = (np.array(
-    [1, 7, 13, 19, 25, 31, 37, 2, 8, 14, 20, 26, 32, 3, 9, 15, 21, 27, 33, 4, 10, 16, 22, 28, 34, 5, 11, 17, 23, 29,
-     35, 6, 12, 18, 24, 30, 36]) - 1) * slice_time
+    Returns:
+        list: SliceTiming values in seconds, ordered by slice number (1-based).
+    """
 
-json_slice_41 = (np.array(
-    [1, 7, 13, 19, 25, 31, 37, 2, 8, 14, 20, 26, 32, 38, 3, 9, 15, 21, 27, 33, 39, 4, 10, 16, 22, 28, 34, 40, 5, 11, 17,
-     23,
-     29,
-     35, 41, 6, 12, 18, 24, 30, 36]) - 1) * slice_time
+    # Generate interleaved descending order
+    # Odd positions descending: n, n-2, ...
+    # Even positions descending: n-1, n-3, ...
+
+    if n_slices % 2 == 0:
+        even = list(range(n_slices, 0, -2))
+        odd = list(range(n_slices - 1, 0, -2))
+        slice_order = odd + even
+    else:
+        odd = list(range(n_slices, 0, -2))
+        even = list(range(n_slices - 1, 0, -2))
+        slice_order = odd + even
+
+    # Compute acquisition times
+    acq_interval = tr / n_slices
+    acq_times = np.arange(n_slices) * acq_interval
+
+    # Create slice timing list in slice-number order (index = slice_num - 1)
+    slice_timing = [0] * n_slices
+    for i, slice_num in enumerate(slice_order):
+        slice_timing[slice_num - 1] = round(acq_times[i], 4)  # round for JSON compatibility
+
+    return slice_timing
+
 
 test_file_nifti = glob.glob(os.path.join(root_dir, 'sub-*', 'func',
                                          'sub-*_task-BRAINMRINONCONTRASTDIFFUSION_acq-AxialfMRIrest_bold.nii.gz')) + glob.glob(
@@ -92,15 +110,16 @@ for number, json_file in zip(sorted(test_file_nifti), sorted(test_file_json)):
     test_img = image.load_img(number)
 
     if test_img.shape[2] == 35:
-        add_info_to_json(json_file, "SliceTiming", np.round(json_slice_35, 4).tolist())
+        add_info_to_json(json_file, "SliceTiming", generate_slice_timing(35, 3))
     elif test_img.shape[2] == 36:
-        add_info_to_json(json_file, "SliceTiming", np.round(json_slice_36, 4).tolist())
+        add_info_to_json(json_file, "SliceTiming", generate_slice_timing(36, 3))
     elif test_img.shape[2] == 37:
-        add_info_to_json(json_file, "SliceTiming", np.round(json_slice_37, 4).tolist())
+        add_info_to_json(json_file, "SliceTiming", generate_slice_timing(37, 3))
+    elif test_img.shape[2] == 39:
+        add_info_to_json(json_file, "SliceTiming", generate_slice_timing(39, 3))
+    elif test_img.shape[2] == 40:
+        add_info_to_json(json_file, "SliceTiming", generate_slice_timing(40, 3))
     elif test_img.shape[2] == 41:
-        add_info_to_json(json_file, "SliceTiming", np.round(json_slice_41, 4).tolist())
-
-    '''
-    match = re.search(r'sub-(\d+)', number)
-    subject_slice_number[match.group(1)] = image.load_img(number).shape[2]
-    '''
+        add_info_to_json(json_file, "SliceTiming", generate_slice_timing(41, 3))
+    else:
+        continue
