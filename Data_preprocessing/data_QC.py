@@ -6,7 +6,7 @@ import re
 import numpy as np
 import json
 
-root_dir = "/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_post_BIDS"
+root_dir = "/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_post_BIDS"
 
 
 def generate_slice_timing(n_slices, tr):

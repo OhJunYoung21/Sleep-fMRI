@@ -86,7 +86,8 @@ def concat_images(root: str):
 
                 for file in json_files:
                     try:
-                        if file.endswith('rest_bold.json'):
+                        if file.endswith('rest_bold.json') | file.endswith('CLEAR_bold.json') | file.endswith(
+                                'RESEARCH_bold.json') | file.endswith('SENSE_bold.json'):
                             continue
                         else:
                             os.remove(file)
@@ -98,7 +99,7 @@ def concat_images(root: str):
 
                 data.to_filename(output_path)
             else:
-                print('folder has 2 files')
+                print(f'{subject_number} is normal!!')
 
 
 
