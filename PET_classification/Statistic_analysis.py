@@ -6,7 +6,7 @@ from scipy.stats import brunnermunzel
 
 pet_data = pd.read_pickle('preprocessed_shen_data.pkl')
 
-feature_name = 'tril_FC'
+feature_name = 'ALFF'
 
 ttest_data = pet_data[[feature_name, 'STATUS']]
 
@@ -18,7 +18,7 @@ group_negative = np.array(ttest_negative[feature_name].tolist())
 
 statistic_result = []
 
-for i in range(35778):
+for i in range(268):
     ### i번째 열에 해당하는 모든 행의 값을 positive,negative_feature에 저장한다.
 
     positive_feature = group_positive[:, i]
