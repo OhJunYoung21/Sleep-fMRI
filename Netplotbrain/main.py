@@ -41,7 +41,10 @@ for roi in roi_labels:
 # 5. DataFrame으로 저장
 df_com = pd.DataFrame(centers)
 
-netplotbrain.plot(nodes=df_com.iloc[target_location],
+print(df_com.iloc[69])
 
+netplotbrain.plot(nodes=df_com.iloc[target_location],
+                  template='MNI152NLin6Asym',
+                  view='R',
                   )
 plt.show()
