@@ -37,7 +37,7 @@ def generate_slice_timing(n_slices, tr):
     # Create slice timing list in slice-number order (index = slice_num - 1)
     slice_timing = [0] * n_slices
     for i, slice_num in enumerate(slice_order):
-        slice_timing[slice_num - 1] = round((i - 1) * (3 / 35), 4)  # round for JSON compatibility
+        slice_timing[slice_num - 1] = round((i - 1) * (3 / n_slices), 4)  # round for JSON compatibility
 
     return slice_timing
 
