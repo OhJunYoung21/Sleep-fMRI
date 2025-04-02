@@ -17,8 +17,8 @@ BOLD = data_loader.nifti2timeseries(
 )
 
 params_methods = {
-    "W": 44,
-    "n_overlap": 0.5,
+    "W": 9,
+    "n_overlap": 0.6,
     "sw_methods": "pear_corr",
     "tapered_window": True,
     "normalization": True,
@@ -27,5 +27,3 @@ params_methods = {
 
 measure = SLIDING_WINDOW(**params_methods)
 dFC = measure.estimate_dFC(time_series=BOLD)
-
-

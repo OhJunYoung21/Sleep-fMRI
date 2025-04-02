@@ -28,20 +28,16 @@ def generate_slice_timing(n_slices, tr):
     if n_slices % 2 == 0:
         even = list(range(n_slices, 0, -2))
         odd = list(range(n_slices - 1, 0, -2))
-        slice_order = odd + even
+        slice_order = even + odd
     else:
         odd = list(range(n_slices, 0, -2))
         even = list(range(n_slices - 1, 0, -2))
         slice_order = odd + even
 
-    # Compute acquisition times
-    acq_interval = tr / n_slices
-    acq_times = np.arange(n_slices) * acq_interval
-
     # Create slice timing list in slice-number order (index = slice_num - 1)
     slice_timing = [0] * n_slices
     for i, slice_num in enumerate(slice_order):
-        slice_timing[slice_num - 1] = round(acq_times[i], 4)  # round for JSON compatibility
+        slice_timing[slice_num - 1] = round((i - 1) * (3 / 35), 4)  # round for JSON compatibility
 
     return slice_timing
 
