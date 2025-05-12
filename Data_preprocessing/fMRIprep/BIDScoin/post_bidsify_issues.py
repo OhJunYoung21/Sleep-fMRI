@@ -27,11 +27,11 @@ def extract_t_number(file):
     return int(match.group(1)) if match else int(0)
 
 
-root_path = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_post_BIDS'
+root_path = '/Users/oj/Desktop/RBD_post_BIDS'
 
 
 def concat_images(root: str):
-    for file in sorted(os.listdir(root))[7:]:
+    for file in sorted(os.listdir(root))[5:]:
         target_path = os.path.join(file, 'func')
 
         subject_number = extract_sub_number(target_path)
@@ -70,6 +70,9 @@ def concat_images(root: str):
                              'sub-*_task-RESEARCHMRI_acq-AxialfMRIrest*_bold.json'))
 
             if len(json_files) > 5:
+
+                print("concat processing...")
+
                 sorted_file_nifti = sorted(nifti_files, key=extract_t_number)
                 sorted_file_json = sorted(nifti_files, key=extract_t_number)
 

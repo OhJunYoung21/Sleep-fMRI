@@ -13,13 +13,13 @@ from Comparison_features.rsfmri import static_measures
 
 atlas_path = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
 
-PET_shen_data = pd.DataFrame(index=None)
+shen_data = pd.DataFrame(index=None)
 
-PET_shen_data['FC'] = None
-PET_shen_data['ALFF'] = None
-PET_shen_data['REHO'] = None
-PET_shen_data['fALFF'] = None
-PET_shen_data['STATUS'] = None
+shen_data['FC'] = None
+shen_data['ALFF'] = None
+shen_data['REHO'] = None
+shen_data['fALFF'] = None
+shen_data['STATUS'] = None
 
 ReHo_RBD = []
 FC_RBD = []
@@ -33,13 +33,18 @@ FC_prior_HC = []
 ALFF_HC = []
 fALFF_HC = []
 
+'''
 root_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_classification/RBD_PET_positive_regressed'
+'''
 
-root_hc_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_classification/RBD_PET_negative_regressed'
+confounds_hc_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_confound_regressed'
+mask_hc_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_mask'
 
-CPAC_rbd = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_classification/CPAC/PET_positive'
+confounds_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_confound_regressed'
+mask_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_mask'
 
-CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_classification/CPAC/PET_negative'
+CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/NML'
+CPAC_rbd = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD'
 
 
 ### CPAC에서는 mask파일이 있어야 alff,falff 그리고 reho와 같은 feature들을 추출해낼 수 있다.
@@ -55,15 +60,13 @@ def input_fc(files_path: str, data: List):
 
         connectivity = np.array(connectivity)
 
-        '''
         connectivity = (connectivity + connectivity.T) / 2  # 대칭화
         np.fill_diagonal(connectivity
                          , 0)
 
-        vectorized_fc = connectivity[np.triu_indices(268, k=1)]
-        '''
+        vectorized_fc = connectivity[np.tril_indices(268, k=0)]
 
-        data.append(connectivity)
+        data.append(vectorized_fc)
 
     return data
 
@@ -185,33 +188,40 @@ def make_falff_shen(file_path: str, data: List):
     return
 
 
-result_hc = input_fc(root_hc_dir, FC_HC)
-result_rbd = input_fc(root_rbd_dir, FC_RBD)
+'''
+result_hc = input_fc(confounds_hc_dir, FC_HC)
 
 make_reho_shen(CPAC_hc, ReHo_HC)
 make_alff_shen(CPAC_hc, ALFF_HC)
 make_falff_shen(CPAC_hc, fALFF_HC)
+
+ReHo_HC = [k.tolist()[0] for k in ReHo_HC]
+ALFF_HC = [k.tolist()[0] for k in ALFF_HC]
+fALFF_HC = [k.tolist()[0] for k in fALFF_HC]
+
+len_hc = len(result_hc)
+
+for k in range(len_hc):
+    shen_data.loc[k] = [result_hc[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
+
+shen_data.to_pickle('./NML_shen_data.pkl')
+'''
+
+result_rbd = input_fc(confounds_rbd_dir, FC_RBD)
 
 make_reho_shen(CPAC_rbd, ReHo_RBD)
 make_alff_shen(CPAC_rbd, ALFF_RBD)
 make_falff_shen(CPAC_rbd, fALFF_RBD)
 
 ALFF_RBD = [k.tolist()[0] for k in ALFF_RBD]
-ALFF_HC = [k.tolist()[0] for k in ALFF_HC]
 fALFF_RBD = [k.tolist()[0] for k in fALFF_RBD]
-fALFF_HC = [k.tolist()[0] for k in fALFF_HC]
 ReHo_RBD = [k.tolist()[0] for k in ReHo_RBD]
-ReHo_HC = [k.tolist()[0] for k in ReHo_HC]
 
-len_hc = len(result_hc)
 len_rbd = len(result_rbd)
 
 for j in range(len_rbd):
-    PET_shen_data.loc[j] = [result_rbd[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
-
-for k in range(len_hc):
-    PET_shen_data.loc[len_rbd + k] = [result_hc[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
+    shen_data.loc[j] = [result_rbd[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
 
 ### shen_data에서 각행의 alff,falff,reho값은 268 size의 리스트 혹은 numpy 로 구성되어 있다.
+shen_data.to_pickle('./RBD_shen_data.pkl')
 
-PET_shen_data.to_pickle('~/PycharmProjects/Sleep-fMRI/PET_classification/PET_shen_data.pkl')

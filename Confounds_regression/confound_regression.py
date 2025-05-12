@@ -9,7 +9,7 @@ from nilearn.interfaces.fmriprep import load_confounds
 from nilearn import plotting
 import re
 
-root_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_post_prep'
+root_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_post_prep'
 
 # 전처리가 끝난 fMRI 파일과 fMRIprep이 제공한 confound파일을 읽어온다.
 
@@ -59,4 +59,4 @@ for index in range(len(fMRI_img)):
     cleaned_image = clean_img(fmri_img, confounds=confounds)
 
     cleaned_image.to_filename(
-        f"/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_RBD_Classification/NML_regressed/sub-{subject_number}_confounds_regressed.nii.gz")
+        f"/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_confound_regressed/sub-{subject_number}_confounds_regressed.nii.gz")
