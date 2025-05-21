@@ -17,7 +17,172 @@ from sklearn.model_selection import RepeatedKFold
 from sklearn.linear_model import LassoCV
 import shap
 
-PET_pkl = pd.read_pickle('/Users/oj/PycharmProjects/Sleep-fMRI/PET_classification/PET_shen_static.pkl')
+NML_RBD_pkl = pd.read_pickle('../Statistic/NML_RBD_data.pkl')
+
+
+def modify_p_value(feature_name: str):
+    data = pd.read_csv(
+        f'../Statistic/statistic_result_table/{feature_name}/{feature_name}_result_final_p_value_0.05.csv')
+
+    data = data[data['P-Value'] < 0.01]
+
+    data.to_csv(f'../Statistic/statistic_result_table/{feature_name}/{feature_name}_result_final_p_value_0.01.csv')
+
+    return
+
+
+def non_feature_selected_SVM(feature_name: str):
+    accuracy_score_mean = []
+    f1_score_mean = []
+    precision_mean = []
+    recall_mean = []
+    feature_difference = []
+
+    SVM_result = {
+        'Accuracy': None,
+        'Precision': None,
+        'Recall': None,
+        'F1': None
+    }
+
+    ### selected_data_1 contains RBD data, selected_data_0 contains NML data
+
+    selected_data_1 = NML_RBD_pkl.loc[NML_RBD_pkl['STATUS'] == 1, [feature_name, 'STATUS']]
+    selected_data_0 = NML_RBD_pkl.loc[NML_RBD_pkl['STATUS'] == 0, [feature_name, 'STATUS']]
+
+    rkf_split_1 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
+    rkf_split_0 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
+
+    i = 0
+
+    for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
+            rkf_split_1.split(selected_data_1),
+            rkf_split_0.split(selected_data_0)):
+        # 라벨 1 데이터의 훈련/테스트 분리
+        train_1 = selected_data_1.iloc[train_idx_1]
+        test_1 = selected_data_1.iloc[test_idx_1]
+
+        # 라벨 0 데이터의 훈련/테스트 분리
+        train_0 = selected_data_0.iloc[train_idx_0]
+        test_0 = selected_data_0.iloc[test_idx_0]
+
+        # 훈련 데이터와 테스트 데이터 결합
+
+        train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
+        test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
+
+        train_data[feature_name] = [item for item in train_data[feature_name]]
+        test_data[feature_name] = [item for item in test_data[feature_name]]
+
+        model = svm.SVC(kernel='sigmoid', C=1, probability=True)
+
+        model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
+
+        y_pred = model.predict(np.array(test_data[feature_name].tolist()))
+
+        accuracy = accuracy_score(y_pred.tolist(), test_data['STATUS'])
+        precision = precision_score(y_pred.tolist(), test_data['STATUS'])
+        recall = recall_score(y_pred.tolist(), test_data['STATUS'])
+        f1 = f1_score(y_pred.tolist(), test_data['STATUS'])
+
+        i += 1
+
+        print(f"{i}th accuracy : {accuracy:.2f}")
+
+        accuracy_score_mean.append(accuracy)
+        f1_score_mean.append(f1)
+        precision_mean.append(precision)
+        recall_mean.append(recall)
+
+    SVM_result['Accuracy'] = np.round(np.mean(accuracy_score_mean), 2)
+    SVM_result['Precision'] = np.round(np.mean(precision_mean), 2)
+    SVM_result['Recall'] = np.round(np.mean(recall_mean), 2)
+    SVM_result['F1'] = (np.round(np.mean(f1_score_mean), 2))
+
+    pd.DataFrame(SVM_result, index=[1]).to_excel(f'./Results/Non_feature_selected_SVM/SVM_{feature_name}_result.xlsx')
+
+    return
+
+
+def feature_selected_SVM(feature_name: str, p_value: str):
+    accuracy_score_mean = []
+    f1_score_mean = []
+    precision_mean = []
+    recall_mean = []
+
+    SVM_result = {
+        'Accuracy': None,
+        'Precision': None,
+        'Recall': None,
+        'F1': None
+    }
+
+    selected_nodes = \
+        pd.read_csv(
+            f'../Statistic/statistic_result_table/{feature_name}/{feature_name}_result_final_p_value_{p_value}.csv')[
+            'Feature_Index'] - 1
+
+    ### selected_data_1 contains RBD data, selected_data_0 contains NML data
+
+    selected_data_1 = NML_RBD_pkl.loc[NML_RBD_pkl['STATUS'] == 1, [feature_name, 'STATUS']]
+    selected_data_0 = NML_RBD_pkl.loc[NML_RBD_pkl['STATUS'] == 0, [feature_name, 'STATUS']]
+
+    selected_data_1[feature_name] = selected_data_1[feature_name].apply(lambda x: [x[i] for i in selected_nodes])
+    selected_data_0[feature_name] = selected_data_0[feature_name].apply(lambda x: [x[i] for i in selected_nodes])
+
+    rkf_split_1 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
+    rkf_split_0 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
+
+    i = 0
+
+    for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
+            rkf_split_1.split(selected_data_1),
+            rkf_split_0.split(selected_data_0)):
+        # 라벨 1 데이터의 훈련/테스트 분리
+        train_1 = selected_data_1.iloc[train_idx_1]
+        test_1 = selected_data_1.iloc[test_idx_1]
+
+        # 라벨 0 데이터의 훈련/테스트 분리
+        train_0 = selected_data_0.iloc[train_idx_0]
+        test_0 = selected_data_0.iloc[test_idx_0]
+
+        # 훈련 데이터와 테스트 데이터 결합
+
+        train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
+        test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
+
+        train_data[feature_name] = [item for item in train_data[feature_name]]
+        test_data[feature_name] = [item for item in test_data[feature_name]]
+
+        model = svm.SVC(kernel='sigmoid', C=1, probability=True)
+
+        model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
+
+        y_pred = model.predict(np.array(test_data[feature_name].tolist()))
+
+        accuracy = accuracy_score(y_pred.tolist(), test_data['STATUS'])
+        precision = precision_score(y_pred.tolist(), test_data['STATUS'])
+        recall = recall_score(y_pred.tolist(), test_data['STATUS'])
+        f1 = f1_score(y_pred.tolist(), test_data['STATUS'])
+
+        i += 1
+
+        print(f"{i}th accuracy : {accuracy:.2f}")
+
+        accuracy_score_mean.append(accuracy)
+        f1_score_mean.append(f1)
+        precision_mean.append(precision)
+        recall_mean.append(recall)
+
+    SVM_result['Accuracy'] = np.round(np.mean(accuracy_score_mean), 2)
+    SVM_result['Precision'] = np.round(np.mean(precision_mean), 2)
+    SVM_result['Recall'] = np.round(np.mean(recall_mean), 2)
+    SVM_result['F1'] = (np.round(np.mean(f1_score_mean), 2))
+
+    pd.DataFrame(SVM_result, index=[1]).to_excel(
+        f'./Results/Statistic_feature_selected_SVM/SVM_{feature_name}_result_{p_value}.xlsx')
+
+    return SVM_result
 
 
 def seed_based_connectivity(matrix, selected_regions):
@@ -71,79 +236,3 @@ def avoid_duplication(nested_list):
     result = list(unique_elements)
 
     return result
-
-
-accuracy_score_mean = []
-f1_score_mean = []
-precision_mean = []
-recall_mean = []
-feature_difference = []
-
-feature_name = "REHO"
-
-selected_data_1 = PET_pkl.loc[PET_pkl['STATUS'] == 1, [feature_name, 'STATUS']]
-selected_data_0 = PET_pkl.loc[PET_pkl['STATUS'] == 0, [feature_name, 'STATUS']]
-
-rkf_split_1 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
-rkf_split_0 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
-
-i = 0
-
-for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
-        rkf_split_1.split(selected_data_1),
-        rkf_split_0.split(selected_data_0)):
-    # 라벨 1 데이터의 훈련/테스트 분리
-    train_1 = selected_data_1.iloc[train_idx_1]
-    test_1 = selected_data_1.iloc[test_idx_1]
-
-    # 라벨 0 데이터의 훈련/테스트 분리
-    train_0 = selected_data_0.iloc[train_idx_0]
-    test_0 = selected_data_0.iloc[test_idx_0]
-
-    # 훈련 데이터와 테스트 데이터 결합
-
-    train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
-    test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
-
-    '''
-    train_data[feature_name] = [item[0] for item in train_data[feature_name]]
-    test_data[feature_name] = [item[0] for item in test_data[feature_name]]
-    '''
-
-    model = svm.SVC(kernel='rbf', C=1, probability=True)
-
-    model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
-
-    perm_importance = permutation_importance(model, test_data[feature_name].tolist(), test_data['STATUS'].tolist(),
-                                             n_repeats=10,
-                                             random_state=42)
-
-    '''
-    feature_importance = pd.DataFrame({
-        'Feature Index': np.arange(268),
-        'Importance': perm_importance.importances_mean
-    }).sort_values(by="Importance", ascending=False)
-
-    print(feature_importance.head())
-    '''
-
-    y_pred = model.predict(np.array(test_data[feature_name].tolist()))
-
-    accuracy = accuracy_score(y_pred.tolist(), test_data['STATUS'])
-    precision = precision_score(y_pred.tolist(), test_data['STATUS'])
-    recall = recall_score(y_pred.tolist(), test_data['STATUS'])
-    f1 = f1_score(y_pred.tolist(), test_data['STATUS'])
-
-    i += 1
-
-    print(f"{i}th accuracy : {accuracy:.2f}")
-
-    accuracy_score_mean.append(accuracy)
-    f1_score_mean.append(f1)
-    precision_mean.append(precision)
-    recall_mean.append(recall)
-
-print(f"average of accuracy : {np.round(np.mean(accuracy_score_mean), 2)}")
-print(f"average of f1-score : {np.round(np.mean(f1_score_mean), 2)}")
-print(f"average of recall : {np.round(np.mean(recall_mean), 2)}")
-print(f"average of precision : {np.round(np.mean(precision_mean), 2)}")
