@@ -26,6 +26,10 @@ covariate_RBD = covariate_RBD[covariate_RBD['sub-number'] != 'sub-98']
 
 covariate_RBD = covariate_RBD[covariate_RBD['sub-number'] != 'sub-115']
 
+
+
+'''
+
 data = pd.read_pickle('./schaefer_data_RBD.pkl')
 
 data = pd.concat([data, covariate_RBD], axis=1)
@@ -44,6 +48,8 @@ ReHo_HC = []
 FC_HC = []
 ALFF_HC = []
 fALFF_HC = []
+
+'''
 
 schaefer_data_RBD = pd.DataFrame()
 
@@ -159,7 +165,7 @@ for j in range(len_hc):
     schaefer_data_HC.loc[j] = [result_hc[j], ALFF_HC[j], ReHo_HC[j], fALFF_HC[j], 0]
 
 schaefer_data_HC.to_pickle('./schaefer_data_HC.pkl')
-
+'''
 
 result_rbd = fc_for_data(confounds_rbd_dir, FC_RBD)
 
@@ -179,4 +185,5 @@ for k in range(len_rbd):
     schaefer_data_RBD.loc[k] = [result_rbd[k], ALFF_RBD[k], ReHo_RBD[k], fALFF_RBD[k], 1]
 
 schaefer_data_RBD.to_pickle('./schaefer_data_RBD.pkl')
-'''
+
+print(schaefer_data_RBD.shape)

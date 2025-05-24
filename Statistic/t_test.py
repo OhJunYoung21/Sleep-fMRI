@@ -3,83 +3,64 @@ from scipy.stats import ttest_ind, shapiro, levene, mannwhitneyu
 import pandas as pd
 import nilearn
 from nilearn import plotting
+import statsmodels.formula.api as smf
 
-Final_data = pd.read_pickle('NML_RBD_data.pkl')
+NML_data = pd.read_pickle('../Static_Feature_Extraction/Schaefer_features/schaefer_covariate_NML.pkl')
+RBD_data = pd.read_pickle('../Static_Feature_Extraction/Schaefer_features/schaefer_covariate_RBD.pkl')
 
-feature_name = 'ALFF'
-
-ttest_data = Final_data[[feature_name, 'STATUS']]
-
-ttest_RBD = ttest_data[ttest_data['STATUS'] == 1]
-ttest_HC = ttest_data[ttest_data['STATUS'] == 0]
-
-n_RBD = len(ttest_RBD)
-n_NML = len(ttest_HC)
-
-result = []
-
-group_RBD = np.array(ttest_RBD[feature_name].tolist())
-group_NML = np.array(ttest_HC[feature_name].tolist())
+Final_data = pd.concat([NML_data, RBD_data], axis=0)
 
 
-def local_one_tailed_t_Test(NML_group: list, RBD_group: list):
-    for i in range(268):
-        NML_feature = NML_group[:, i]
-        RBD_feature = RBD_group[:, i]
+def ANCOVA_test(feature_name: str):
+    result = []
 
-        ### check whether data follows normal distribution
+    for i in range(300):
+        nodes_feature = [k[i] for k in Final_data[feature_name]]
 
-        p_norm_1 = shapiro(NML_feature).pvalue
-        p_norm_0 = shapiro(RBD_feature).pvalue
+        ancova_data = pd.DataFrame({'group': Final_data['STATUS'].tolist(),
+                                    'sex': Final_data['sex'].tolist(),
+                                    'age': Final_data['age'].tolist(),
+                                    f'{feature_name}': np.array(nodes_feature)
+                                    })
+        model = smf.ols(f'{feature_name} ~ group +  age + sex', data=ancova_data).fit()
 
-        # Shapiro's test의 귀무가설은 정규분포를 따른다,이므로 p-value가 0.05이상이면 정규분포를 따른다라는 결론이 도출된다.
-
-        if p_norm_1 > 0.05 and p_norm_0 > 0.05:
-            p_levene = levene(NML_feature, RBD_feature).pvalue
-
-            if p_levene > 0.05:
-                t_stat, p_value = ttest_ind(NML_feature, RBD_feature, equal_var=True)
-
-                # (t-stat > 0) : NML의 feature값이 RBD feature보다 크다는 뜻. (t-stats < 0): NML의 feature값이 RBD의 feature보다 작다는 뜻.
-
-
-            else:
-                t_stat, p_value = ttest_ind(NML_feature, RBD_feature, equal_var=False)
-
-
+        if model.pvalues.group < 0.05:
+            result.append({
+                f'node_{i}': i,
+                'p_value':
+                    model.pvalues})
         else:
-            t_stat, p_value_one_tailed = mannwhitneyu(NML_feature, RBD_feature, alternative='two-sided')
+            continue
 
-        result.append({
-            'Feature_Index': i,
-            'P-Value': p_value
-        })
+    return result
 
-        return result
 
-    data = pd.read_csv(
-        '/Statistic/statistic_result_table/Shen_atlas/REHO/NML_bigger_than_RBD_0.01.csv')
-    nodes = pd.read_excel('shen_nodes.xlsx')
+print(ANCOVA_test('FC'))
 
-    nodes_data = nodes[nodes['label'].isin(data['Feature_Index'])]
+'''
+data = pd.read_csv(
+    '/Statistic/statistic_result_table/Shen_atlas/REHO/NML_bigger_than_RBD_0.01.csv')
+nodes = pd.read_excel('shen_nodes.xlsx')
 
-    nodes_data.to_csv('NML_bigger_than_RBD_0.01_BrainNetViewer.csv')
+nodes_data = nodes[nodes['label'].isin(data['Feature_Index'])]
 
-    print(nodes_data)
+nodes_data.to_csv('NML_bigger_than_RBD_0.01_BrainNetViewer.csv')
 
-    '''
-    for j in range(len(result_FC)):
-        row, col = result_FC.iloc[j]['connected_nodes']
-        matrix[row - 1][col - 1] = result_FC.iloc[j]['T-Value']
-        matrix[col - 1][row - 1] = result_FC.iloc[j]['T-Value']
-    
-    plotting.plot_matrix(
-        matrix,
-        labels=None,
-        figure=(15, 13),
-        vmax=1,
-        vmin=-1,
-        title="Connectivity bigger in NML than RBD(p-value 0.001)",
-    )
-    plotting.show()
-    '''
+print(nodes_data)
+
+
+for j in range(len(result_FC)):
+    row, col = result_FC.iloc[j]['connected_nodes']
+    matrix[row - 1][col - 1] = result_FC.iloc[j]['T-Value']
+    matrix[col - 1][row - 1] = result_FC.iloc[j]['T-Value']
+
+plotting.plot_matrix(
+    matrix,
+    labels=None,
+    figure=(15, 13),
+    vmax=1,
+    vmin=-1,
+    title="Connectivity bigger in NML than RBD(p-value 0.001)",
+)
+plotting.show()
+'''
