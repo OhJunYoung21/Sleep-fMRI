@@ -63,6 +63,17 @@ def fit_alff_atlas(alff_path, atlas):
     return masked_data
 
 
+def fit_falff_atlas(falff_path, atlas):
+    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas, standardize=True, strategy='mean',
+                                              resampling_target="labels")
+
+    falff_img = image.load_img(falff_path)
+
+    masked_data = shen_atlas.fit_transform([falff_img])
+
+    return masked_data
+
+
 def vector_to_symmetric_matrix(vec, n):
     mat = np.zeros((n, n))
     tril_indices = np.tril_indices(n, k=-1)
@@ -75,3 +86,4 @@ if __name__ == "__main__":
     fit_FC_atlas(path=None)
     fit_reho_atlas(reho_file=None, atlas=None)
     fit_alff_atlas(alff_path=None, atlas=None)
+    fit_falff_atlas(falff_path=None, atlas=None)

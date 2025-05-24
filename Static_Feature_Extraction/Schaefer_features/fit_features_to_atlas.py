@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from nilearn import datasets
-from nilearn.maskers import NiftiMapsMasker
+from nilearn.maskers import NiftiMapsMasker, NiftiLabelsMasker
 from nilearn.connectome import ConnectivityMeasure
 from nilearn import plotting
 from nilearn import datasets
@@ -15,24 +15,16 @@ from scipy import stats
 from nilearn.image import math_img
 from nilearn.input_data import NiftiMasker
 from nilearn.image import resample_to_img
-
-# Download the Shen atlas
-atlas_path = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
-
-shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True)
-
-shen = image.load_img(atlas_path)
-
-
-## 특정 지역과 다른 모든 지역간의 상관계수를 계산하여 더한다. 이는 해당 특정 지역이 다른 지역들과 얼마나 유사한 변화양상(BOLD signal)을 띄는지 측정할 수 있다.
+from nilearn import datasets
 
 
 def fit_FC_atlas(path):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas_path, standardize=True)
+    schaefer = datasets.fetch_atlas_schaefer_2018(n_rois=300)
+    atlas_filename = schaefer.maps
 
-    data = image.load_img(path)
+    schaefer_masker = NiftiLabelsMasker(labels_img=atlas_filename, standardize=True)
 
-    time_series = shen_atlas.fit_transform(data)
+    time_series = schaefer_masker.fit_transform(path)
 
     correlation_measure = ConnectivityMeasure(kind='correlation')
     correlation_matrix = correlation_measure.fit_transform([time_series])
@@ -42,23 +34,44 @@ def fit_FC_atlas(path):
 
 ### fit_feature_atlas : convert voxel unit data into region unit data
 
-def fit_reho_atlas(reho_file, atlas):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas, standardize=True, strategy='mean')
+def fit_reho_atlas(reho_file):
+    schaefer = datasets.fetch_atlas_schaefer_2018(n_rois=300)
+
+    atlas_filename = schaefer.maps  # .nii.gz 파일 경로
+
+    schaefer_masker = NiftiLabelsMasker(labels_img=atlas_filename, standardize=True)
 
     reho_img = image.load_img(reho_file)
 
-    masked_data = shen_atlas.fit_transform([reho_img])
+    masked_data = schaefer_masker.fit_transform([reho_img])
 
     return masked_data
 
 
-def fit_alff_atlas(alff_path, atlas):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=atlas, standardize=True, strategy='mean',
-                                              resampling_target="labels")
+def fit_alff_atlas(alff_path):
+    schaefer = datasets.fetch_atlas_schaefer_2018(n_rois=300)
+
+    atlas_filename = schaefer.maps  # .nii.gz 파일 경로
+
+    schaefer_masker = NiftiLabelsMasker(labels_img=atlas_filename, standardize=True)
 
     alff_img = image.load_img(alff_path)
 
-    masked_data = shen_atlas.fit_transform([alff_img])
+    masked_data = schaefer_masker.fit_transform([alff_img])
+
+    return masked_data
+
+
+def fit_falff_atlas(falff_path):
+    schaefer = datasets.fetch_atlas_schaefer_2018(n_rois=300)
+
+    atlas_filename = schaefer.maps  # .nii.gz 파일 경로
+
+    schaefer_masker = NiftiLabelsMasker(labels_img=atlas_filename, standardize=True)
+
+    falff_img = image.load_img(falff_path)
+
+    masked_data = schaefer_masker.fit_transform([falff_img])
 
     return masked_data
 
@@ -73,5 +86,6 @@ def vector_to_symmetric_matrix(vec, n):
 
 if __name__ == "__main__":
     fit_FC_atlas(path=None)
-    fit_reho_atlas(reho_file=None, atlas=None)
-    fit_alff_atlas(alff_path=None, atlas=None)
+    fit_reho_atlas(reho_file=None)
+    fit_alff_atlas(alff_path=None)
+    fit_falff_atlas(falff_path=None)

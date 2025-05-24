@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 
-data = pd.read_csv('statistic_result_table/NML_bigger_RBD_FC/NML_bigger_RBD_FC_final_0.05.csv')
+data = pd.read_csv('statistic_result_table/Shen_atlas/NML_bigger_RBD_FC/NML_bigger_RBD_FC_final_0.05.csv')
 
 nodes_list = data['Unnamed: 0'].tolist()
 

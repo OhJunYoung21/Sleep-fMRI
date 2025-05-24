@@ -3,8 +3,8 @@ import pandas as pd
 import os
 import numpy as np
 import glob
-from Static_Feature_Extraction.Shen_features.Classification_feature import fit_reho_atlas, fit_alff_atlas, \
-    atlas_path, FC_extraction
+from Static_Feature_Extraction.Shen_features.fit_features_to_atlas import fit_reho_atlas, fit_alff_atlas, \
+    atlas_path, fit_FC_atlas
 from typing import List
 from CPAC import alff
 from sklearn.decomposition import PCA
@@ -56,7 +56,7 @@ def input_fc(files_path: str, data: List):
     files = sorted(files)
 
     for file in files:
-        connectivity = FC_extraction(file)
+        connectivity = fit_FC_atlas(file)
 
         connectivity = np.array(connectivity)[0]
 
@@ -80,7 +80,7 @@ def input_fc_selected(files_path: str, data: List):
     files = sorted(files)
 
     for file in files:
-        connectivity = FC_extraction(file)
+        connectivity = fit_FC_atlas(file)
 
         connectivity = np.array(connectivity)
 
@@ -154,18 +154,17 @@ def input_features(files_path: str, mask_path: str, status: str):
     return
 
 
-def make_reho_shen(file_path: str, data: List):
+def reho_for_data(file_path: str, data: List):
     reho_path = glob.glob(os.path.join(file_path, 'sub-*/results/ReHo.nii.gz'))
 
     for file in reho_path:
-        ##Classification_feature에서 불러온 atlas_path를 매개변수로 넣어준다.
         shen_reho = fit_reho_atlas(file, atlas_path)
         data.append(shen_reho)
     return
 
 
 ### 로컬의 alff폴더에서 파일을 읽어온 후, shen_atlas를 적용하고 ALFF 리스트에 넣어준다.
-def make_alff_shen(file_path: str, data: List):
+def alff_for_data(file_path: str, data: List):
     alff_path = glob.glob(os.path.join(file_path, 'sub-*/results/alff.nii.gz'))
 
     alff_path = sorted(alff_path)
@@ -177,7 +176,7 @@ def make_alff_shen(file_path: str, data: List):
     return
 
 
-def make_falff_shen(file_path: str, data: List):
+def falff_for_data(file_path: str, data: List):
     alff_path = glob.glob(os.path.join(file_path, 'sub-*/results/falff.nii.gz'))
 
     alff_path = sorted(alff_path)
@@ -189,12 +188,12 @@ def make_falff_shen(file_path: str, data: List):
     return
 
 
-'''
+
 result_hc = input_fc(confounds_hc_dir, FC_HC)
 
-make_reho_shen(CPAC_hc, ReHo_HC)
-make_alff_shen(CPAC_hc, ALFF_HC)
-make_falff_shen(CPAC_hc, fALFF_HC)
+fit_reho_atlas(CPAC_hc, ReHo_HC)
+fit_alff_atlas(CPAC_hc, ALFF_HC)
+fit_alff_atlas(CPAC_hc, fALFF_HC)
 
 ReHo_HC = [k.tolist()[0] for k in ReHo_HC]
 ALFF_HC = [k.tolist()[0] for k in ALFF_HC]
@@ -206,13 +205,13 @@ for k in range(len_hc):
     shen_data.loc[k] = [result_hc[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
 shen_data.to_pickle('./NML_shen_data.pkl')
-'''
+
 
 result_rbd = input_fc(confounds_rbd_dir, FC_RBD)
 
-make_reho_shen(CPAC_rbd, ReHo_RBD)
-make_alff_shen(CPAC_rbd, ALFF_RBD)
-make_falff_shen(CPAC_rbd, fALFF_RBD)
+reho_for_data(CPAC_rbd, ReHo_RBD)
+alff_for_data(CPAC_rbd, ALFF_RBD)
+falff_for_data(CPAC_rbd, fALFF_RBD)
 
 ALFF_RBD = [k.tolist()[0] for k in ALFF_RBD]
 fALFF_RBD = [k.tolist()[0] for k in fALFF_RBD]

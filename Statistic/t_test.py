@@ -58,7 +58,7 @@ def local_one_tailed_t_Test(NML_group: list, RBD_group: list):
         return result
 
     data = pd.read_csv(
-        '/Users/oj/PycharmProjects/Sleep-fMRI/Statistic/statistic_result_table/REHO/NML_bigger_than_RBD_0.01.csv')
+        '/Statistic/statistic_result_table/Shen_atlas/REHO/NML_bigger_than_RBD_0.01.csv')
     nodes = pd.read_excel('shen_nodes.xlsx')
 
     nodes_data = nodes[nodes['label'].isin(data['Feature_Index'])]
