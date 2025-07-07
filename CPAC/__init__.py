@@ -41,4 +41,3 @@ and you are welcome to redistribute it under certain conditions. For
 details, see {_docs_prefix()}/license or the COPYING and
 COPYING.LESSER files included in the source code."""
 __all__ = ['license_notice', 'version', '__version__']
-

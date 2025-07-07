@@ -17,18 +17,7 @@ from sklearn.model_selection import RepeatedKFold
 from sklearn.linear_model import LassoCV
 import shap
 
-NML_RBD_pkl = pd.read_pickle('../Statistic/NML_RBD_data.pkl')
-
-
-def modify_p_value(feature_name: str):
-    data = pd.read_csv(
-        f'../Statistic/statistic_result_table/{feature_name}/{feature_name}_result_final_p_value_0.05.csv')
-
-    data = data[data['P-Value'] < 0.01]
-
-    data.to_csv(f'../Statistic/statistic_result_table/{feature_name}/{feature_name}_result_final_p_value_0.01.csv')
-
-    return
+NML_RBD_pkl = pd.read_pickle('../Statistic/statistic_result_table/Shen_atlas_ancova/Data/shen_NML_RBD.pkl')
 
 
 def non_feature_selected_LR(feature_name: str):
@@ -99,9 +88,8 @@ def non_feature_selected_LR(feature_name: str):
     SVM_result['Recall'] = np.round(np.mean(recall_mean), 2)
     SVM_result['F1'] = (np.round(np.mean(f1_score_mean), 2))
 
-    pd.DataFrame(SVM_result, index=[1]).to_excel(f'./Results/LR/Non_feature_selected_LR/LR_{feature_name}_result.xlsx')
-
-    return
+    return pd.DataFrame(SVM_result, index=[1]).to_excel(
+        f'./Results/Shen_parcellation/LR/Non_feature_selected_LR/LR_{feature_name}_result.xlsx')
 
 
 def feature_selected_LR(feature_name: str, p_value: str):
@@ -110,7 +98,7 @@ def feature_selected_LR(feature_name: str, p_value: str):
     precision_mean = []
     recall_mean = []
 
-    SVM_result = {
+    LR_result = {
         'Accuracy': None,
         'Precision': None,
         'Recall': None,
@@ -119,7 +107,7 @@ def feature_selected_LR(feature_name: str, p_value: str):
 
     selected_nodes = \
         pd.read_csv(
-            f'../Statistic/statistic_result_table/{feature_name}/{feature_name}_result_final_p_value_{p_value}.csv')[
+            f'../Statistic/statistic_result_table/Shen_atlas_ancova/{feature_name}/{feature_name}_result_final_p_value_{p_value}.csv')[
             'Feature_Index'] - 1
 
     ### selected_data_1 contains RBD data, selected_data_0 contains NML data
@@ -174,65 +162,18 @@ def feature_selected_LR(feature_name: str, p_value: str):
         precision_mean.append(precision)
         recall_mean.append(recall)
 
-    SVM_result['Accuracy'] = np.round(np.mean(accuracy_score_mean), 2)
-    SVM_result['Precision'] = np.round(np.mean(precision_mean), 2)
-    SVM_result['Recall'] = np.round(np.mean(recall_mean), 2)
-    SVM_result['F1'] = (np.round(np.mean(f1_score_mean), 2))
+    LR_result['Accuracy'] = np.round(np.mean(accuracy_score_mean), 2)
+    LR_result['Precision'] = np.round(np.mean(precision_mean), 2)
+    LR_result['Recall'] = np.round(np.mean(recall_mean), 2)
+    LR_result['F1'] = (np.round(np.mean(f1_score_mean), 2))
 
-    pd.DataFrame(SVM_result, index=[1]).to_excel(
+    pd.DataFrame(LR_result, index=[1]).to_excel(
         f'./Results/LR/Statistic_feature_selected_LR/LR_{feature_name}_result_{p_value}.xlsx')
 
-    return SVM_result
+    return LR_result
 
 
-def seed_based_connectivity(matrix, selected_regions):
-    # 특정 region 간의 연결성 추출
-    connectivity = matrix[0]
-
-    connectivity = connectivity[selected_regions]
-
-    connectivity = connectivity.flatten()
-
-    return connectivity
-
-
-def vectorize_connectivity(matrix):
-    # 특정 region 간의 연결성 추출
-    connectivity = matrix[0]
-
-    # 대칭화
-    connectivity = (connectivity + connectivity.T) / 2
-
-    # 대각선 0 설정
-    np.fill_diagonal(connectivity, 0)
-
-    # 상삼각 행렬 벡터화
-    vectorized_fc = connectivity[np.triu_indices(len(connectivity), k=1)]
-
-    return vectorized_fc
-
-
-def connectivity_between_certain_nodes(matrix, selected_regions):
-    connectivity = matrix[0][np.ix_(selected_regions, selected_regions)]
-
-    # 대칭화
-    connectivity = (connectivity + connectivity.T) / 2
-
-    # 대각선 0 설정
-    np.fill_diagonal(connectivity, 0)
-
-    # 상삼각 행렬 벡터화
-    vectorized_fc = connectivity[np.triu_indices(len(connectivity), k=1)]
-
-    return vectorized_fc
-
-
-def avoid_duplication(nested_list):
-    unique_elements = set()
-    for sublist in nested_list:
-        unique_elements.update(sublist)
-
-    # 집합을 다시 리스트로 변환
-    result = list(unique_elements)
-
-    return result
+non_feature_selected_LR("ALFF")
+non_feature_selected_LR("fALFF")
+non_feature_selected_LR("REHO")
+non_feature_selected_LR("FC")

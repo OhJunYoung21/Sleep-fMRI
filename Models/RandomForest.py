@@ -1,24 +1,11 @@
+import optuna
 import pandas as pd
-import ast
-import os
-from nilearn import plotting
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split, StratifiedKFold
-from sklearn import svm
-from sklearn.metrics import accuracy_score
 import numpy as np
-from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import GridSearchCV, train_test_split
-from sklearn.linear_model import SGDClassifier
-import xgboost as xgb
-from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold, cross_val_score
 from sklearn.model_selection import RepeatedKFold
-from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
-import itertools
-from collections import Counter
 
-NML_RBD_pkl = pd.read_pickle('../Statistic/NML_RBD_data.pkl')
+NML_RBD_pkl = pd.read_pickle('../Statistic/statistic_result_table/Shen_atlas_ancova/Data/shen_NML_RBD.pkl')
 
 accuracy_score_mean = []
 f1_score_mean = []
@@ -57,67 +44,53 @@ def non_feature_selected_RF(feature_name: str):
     selected_data_1 = NML_RBD_pkl.loc[NML_RBD_pkl['STATUS'] == 1, [feature_name, 'STATUS']]
     selected_data_0 = NML_RBD_pkl.loc[NML_RBD_pkl['STATUS'] == 0, [feature_name, 'STATUS']]
 
-    rkf_split_1 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
-    rkf_split_0 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
-
     i = 0
 
-    for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
-            rkf_split_1.split(selected_data_1),
-            rkf_split_0.split(selected_data_0)):
-        # 라벨 1 데이터의 훈련/테스트 분리
-        train_1 = selected_data_1.iloc[train_idx_1]
-        test_1 = selected_data_1.iloc[test_idx_1]
+    full_data = pd.concat([selected_data_0, selected_data_1], axis=0).reset_index(drop=True)
+    X = np.array(full_data[feature_name].tolist())
+    y = full_data['STATUS'].values
 
-        # 라벨 0 데이터의 훈련/테스트 분리
-        train_0 = selected_data_0.iloc[train_idx_0]
-        test_0 = selected_data_0.iloc[test_idx_0]
+    def rf_objective(trial):
+        param = {
+            'n_estimators': trial.suggest_int('n_estimators', 100, 500),
+            'max_depth': trial.suggest_int('max_depth', 5, 30),
+            'max_features': trial.suggest_categorical('max_features', ['sqrt', 'log2']),
+            'min_samples_split': trial.suggest_int('min_samples_split', 2, 10),
+            'min_samples_leaf': trial.suggest_int('min_samples_leaf', 1, 10),
+            'bootstrap': trial.suggest_categorical('bootstrap', [True, False])
+        }
 
-        # 훈련 데이터와 테스트 데이터 결합
+        clf = RandomForestClassifier(**param, random_state=42)
+        score = cross_val_score(clf, X, y, cv=5, scoring='accuracy').mean()
+        return score
 
-        train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
-        test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
+    study = optuna.create_study(direction='maximize')
+    study.optimize(rf_objective, n_trials=30)
 
-        train_data[feature_name] = [item for item in train_data[feature_name]]
-        test_data[feature_name] = [item for item in test_data[feature_name]]
+    best_params = study.best_trial.params
 
-        rf = RandomForestClassifier(n_estimators=100, random_state=42)
+    model = RandomForestClassifier(**best_params)
 
-        rf.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
+    cv = RepeatedKFold(n_splits=10, n_repeats=10, random_state=42)
 
-        y_pred = rf.predict(np.array(test_data[feature_name].tolist()))
+    accuracy_scores = cross_val_score(model, X, y, cv=cv, scoring='accuracy')
+    f1_scores = cross_val_score(model, X, y, cv=cv, scoring='f1')
+    precision_scores = cross_val_score(model, X, y, cv=cv, scoring='precision')
+    recall_scores = cross_val_score(model, X, y, cv=cv, scoring='recall')
 
-        accuracy = accuracy_score(y_pred.tolist(), test_data['STATUS'])
-        precision = precision_score(y_pred.tolist(), test_data['STATUS'])
-        recall = recall_score(y_pred.tolist(), test_data['STATUS'])
-        f1 = f1_score(y_pred.tolist(), test_data['STATUS'])
+    SVM_result['Accuracy'] = np.round(accuracy_scores.mean(), 2)
+    SVM_result['Precision'] = np.round(precision_scores.mean(), 2)
+    SVM_result['Recall'] = np.round(recall_scores.mean(), 2)
+    SVM_result['F1'] = np.round(f1_scores.mean(), 2)
 
-        i += 1
-
-        print(f"{i}th accuracy : {accuracy:.2f}")
-
-        accuracy_score_mean.append(accuracy)
-        f1_score_mean.append(f1)
-        precision_mean.append(precision)
-        recall_mean.append(recall)
-
-    SVM_result['Accuracy'] = np.round(np.mean(accuracy_score_mean), 2)
-    SVM_result['Precision'] = np.round(np.mean(precision_mean), 2)
-    SVM_result['Recall'] = np.round(np.mean(recall_mean), 2)
-    SVM_result['F1'] = (np.round(np.mean(f1_score_mean), 2))
-
-    pd.DataFrame(SVM_result, index=[1]).to_excel(f'./Results/RF/Non_feature_selected_RF/RF_{feature_name}_result.xlsx')
+    pd.DataFrame(SVM_result, index=[1]).to_excel(
+        f'./Results/Shen_parcellation/RF/Non_feature_selected_RF/RF_{feature_name}_result.xlsx')
 
     return
 
 
 def feature_selected_RF(feature_name: str, p_value: str):
-    accuracy_score_mean = []
-    f1_score_mean = []
-    precision_mean = []
-    recall_mean = []
-
-    SVM_result = {
+    RF_result = {
         'Accuracy': None,
         'Precision': None,
         'Recall': None,
@@ -126,7 +99,7 @@ def feature_selected_RF(feature_name: str, p_value: str):
 
     selected_nodes = \
         pd.read_csv(
-            f'../Statistic/statistic_result_table/{feature_name}/{feature_name}_result_final_p_value_{p_value}.csv')[
+            f'../Statistic/statistic_result_table/Shen_atlas_ancova/{feature_name}/{feature_name}_result_{p_value}.csv')[
             'Feature_Index'] - 1
 
     ### selected_data_1 contains RBD data, selected_data_0 contains NML data
@@ -137,67 +110,46 @@ def feature_selected_RF(feature_name: str, p_value: str):
     selected_data_1[feature_name] = selected_data_1[feature_name].apply(lambda x: [x[i] for i in selected_nodes])
     selected_data_0[feature_name] = selected_data_0[feature_name].apply(lambda x: [x[i] for i in selected_nodes])
 
-    rkf_split_1 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
-    rkf_split_0 = RepeatedKFold(n_repeats=10, n_splits=10, random_state=42)
-
     i = 0
 
-    for (train_idx_1, test_idx_1), (train_idx_0, test_idx_0) in zip(
-            rkf_split_1.split(selected_data_1),
-            rkf_split_0.split(selected_data_0)):
-        # 라벨 1 데이터의 훈련/테스트 분리
-        train_1 = selected_data_1.iloc[train_idx_1]
-        test_1 = selected_data_1.iloc[test_idx_1]
+    full_data = pd.concat([selected_data_0, selected_data_1], axis=0).reset_index(drop=True)
+    X = np.array(full_data[feature_name].tolist())
+    y = full_data['STATUS'].values
 
-        # 라벨 0 데이터의 훈련/테스트 분리
-        train_0 = selected_data_0.iloc[train_idx_0]
-        test_0 = selected_data_0.iloc[test_idx_0]
+    def rf_objective(trial):
+        param = {
+            'n_estimators': trial.suggest_int('n_estimators', 100, 500),
+            'max_depth': trial.suggest_int('max_depth', 5, 30),
+            'max_features': trial.suggest_categorical('max_features', ['sqrt', 'log2']),
+            'min_samples_split': trial.suggest_int('min_samples_split', 2, 10),
+            'min_samples_leaf': trial.suggest_int('min_samples_leaf', 1, 10),
+            'bootstrap': trial.suggest_categorical('bootstrap', [True, False])
+        }
 
-        # 훈련 데이터와 테스트 데이터 결합
+        clf = RandomForestClassifier(**param, random_state=42)
+        score = cross_val_score(clf, X, y, cv=5, scoring='accuracy').mean()
+        return score
 
-        train_data = pd.concat([train_1, train_0], axis=0).reset_index(drop=True)
-        test_data = pd.concat([test_1, test_0], axis=0).reset_index(drop=True)
+    study = optuna.create_study(direction='maximize')
+    study.optimize(rf_objective, n_trials=30)
 
-        train_data[feature_name] = [item for item in train_data[feature_name]]
-        test_data[feature_name] = [item for item in test_data[feature_name]]
+    best_params = study.best_trial.params
 
-        rf = RandomForestClassifier(n_estimators=100, random_state=42)
+    model = RandomForestClassifier(**best_params)
 
-        rf.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
+    cv = RepeatedKFold(n_splits=10, n_repeats=10, random_state=42)
 
-        y_pred = rf.predict(np.array(test_data[feature_name].tolist()))
+    accuracy_scores = cross_val_score(model, X, y, cv=cv, scoring='accuracy')
+    f1_scores = cross_val_score(model, X, y, cv=cv, scoring='f1')
+    precision_scores = cross_val_score(model, X, y, cv=cv, scoring='precision')
+    recall_scores = cross_val_score(model, X, y, cv=cv, scoring='recall')
 
-        accuracy = accuracy_score(y_pred.tolist(), test_data['STATUS'])
-        precision = precision_score(y_pred.tolist(), test_data['STATUS'])
-        recall = recall_score(y_pred.tolist(), test_data['STATUS'])
-        f1 = f1_score(y_pred.tolist(), test_data['STATUS'])
+    RF_result['Accuracy'] = np.round(accuracy_scores.mean(), 2)
+    RF_result['Precision'] = np.round(precision_scores.mean(), 2)
+    RF_result['Recall'] = np.round(recall_scores.mean(), 2)
+    RF_result['F1'] = np.round(f1_scores.mean(), 2)
 
-        i += 1
+    pd.DataFrame(RF_result, index=[1]).to_excel(
+        f'./Results/Shen_parcellation/RF/feature_selected_RF/{feature_name}/RF_{feature_name}_result_{p_value}.xlsx')
 
-        print(f"{i}th accuracy : {accuracy:.2f}")
-
-        accuracy_score_mean.append(accuracy)
-        f1_score_mean.append(f1)
-        precision_mean.append(precision)
-        recall_mean.append(recall)
-
-    SVM_result['Accuracy'] = np.round(np.mean(accuracy_score_mean), 2)
-    SVM_result['Precision'] = np.round(np.mean(precision_mean), 2)
-    SVM_result['Recall'] = np.round(np.mean(recall_mean), 2)
-    SVM_result['F1'] = (np.round(np.mean(f1_score_mean), 2))
-
-    pd.DataFrame(SVM_result, index=[1]).to_excel(
-        f'./Results/RF/Statistic_feature_selected_RF/RF_{feature_name}_result_{p_value}.xlsx')
-
-    return SVM_result
-
-
-feature_selected_RF("ALFF", "0.05")
-feature_selected_RF("ALFF", "0.01")
-feature_selected_RF("fALFF", "0.05")
-feature_selected_RF("fALFF", "0.01")
-feature_selected_RF("REHO", "0.05")
-feature_selected_RF("REHO", "0.01")
-feature_selected_RF("FC", "0.05")
-feature_selected_RF("FC", "0.01")
-feature_selected_RF("FC", "0.001")
+    return RF_result

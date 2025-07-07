@@ -3,8 +3,8 @@ import pandas as pd
 import os
 import numpy as np
 import glob
-from Static_Feature_Extraction.Shen_features.fit_features_to_atlas import fit_reho_atlas, fit_alff_atlas, \
-    atlas_path, fit_FC_atlas
+from Static_Feature_Extraction.Shen_features.fit_features_to_atlas import reho_for_shen, alff_for_shen, falff_for_shen, \
+    FC_for_shen
 from typing import List
 from CPAC import alff
 from sklearn.decomposition import PCA
@@ -37,14 +37,14 @@ fALFF_HC = []
 root_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_classification/RBD_PET_positive_regressed'
 '''
 
-confounds_hc_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_confound_regressed'
-mask_hc_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_mask'
+confounds_hc_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_confound_regressed_res_2'
+mask_hc_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_mask_res_2'
 
-confounds_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_confound_regressed'
-mask_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_mask'
+confounds_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_confound_regressed_res_2'
+mask_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_mask_res_2'
 
-CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/NML'
-CPAC_rbd = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD'
+CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/NML_res_2'
+CPAC_rbd = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD_res_2'
 
 
 ### CPAC에서는 mask파일이 있어야 alff,falff 그리고 reho와 같은 feature들을 추출해낼 수 있다.
@@ -56,7 +56,7 @@ def input_fc(files_path: str, data: List):
     files = sorted(files)
 
     for file in files:
-        connectivity = fit_FC_atlas(file)
+        connectivity = FC_for_shen(file)
 
         connectivity = np.array(connectivity)[0]
 
@@ -80,7 +80,7 @@ def input_fc_selected(files_path: str, data: List):
     files = sorted(files)
 
     for file in files:
-        connectivity = fit_FC_atlas(file)
+        connectivity = FC_for_shen(file)
 
         connectivity = np.array(connectivity)
 
@@ -146,7 +146,7 @@ def input_features(files_path: str, mask_path: str, status: str):
         if match:
             extracted_part = match.group(1)
 
-        output_path = os.path.join(f'/Users/oj/Desktop/Yoo_Lab/CPAC/{status}/sub-{extracted_part}')
+        output_path = os.path.join(f'/Users/oj/Desktop/Yoo_Lab/CPAC/{status}_res_2/sub-{extracted_part}')
 
         static_measures(fmri_files[idx], mask_files[idx], output_path,
                         nClusterSize=27, nJobs=1)
@@ -158,7 +158,7 @@ def reho_for_data(file_path: str, data: List):
     reho_path = glob.glob(os.path.join(file_path, 'sub-*/results/ReHo.nii.gz'))
 
     for file in reho_path:
-        shen_reho = fit_reho_atlas(file, atlas_path)
+        shen_reho = reho_for_shen(file)
         data.append(shen_reho)
     return
 
@@ -171,7 +171,7 @@ def alff_for_data(file_path: str, data: List):
 
     for file in alff_path:
         ## region_alff_average는 268개의 alff값들을 반환한다.
-        shen_alff = fit_alff_atlas(file, atlas_path)
+        shen_alff = falff_for_shen(file)
         data.append(shen_alff)
     return
 
@@ -182,18 +182,17 @@ def falff_for_data(file_path: str, data: List):
     alff_path = sorted(alff_path)
 
     for file in alff_path:
-        ##Classification_feature에서 불러온 atlas_path를 매개변수로 넣어준다.
-        shen_alff = fit_alff_atlas(file, atlas_path)
+        shen_alff = falff_for_shen(file)
         data.append(shen_alff)
     return
 
 
-
+'''
 result_hc = input_fc(confounds_hc_dir, FC_HC)
 
-fit_reho_atlas(CPAC_hc, ReHo_HC)
-fit_alff_atlas(CPAC_hc, ALFF_HC)
-fit_alff_atlas(CPAC_hc, fALFF_HC)
+reho_for_data(CPAC_hc, ReHo_HC)
+alff_for_data(CPAC_hc, ALFF_HC)
+falff_for_data(CPAC_hc, fALFF_HC)
 
 ReHo_HC = [k.tolist()[0] for k in ReHo_HC]
 ALFF_HC = [k.tolist()[0] for k in ALFF_HC]
@@ -206,7 +205,7 @@ for k in range(len_hc):
 
 shen_data.to_pickle('./NML_shen_data.pkl')
 
-
+'''
 result_rbd = input_fc(confounds_rbd_dir, FC_RBD)
 
 reho_for_data(CPAC_rbd, ReHo_RBD)
