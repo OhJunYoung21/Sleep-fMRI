@@ -3,11 +3,6 @@ import pandas as pd
 from nilearn import datasets
 from nilearn.maskers import NiftiMapsMasker
 from nilearn.connectome import ConnectivityMeasure
-from nilearn import plotting
-from nilearn import datasets
-import os
-import nibabel as nib
-from nilearn import masking
 from nilearn import image
 from nilearn import input_data
 from nipype.interfaces import afni
@@ -26,11 +21,14 @@ shen = image.load_img(atlas_path)
 
 
 def FC_for_shen(path):
-    shen_masker = input_data.NiftiLabelsMasker(labels_img=shen, standardize=True, strategy='mean',
+    shen_masker = input_data.NiftiLabelsMasker(labels_img=shen, standardize=True, strategy='mean', low_pass=0.1,
+                                               high_pass=0.01, t_r=3,
                                                resampling_target="labels")
     data = image.load_img(path)
 
     time_series = shen_masker.fit_transform(data)
+
+    print(time_series.shape)
 
     correlation_measure = ConnectivityMeasure(kind='correlation')
     correlation_matrix = correlation_measure.fit_transform([time_series])
