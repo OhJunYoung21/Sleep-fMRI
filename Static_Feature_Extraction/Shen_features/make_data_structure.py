@@ -33,14 +33,17 @@ FC_prior_HC = []
 ALFF_HC = []
 fALFF_HC = []
 
+sample_mat = pd.DataFrame(index=None)
+sample_mat['FC'] = None
+
 '''
 root_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_classification/RBD_PET_positive_regressed'
 '''
 
-confounds_hc_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_confound_regressed_res_2'
+confounds_hc_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_confound_regressed_res_2_18_parameters'
 mask_hc_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_mask_res_2'
 
-confounds_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_confound_regressed_res_2'
+confounds_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_confound_regressed_res_2_18_parameters'
 mask_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_mask_res_2'
 
 CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/NML_res_2'
@@ -62,14 +65,15 @@ def input_fc(files_path: str, data: List):
 
         '''
         connectivity = (connectivity + connectivity.T) / 2  # 대칭화
-        '''
+        
 
         np.fill_diagonal(connectivity
                          , 0)
 
         vectorized_fc = connectivity[np.tril_indices(268, k=-1)]
+        '''
 
-        data.append(vectorized_fc)
+        data.append(connectivity)
 
     return data
 
@@ -187,7 +191,6 @@ def falff_for_data(file_path: str, data: List):
     return
 
 
-'''
 result_hc = input_fc(confounds_hc_dir, FC_HC)
 
 reho_for_data(CPAC_hc, ReHo_HC)
@@ -198,14 +201,9 @@ ReHo_HC = [k.tolist()[0] for k in ReHo_HC]
 ALFF_HC = [k.tolist()[0] for k in ALFF_HC]
 fALFF_HC = [k.tolist()[0] for k in fALFF_HC]
 
-len_hc = len(result_hc)
-
-for k in range(len_hc):
+for k in range(len(result_hc)):
     shen_data.loc[k] = [result_hc[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-shen_data.to_pickle('./NML_shen_data.pkl')
-
-'''
 result_rbd = input_fc(confounds_rbd_dir, FC_RBD)
 
 reho_for_data(CPAC_rbd, ReHo_RBD)
@@ -216,10 +214,5 @@ ALFF_RBD = [k.tolist()[0] for k in ALFF_RBD]
 fALFF_RBD = [k.tolist()[0] for k in fALFF_RBD]
 ReHo_RBD = [k.tolist()[0] for k in ReHo_RBD]
 
-len_rbd = len(result_rbd)
-
-for j in range(len_rbd):
-    shen_data.loc[j] = [result_rbd[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
-
-### shen_data에서 각행의 alff,falff,reho값은 268 size의 리스트 혹은 numpy 로 구성되어 있다.
-shen_data.to_pickle('./RBD_shen_data.pkl')
+for j in range(len(result_rbd)):
+    shen_data.loc[len(result_hc) + j] = [result_rbd[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]

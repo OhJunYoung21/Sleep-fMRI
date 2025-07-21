@@ -2,12 +2,12 @@ import os
 import glob
 import shutil
 
-base_dir = "/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_post_prep_res_2"  # 여기에 대상 디렉토리 경로 입력
+base_dir = "/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_post_prep_res_2"  # 여기에 대상 디렉토리 경로 입력
 
 # 'sub-*' 패턴을 가진 폴더 찾기
 sub_dirs = sorted(glob.glob(os.path.join(base_dir, "sub-*", "func")))
 
-target_path = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_mask_res_2'
+target_path = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_mask_res_2'
 
 for sub_dir in sub_dirs:
     # 'desc_brain_mask' 파일 경로 찾기
