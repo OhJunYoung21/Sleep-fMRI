@@ -5,7 +5,7 @@ import pandas as pd
 from nilearn.image import clean_img
 import re
 
-root_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_post_prep_res_2'
+root_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_post_prep_res_2'
 
 # 전처리가 끝난 fMRI 파일과 fMRIprep이 제공한 confound파일을 읽어온다.
 
@@ -61,8 +61,8 @@ for index in range(len(fMRI_img)):
         'trans_x_derivative1', 'trans_y_derivative1', 'trans_z_derivative1',
         'rot_x_derivative1', 'rot_y_derivative1', 'rot_z_derivative1',
         'global_signal_derivative1', 'csf_derivative1', 'white_matter_derivative1'
-    ]],
+    ]], low_pass=0.1, high_pass=0.01, t_r=3,
                               detrend=True, standardize=True)
 
     cleaned_image.to_filename(
-        f"/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_confound_regressed_res_2_18_parameters/sub-{subject_number}_confounds_regressed.nii.gz")
+        f"/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_confound_regressed_res_2_18_parameters/sub-{subject_number}_confounds_regressed.nii.gz")

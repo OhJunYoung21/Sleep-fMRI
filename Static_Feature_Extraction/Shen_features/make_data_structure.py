@@ -33,24 +33,14 @@ FC_prior_HC = []
 ALFF_HC = []
 fALFF_HC = []
 
-sample_mat = pd.DataFrame(index=None)
-sample_mat['FC'] = None
-
-'''
-root_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_PET_classification/RBD_PET_positive_regressed'
-'''
-
 confounds_hc_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_confound_regressed_res_2_18_parameters'
 mask_hc_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_mask_res_2'
 
 confounds_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_confound_regressed_res_2_18_parameters'
 mask_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_mask_res_2'
 
-CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/NML_res_2'
+CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/HC_res_2'
 CPAC_rbd = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD_res_2'
-
-
-### CPAC에서는 mask파일이 있어야 alff,falff 그리고 reho와 같은 feature들을 추출해낼 수 있다.
 
 
 def input_fc(files_path: str, data: List):
@@ -63,19 +53,16 @@ def input_fc(files_path: str, data: List):
 
         connectivity = np.array(connectivity)[0]
 
-        '''
         connectivity = (connectivity + connectivity.T) / 2  # 대칭화
-        
 
         np.fill_diagonal(connectivity
                          , 0)
 
         vectorized_fc = connectivity[np.tril_indices(268, k=-1)]
-        '''
 
-        data.append(connectivity)
+        data.append(vectorized_fc)
 
-    return data
+    return data, print("FC complete!!!")
 
 
 def input_fc_selected(files_path: str, data: List):
@@ -158,6 +145,9 @@ def input_features(files_path: str, mask_path: str, status: str):
     return
 
 
+input_features(confounds_rbd_dir, mask_rbd_dir, "RBD")
+
+
 def reho_for_data(file_path: str, data: List):
     reho_path = glob.glob(os.path.join(file_path, 'sub-*/results/ReHo.nii.gz'))
 
@@ -167,7 +157,6 @@ def reho_for_data(file_path: str, data: List):
     return
 
 
-### 로컬의 alff폴더에서 파일을 읽어온 후, shen_atlas를 적용하고 ALFF 리스트에 넣어준다.
 def alff_for_data(file_path: str, data: List):
     alff_path = glob.glob(os.path.join(file_path, 'sub-*/results/alff.nii.gz'))
 
@@ -191,6 +180,7 @@ def falff_for_data(file_path: str, data: List):
     return
 
 
+'''
 result_hc = input_fc(confounds_hc_dir, FC_HC)
 
 reho_for_data(CPAC_hc, ReHo_HC)
@@ -200,6 +190,8 @@ falff_for_data(CPAC_hc, fALFF_HC)
 ReHo_HC = [k.tolist()[0] for k in ReHo_HC]
 ALFF_HC = [k.tolist()[0] for k in ALFF_HC]
 fALFF_HC = [k.tolist()[0] for k in fALFF_HC]
+
+print(len(ReHo_HC), len(ALFF_HC))
 
 for k in range(len(result_hc)):
     shen_data.loc[k] = [result_hc[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
@@ -216,3 +208,4 @@ ReHo_RBD = [k.tolist()[0] for k in ReHo_RBD]
 
 for j in range(len(result_rbd)):
     shen_data.loc[len(result_hc) + j] = [result_rbd[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
+'''

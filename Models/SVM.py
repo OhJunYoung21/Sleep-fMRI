@@ -35,11 +35,6 @@ def modify_p_value(feature_name: str):
 
 
 def non_feature_selected_SVM(feature_name: str):
-    accuracy_score_mean = []
-    f1_score_mean = []
-    precision_mean = []
-    recall_mean = []
-
     SVM_result = {
         'Accuracy': None,
         'Precision': None,

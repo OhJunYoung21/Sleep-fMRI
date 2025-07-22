@@ -18,8 +18,7 @@ shen = image.load_img(atlas_path)
 
 
 def FC_for_shen(path):
-    shen_masker = input_data.NiftiLabelsMasker(labels_img=shen, strategy='mean', low_pass=0.1,
-                                               high_pass=0.01, t_r=3,
+    shen_masker = input_data.NiftiLabelsMasker(labels_img=shen, strategy='mean',
                                                resampling_target="labels")
     data = image.load_img(path)
 
@@ -34,8 +33,7 @@ def FC_for_shen(path):
 ### fit_feature_atlas : convert voxel unit data into region unit data
 
 def reho_for_shen(reho_path):
-    shen_masker = input_data.NiftiLabelsMasker(labels_img=shen, strategy='mean', low_pass=0.1,
-                                               high_pass=0.01, t_r=3,
+    shen_masker = input_data.NiftiLabelsMasker(labels_img=shen, strategy='mean',
                                                resampling_target="labels")
 
     reho_img = image.load_img(reho_path)
@@ -46,8 +44,7 @@ def reho_for_shen(reho_path):
 
 
 def alff_for_shen(alff_path):
-    shen_masker = input_data.NiftiLabelsMasker(labels_img=shen, strategy='mean', low_pass=0.1,
-                                               high_pass=0.01, t_r=3,
+    shen_masker = input_data.NiftiLabelsMasker(labels_img=shen, strategy='mean',
                                                resampling_target="labels")
 
     alff_img = image.load_img(alff_path)
@@ -58,8 +55,7 @@ def alff_for_shen(alff_path):
 
 
 def falff_for_shen(falff_path):
-    shen_atlas = input_data.NiftiLabelsMasker(labels_img=shen, strategy='mean', low_pass=0.1,
-                                              high_pass=0.01, t_r=3,
+    shen_atlas = input_data.NiftiLabelsMasker(labels_img=shen, strategy='mean',
                                               resampling_target="labels")
 
     falff_img = image.load_img(falff_path)
@@ -77,8 +73,10 @@ def vector_to_symmetric_matrix(vec, n):
     return mat
 
 
+'''
 if __name__ == "__main__":
     FC_for_shen(path=None)
     reho_for_shen(reho_path=None)
     alff_for_shen(alff_path=None)
     falff_for_shen(falff_path=None)
+'''
