@@ -14,7 +14,13 @@ nodes_df = pd.DataFrame()
 nodes_df['x'] = x_coordinate.tolist()
 nodes_df['y'] = y_coordinate.tolist()
 nodes_df['z'] = z_coordinate.tolist()
-nodes_df['communities'] = shen_nodes_coordinates['label'].tolist()
+nodes_df['communities'] = shen_nodes_coordinates['colors']
 
-fig = netplotbrain.plot(nodes=nodes_df, arrowaxis=None)[0]
+fig = netplotbrain.plot(template='MNI152NLin2009cAsym',
+                        template_style='surface',
+                        template_voxelsize=3,
+                        nodes=nodes_df,
+                        nodes_color=nodes_df['communities'],
+                        nodes_scale=10,
+                        arrowaxis=None)[0]
 fig.show()
