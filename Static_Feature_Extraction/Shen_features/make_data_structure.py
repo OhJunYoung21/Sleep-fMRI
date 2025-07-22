@@ -15,7 +15,6 @@ atlas_path = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
 
 shen_data = pd.DataFrame(index=None)
 
-shen_data['FC'] = None
 shen_data['ALFF'] = None
 shen_data['REHO'] = None
 shen_data['fALFF'] = None
@@ -145,15 +144,13 @@ def input_features(files_path: str, mask_path: str, status: str):
     return
 
 
-input_features(confounds_rbd_dir, mask_rbd_dir, "RBD")
-
-
 def reho_for_data(file_path: str, data: List):
     reho_path = glob.glob(os.path.join(file_path, 'sub-*/results/ReHo.nii.gz'))
 
     for file in reho_path:
         shen_reho = reho_for_shen(file)
         data.append(shen_reho)
+        print('continuing...')
     return
 
 
@@ -182,30 +179,36 @@ def falff_for_data(file_path: str, data: List):
 
 '''
 result_hc = input_fc(confounds_hc_dir, FC_HC)
+'''
 
 reho_for_data(CPAC_hc, ReHo_HC)
 alff_for_data(CPAC_hc, ALFF_HC)
 falff_for_data(CPAC_hc, fALFF_HC)
 
+print(len(ReHo_HC))
+
 ReHo_HC = [k.tolist()[0] for k in ReHo_HC]
 ALFF_HC = [k.tolist()[0] for k in ALFF_HC]
 fALFF_HC = [k.tolist()[0] for k in fALFF_HC]
 
-print(len(ReHo_HC), len(ALFF_HC))
+for k in range(len(ReHo_HC)):
+    shen_data.loc[k] = [ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
 
-for k in range(len(result_hc)):
-    shen_data.loc[k] = [result_hc[k], ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
-
+'''
 result_rbd = input_fc(confounds_rbd_dir, FC_RBD)
+'''
 
 reho_for_data(CPAC_rbd, ReHo_RBD)
 alff_for_data(CPAC_rbd, ALFF_RBD)
 falff_for_data(CPAC_rbd, fALFF_RBD)
 
+print(len(ReHo_RBD))
+
 ALFF_RBD = [k.tolist()[0] for k in ALFF_RBD]
 fALFF_RBD = [k.tolist()[0] for k in fALFF_RBD]
 ReHo_RBD = [k.tolist()[0] for k in ReHo_RBD]
 
-for j in range(len(result_rbd)):
-    shen_data.loc[len(result_hc) + j] = [result_rbd[j], ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
-'''
+for j in range(len(ReHo_RBD)):
+    shen_data.loc[len(ReHo_HC) + j] = [ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
+
+shen_data.to_pickle('./shen_HC_RBD_18_parameters.pkl')

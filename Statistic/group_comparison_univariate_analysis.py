@@ -7,7 +7,14 @@ import statsmodels.formula.api as smf
 from statsmodels.stats.multitest import multipletests
 
 Final_data = pd.read_pickle(
-    '/Users/oj/PycharmProjects/Sleep-fMRI/Statistic/statistic_result_table/Shen_atlas_ancova/Data/shen_NML_RBD.pkl')
+    '/Users/oj/PycharmProjects/Sleep-fMRI/Static_Feature_Extraction/Shen_features/shen_RBD_HC_18_parameters.pkl')
+
+
+def lower_triangle_vector(mat):
+    return mat[np.tril_indices_from(mat, k=-1)]
+
+
+Final_data['FC_vectorized'] = Final_data['FC'].apply(lower_triangle_vector)
 
 
 def originate_FC(low_tril: list):
@@ -123,35 +130,32 @@ def ANCOVA_test(feature_name: str):
 def ANCOVA_test_FDR_bh(feature_name: str):
     X = np.array(Final_data[feature_name].tolist())  # shape: [n_subjects, 35778]
 
-    if feature_name == "FC":
-        n_edges = 35778
-    else:
-        n_edges = 268
+    n_features = 35778
 
-    t_obs = np.zeros(n_edges)
+    t_obs = np.zeros(n_features)
     p_values = []
     group_vec = Final_data['STATUS'].values
     sex_vec = Final_data['sex'].values
     age_vec = Final_data['age'].values
 
-    for i in range(n_edges):
-        edge_feature = X[:, i]
+    for i in range(n_features):
+        node_feature = X[:, i]
         df = pd.DataFrame({
             'group': group_vec,
             'sex': sex_vec,
             'age': age_vec,
-            'edge': edge_feature
+            'node': node_feature
         })
 
-        model = smf.ols('edge ~ group + sex + age', data=df).fit()
+        model = smf.ols('node ~ group + sex + age', data=df).fit()
         t_obs[i] = model.tvalues['group']
         p_values.append(model.pvalues['group'])
 
     rejected, pvals_corrected, _, _ = multipletests(p_values, alpha=0.05, method='fdr_bh')
 
-    print(np.where(rejected == False))
+    result = list(np.where(rejected & (t_obs < 0)))
 
-    return
+    return result
 
 
 def compute_tfnbs_from_tmatrix(t_matrix, E=0.5, H=1.0):
@@ -250,15 +254,20 @@ def TFNBS_permutation(feature_name: str):
     return
 
 
-X = np.array(Final_data["FC"].tolist())  # shape: [n_subjects, 35778]
-seeds = 5000
+edges = ANCOVA_test_FDR_bh('FC_vectorized')[0]
 
-group_vec = Final_data['STATUS'].values
-sex_vec = Final_data['sex'].values
-age_vec = Final_data['age'].values
+print(edges)
 
-t_null_distribution = Parallel(n_jobs=-1)(
-    delayed(perm_single_TFNBS_run)(seed, X, group_vec, sex_vec, age_vec) for seed in range(seeds)
-)
+'''
+template_data = pd.read_excel(
+    '/Users/oj/PycharmProjects/Sleep-fMRI/Statistic/BrainNetViewer/shen_nodes_Broamann_label.xlsx')
 
-print(t_null_distribution.shape)
+template_data = template_data.iloc[nodes, :]
+
+template_data.drop(columns=['label'], inplace=True)
+
+template_data.to_csv(
+    '/Users/oj/Desktop/BrainNetViewer/Data/ExampleFiles/Shen268/Nodes/ANCOVA_analysis/RBD_hypo_connectivity/ALFF_nodes.node',
+    sep='\t',
+    index=False, header=False)
+'''
