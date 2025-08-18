@@ -6,7 +6,7 @@ import re
 import numpy as np
 import json
 
-root_dir = "/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_negative_post_BIDS"
+root_dir = "/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_post_BIDS"
 
 
 def generate_slice_timing(n_slices, tr):
@@ -44,6 +44,7 @@ def generate_slice_timing(n_slices, tr):
     slice_timings = {N: [round((x - 1) * tr / N, 4) for x in order] for N, order in slice_orders.items()}
 
     return slice_timings[n_slices]
+
 
 test_file_nifti = glob.glob(os.path.join(root_dir, 'sub-*', 'func',
                                          'sub-*_task-BRAINMRINONCONTRASTDIFFUSION_acq-AxialfMRIrest_bold.nii.gz')) + glob.glob(

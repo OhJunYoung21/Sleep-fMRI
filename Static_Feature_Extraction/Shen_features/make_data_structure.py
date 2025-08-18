@@ -15,8 +15,8 @@ atlas_path = '/Users/oj/Desktop/Yoo_Lab/atlas/shen_2mm_268_parcellation.nii'
 
 shen_data = pd.DataFrame(index=None)
 
-shen_data['ALFF'] = None
 shen_data['REHO'] = None
+shen_data['ALFF'] = None
 shen_data['fALFF'] = None
 shen_data['STATUS'] = None
 
@@ -26,11 +26,11 @@ FC_prior_RBD = []
 ALFF_RBD = []
 fALFF_RBD = []
 
-ReHo_HC = []
+ReHo_NML = []
 FC_HC = []
 FC_prior_HC = []
-ALFF_HC = []
-fALFF_HC = []
+ALFF_NML = []
+fALFF_NML = []
 
 confounds_hc_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_confound_regressed_res_2_18_parameters'
 mask_hc_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_mask_res_2'
@@ -38,7 +38,7 @@ mask_hc_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/NML_mask_res_2'
 confounds_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_confound_regressed_res_2_18_parameters'
 mask_rbd_dir = '/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_mask_res_2'
 
-CPAC_hc = '/Users/oj/Desktop/Yoo_Lab/CPAC/HC_res_2'
+CPAC_NML = '/Users/oj/Desktop/Yoo_Lab/CPAC/NML_res_2'
 CPAC_rbd = '/Users/oj/Desktop/Yoo_Lab/CPAC/RBD_res_2'
 
 
@@ -48,18 +48,18 @@ def input_fc(files_path: str, data: List):
     files = sorted(files)
 
     for file in files:
+        print('FC in progress...')
+
         connectivity = FC_for_shen(file)
 
         connectivity = np.array(connectivity)[0]
 
-        connectivity = (connectivity + connectivity.T) / 2  # 대칭화
-
         np.fill_diagonal(connectivity
                          , 0)
 
-        vectorized_fc = connectivity[np.tril_indices(268, k=-1)]
+        print(connectivity.shape)
 
-        data.append(vectorized_fc)
+        data.append(connectivity)
 
     return data, print("FC complete!!!")
 
@@ -177,38 +177,26 @@ def falff_for_data(file_path: str, data: List):
     return
 
 
-'''
-result_hc = input_fc(confounds_hc_dir, FC_HC)
-'''
+reho_for_data(CPAC_NML, ReHo_NML)
+alff_for_data(CPAC_NML, ALFF_NML)
+falff_for_data(CPAC_NML, fALFF_NML)
 
-reho_for_data(CPAC_hc, ReHo_HC)
-alff_for_data(CPAC_hc, ALFF_HC)
-falff_for_data(CPAC_hc, fALFF_HC)
+ReHo_NML = [k.tolist()[0] for k in ReHo_NML]
+ALFF_NML = [k.tolist()[0] for k in ALFF_NML]
+fALFF_NML = [k.tolist()[0] for k in fALFF_NML]
 
-print(len(ReHo_HC))
-
-ReHo_HC = [k.tolist()[0] for k in ReHo_HC]
-ALFF_HC = [k.tolist()[0] for k in ALFF_HC]
-fALFF_HC = [k.tolist()[0] for k in fALFF_HC]
-
-for k in range(len(ReHo_HC)):
-    shen_data.loc[k] = [ALFF_HC[k], ReHo_HC[k], fALFF_HC[k], 0]
-
-'''
-result_rbd = input_fc(confounds_rbd_dir, FC_RBD)
-'''
+for k in range(len(ReHo_NML)):
+    shen_data.loc[k] = [ReHo_NML[k], ALFF_NML[k], fALFF_NML[k], 0]
 
 reho_for_data(CPAC_rbd, ReHo_RBD)
 alff_for_data(CPAC_rbd, ALFF_RBD)
 falff_for_data(CPAC_rbd, fALFF_RBD)
 
-print(len(ReHo_RBD))
-
 ALFF_RBD = [k.tolist()[0] for k in ALFF_RBD]
 fALFF_RBD = [k.tolist()[0] for k in fALFF_RBD]
 ReHo_RBD = [k.tolist()[0] for k in ReHo_RBD]
 
-for j in range(len(ReHo_RBD)):
-    shen_data.loc[len(ReHo_HC) + j] = [ALFF_RBD[j], ReHo_RBD[j], fALFF_RBD[j], 1]
+for j in range(len(ALFF_RBD)):
+    shen_data.loc[len(ReHo_NML) + j] = [ReHo_RBD[j], ALFF_RBD[j], fALFF_RBD[j], 1]
 
-shen_data.to_pickle('./shen_HC_RBD_18_parameters.pkl')
+shen_data.to_pickle('./shen_HC_RBD_18_parameters_local.pkl')

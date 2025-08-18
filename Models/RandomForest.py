@@ -5,13 +5,15 @@ import numpy as np
 from sklearn.model_selection import KFold, cross_val_score
 from sklearn.model_selection import RepeatedKFold
 
-NML_RBD_pkl = pd.read_pickle('../Statistic/statistic_result_table/Shen_atlas_ancova/Data/shen_NML_RBD.pkl')
+NML_RBD_pkl = pd.read_pickle(
+    '/Users/oj/PycharmProjects/Sleep-fMRI/Static_Feature_Extraction/Shen_features/shen_RBD_HC_18_parameters.pkl')
 
-accuracy_score_mean = []
-f1_score_mean = []
-precision_mean = []
-recall_mean = []
-feature_difference = []
+
+def lower_triangle_vector(mat):
+    return mat[np.tril_indices_from(mat, k=-1)]
+
+
+NML_RBD_pkl['FC'] = NML_RBD_pkl['FC'].apply(lower_triangle_vector)
 
 
 def avoid_duplication(nested_list):
@@ -153,3 +155,6 @@ def feature_selected_RF(feature_name: str, p_value: str):
         f'./Results/Shen_parcellation/RF/feature_selected_RF/{feature_name}/RF_{feature_name}_result_{p_value}.xlsx')
 
     return RF_result
+
+
+feature_selected_RF("FC", '0.05')

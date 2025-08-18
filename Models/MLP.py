@@ -13,7 +13,15 @@ from sklearn.neural_network import MLPClassifier
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-NML_RBD_pkl = pd.read_pickle('../Statistic/statistic_result_table/Shen_atlas_ancova/Data/shen_NML_RBD.pkl')
+NML_RBD_pkl = pd.read_pickle(
+    '/Users/oj/PycharmProjects/Sleep-fMRI/Static_Feature_Extraction/Shen_features/shen_RBD_HC_18_parameters.pkl')
+
+
+def lower_triangle_vector(mat):
+    return mat[np.tril_indices_from(mat, k=-1)]
+
+
+NML_RBD_pkl['FC'] = NML_RBD_pkl['FC'].apply(lower_triangle_vector)
 
 
 def feature_selected_MLP(feature_name: str, p_value: str):
@@ -27,7 +35,7 @@ def feature_selected_MLP(feature_name: str, p_value: str):
     selected_nodes = \
         pd.read_csv(
             f'../Statistic/statistic_result_table/Shen_atlas_ancova/{feature_name}/{feature_name}_result_{p_value}.csv')[
-            'Feature_Index'] - 1
+            'Feature_Index']
 
     ### selected_data_1 contains RBD data, selected_data_0 contains NML data
 
@@ -82,7 +90,8 @@ def feature_selected_MLP(feature_name: str, p_value: str):
     result['Recall'] = np.round(recall_scores.mean(), 2)
     result['F1'] = np.round(f1_scores.mean(), 2)
 
-    return result
+    return pd.DataFrame(result, index=[1]).to_excel(
+        f'./Results/Shen_parcellation/MLP/feature_selected_MLP/{feature_name}/MLP_{feature_name}_0.05_result.xlsx')
 
 
 def non_feature_selected_MLP(feature_name: str):
@@ -123,6 +132,11 @@ def non_feature_selected_MLP(feature_name: str):
     result['F1'] = np.round(f1_scores.mean(), 2)
 
     pd.DataFrame(result, index=[1]).to_excel(
-        f'./Results/Shen_parcellation/MLP/feature_selected_MLP/{feature_name}/MLP_{feature_name}_result.xlsx')
+        f'./Results/Shen_parcellation/MLP/Non_feature_selected_MLP/{feature_name}/MLP_{feature_name}_result.xlsx')
 
     return
+
+
+feature_selected_MLP("fALFF", '0.05')
+feature_selected_MLP("ALFF", '0.05')
+feature_selected_MLP("FC", '0.05')

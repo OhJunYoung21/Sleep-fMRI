@@ -20,7 +20,15 @@ from collections import Counter
 
 from sklearn.svm import SVC
 
-NML_RBD_pkl = pd.read_pickle('../Statistic/statistic_result_table/Shen_atlas_ancova/Data/shen_NML_RBD.pkl')
+PET_pkl = pd.read_pickle(
+    '/Users/oj/PycharmProjects/Sleep-fMRI/Statistic/statistic_result_table/Shen_atlas_ancova/Data/shen_PET.pkl')
+
+
+def lower_triangle_vector(mat):
+    return mat[np.tril_indices_from(mat, k=-1)]
+
+
+PET_pkl['FC'] = PET_pkl['FC'].apply(lower_triangle_vector)
 
 
 def modify_p_value(feature_name: str):
@@ -44,16 +52,14 @@ def non_feature_selected_SVM(feature_name: str):
 
     ### selected_data_1 contains RBD data, selected_data_0 contains NML data
 
-    selected_data_1 = NML_RBD_pkl.loc[NML_RBD_pkl['STATUS'] == 1, [feature_name, 'STATUS']]
-    selected_data_0 = NML_RBD_pkl.loc[NML_RBD_pkl['STATUS'] == 0, [feature_name, 'STATUS']]
-
-    i = 0
+    selected_data_1 = PET_pkl.loc[PET_pkl['STATUS'] == 1, [feature_name, 'STATUS']]
+    selected_data_0 = PET_pkl.loc[PET_pkl['STATUS'] == 0, [feature_name, 'STATUS']]
 
     full_data = pd.concat([selected_data_0, selected_data_1], axis=0).reset_index(drop=True)
     X = np.array(full_data[feature_name].tolist())
     y = full_data['STATUS'].values
 
-    model = svm.SVC(kernel='rbf', C=1, probability=True)
+    model = svm.SVC(kernel='linear', C=1, probability=True, class_weight='balanced')
 
     cv = RepeatedKFold(n_splits=10, n_repeats=10, random_state=42)
 
@@ -68,7 +74,7 @@ def non_feature_selected_SVM(feature_name: str):
     SVM_result['F1'] = np.round(f1_scores.mean(), 2)
 
     return pd.DataFrame(SVM_result, index=[1]).to_excel(
-        f'/Users/oj/PycharmProjects/Sleep-fMRI/Models/Results/Shen_parcellation/SVM/Non_feature_selected_SVM/{feature_name}_result_rbf.xlsx')
+        f'/Users/oj/PycharmProjects/Sleep-fMRI/Models/Results/Shen_parcellation/SVM/Non_feature_selected_SVM/{feature_name}_result_sigmoid.xlsx')
 
 
 def feature_selected_SVM(feature_name: str, p_value: str):
@@ -87,12 +93,12 @@ def feature_selected_SVM(feature_name: str, p_value: str):
     selected_nodes = \
         pd.read_csv(
             f'../Statistic/statistic_result_table/Shen_atlas_ancova/{feature_name}/{feature_name}_result_{p_value}.csv')[
-            'Feature_Index'] - 1
+            'Feature_Index']
 
     ### selected_data_1 contains RBD data, selected_data_0 contains NML data
 
-    selected_data_1 = NML_RBD_pkl.loc[NML_RBD_pkl['STATUS'] == 1, [feature_name, 'STATUS']]
-    selected_data_0 = NML_RBD_pkl.loc[NML_RBD_pkl['STATUS'] == 0, [feature_name, 'STATUS']]
+    selected_data_1 = PET_pkl.loc[PET_pkl['STATUS'] == 1, [feature_name, 'STATUS']]
+    selected_data_0 = PET_pkl.loc[PET_pkl['STATUS'] == 0, [feature_name, 'STATUS']]
 
     selected_data_1[feature_name] = selected_data_1[feature_name].apply(lambda x: [x[i] for i in selected_nodes])
     selected_data_0[feature_name] = selected_data_0[feature_name].apply(lambda x: [x[i] for i in selected_nodes])
@@ -121,7 +127,7 @@ def feature_selected_SVM(feature_name: str, p_value: str):
         train_data[feature_name] = [item for item in train_data[feature_name]]
         test_data[feature_name] = [item for item in test_data[feature_name]]
 
-        model = svm.SVC(kernel='rbf', C=1, probability=True)
+        model = svm.SVC(kernel='sigmoid', C=1, probability=True)
 
         model.fit(np.array(train_data[feature_name].tolist()), train_data['STATUS'])
 
@@ -179,4 +185,4 @@ def vectorize_connectivity(matrix):
     return vectorized_fc
 
 
-non_feature_selected_SVM("fALFF")
+non_feature_selected_SVM('fALFF')

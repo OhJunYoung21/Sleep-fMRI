@@ -40,6 +40,8 @@ fMRI_img = sorted(fMRI_img)
 
 raw_confounds = sorted(raw_confounds)
 
+print(raw_confounds)
+
 sample = pd.read_csv(raw_confounds[0], sep='\t')
 
 for index in range(len(fMRI_img)):

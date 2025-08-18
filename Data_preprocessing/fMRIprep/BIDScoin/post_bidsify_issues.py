@@ -27,7 +27,8 @@ def extract_t_number(file):
     return int(match.group(1)) if match else int(0)
 
 
-root_path = '/Users/oj/Desktop/RBD_post_BIDS'
+root_path = ('/Users/oj/Desktop/Yoo_Lab/Yoo_data/RBD_post_BIDS'
+             )
 
 
 def concat_images(root: str):
